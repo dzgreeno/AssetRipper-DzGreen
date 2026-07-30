@@ -25,7 +25,7 @@ internal sealed class ProjectFileWriter : IProjectFileWriter
 		xml.WriteAttributeString("Sdk", "Microsoft.NET.Sdk");
 
 		PlaceIntoTag("PropertyGroup", xml, () => WriteAssemblyInfo(xml, module));
-		PlaceIntoTag("PropertyGroup", xml, () => WriteFrameworkInfo(xml));
+		PlaceIntoTag("PropertyGroup", xml, () => WriteFrameworkInfo(xml, module));
 		PlaceIntoTag("PropertyGroup", xml, () => WriteProjectInfo(xml, project));
 		PlaceIntoTag("ItemGroup", xml, () => WriteResources(xml, files));
 		PlaceIntoTag("ItemGroup", xml, () => WriteReferences(xml, module));
@@ -54,7 +54,7 @@ internal sealed class ProjectFileWriter : IProjectFileWriter
 		xml.WriteElementString("GenerateAssemblyInfo", FalseString);
 	}
 
-	static void WriteFrameworkInfo(XmlTextWriter xml)
+	static void WriteFrameworkInfo(XmlTextWriter xml, MetadataFile module)
 	{
 		// We need to define a target framework for the project, even though the assembly won't actually target the reference assemblies for that framework.
 		xml.WriteElementString("TargetFramework", "net10.0");
@@ -68,6 +68,9 @@ internal sealed class ProjectFileWriter : IProjectFileWriter
 		// https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#appendruntimeidentifiertooutputpath
 		xml.WriteElementString("AppendRuntimeIdentifierToOutputPath", FalseString);
 
+		// https://github.com/dotnet/runtime/blob/72dac24a0e6fa1047002858a762f36c88e53850b/src/coreclr/System.Private.CoreLib/System.Private.CoreLib.csproj#L51
+		xml.WriteElementString("DisableImplicitConfigurationDefines", TrueString);
+
 		// https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#disableimplicitframeworkdefines
 		xml.WriteElementString("DisableImplicitFrameworkDefines", TrueString);
 
@@ -79,6 +82,18 @@ internal sealed class ProjectFileWriter : IProjectFileWriter
 
 		// https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#disableimplicitnamespaceimports
 		xml.WriteElementString("DisableImplicitNamespaceImports", TrueString);
+
+		// https://github.com/dotnet/runtime/blob/72dac24a0e6fa1047002858a762f36c88e53850b/src/coreclr/System.Private.CoreLib/System.Private.CoreLib.csproj#L8
+		xml.WriteElementString("EnsureRuntimePackageDependencies", FalseString);
+
+		// https://github.com/dotnet/runtime/blob/72dac24a0e6fa1047002858a762f36c88e53850b/src/coreclr/System.Private.CoreLib/System.Private.CoreLib.csproj#L40-L41
+		xml.WriteElementString("AddAdditionalExplicitAssemblyReferences", FalseString);
+
+		// https://github.com/dotnet/runtime/blob/72dac24a0e6fa1047002858a762f36c88e53850b/src/coreclr/System.Private.CoreLib/System.Private.CoreLib.csproj#L42
+		if (module.Name == "mscorlib")
+		{
+			xml.WriteElementString("RuntimeMetadataVersion", "v4.0.30319");
+		}
 	}
 
 	static void WriteProjectInfo(XmlTextWriter xml, IProjectInfoProvider project)

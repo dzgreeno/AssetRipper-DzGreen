@@ -6,6 +6,7 @@ using AssetRipper.Import.Structure.Assembly.Managers;
 using AssetRipper.SourceGenerated.Classes.ClassID_115;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
+using System.Xml;
 
 namespace AssetRipper.Export.PrimaryContent.Scripts;
 
@@ -52,9 +53,11 @@ public sealed class ScriptExportCollection : ExportCollectionBase
 
 		//Decompile scripts
 		string scriptDirectory = fileSystem.Path.Join(projectDirectory, "Scripts");
+		List<string> assemblyNames = [];
 		foreach (AssemblyDefinition assembly in assemblyManager.GetAssemblies())
 		{
 			string assemblyName = assembly.Name ?? throw new InvalidOperationException("Assembly name is null");
+			Logger.Info(LogCategory.Export, $"Decompiling assembly {assemblyName}...");
 			string outputDirectory = fileSystem.Path.Join(scriptDirectory, assemblyName);
 			fileSystem.Directory.Create(outputDirectory);
 
@@ -67,6 +70,13 @@ public sealed class ScriptExportCollection : ExportCollectionBase
 
 			settings.UseNestedDirectoriesForNamespaces = true;
 
+			if (assemblyName is "mscorlib")
+			{
+				// Disable tuple types (the "(int, string)" syntax) for mscorlib to avoid compilation issues.
+				// System.Private.CoreLib doesn't seem to use tuple types, and trying to use them in mscorlib causes errors.
+				settings.TupleTypes = false;
+			}
+
 			try
 			{
 				ILSpyWholeProjectDecompiler decompiler = new(settings, assemblyResolver, ProjectFileWriter.Instance, fileSystem);
@@ -76,6 +86,37 @@ public sealed class ScriptExportCollection : ExportCollectionBase
 			{
 				Logger.Error(exception);
 			}
+
+			assemblyNames.Add(assemblyName);
+		}
+
+		// Write solution file
+		if (assemblyNames.Count > 0)
+		{
+			assemblyNames.Sort(StringComparer.Ordinal);
+
+			string solutionPath = fileSystem.Path.Join(scriptDirectory, "Scripts.slnx");
+			using Stream stream = fileSystem.File.Create(solutionPath);
+			using StreamWriter streamWriter = new(stream)
+			{
+				NewLine = "\n",
+				AutoFlush = true
+			};
+			using XmlTextWriter xmlWriter = new(streamWriter)
+			{
+				Formatting = Formatting.Indented
+			};
+
+			xmlWriter.WriteStartElement("Solution");
+
+			foreach (string assemblyName in assemblyNames)
+			{
+				xmlWriter.WriteStartElement("Project");
+				xmlWriter.WriteAttributeString("Path", fileSystem.Path.Join(assemblyName, assemblyName + ".csproj"));
+				xmlWriter.WriteEndElement();
+			}
+
+			xmlWriter.WriteEndElement();
 		}
 
 		return true;

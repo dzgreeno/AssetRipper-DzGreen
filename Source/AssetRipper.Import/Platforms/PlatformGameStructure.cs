@@ -190,34 +190,20 @@ public abstract partial class PlatformGameStructure
 	}
 
 	/// <summary>
-	/// Collects global game managers and all the level files
+	/// Collects primary engine files
 	/// </summary>
 	/// <remarks>
-	/// Files are selected based on the file name, using a regex for level files.
+	/// Files are selected based on <see cref="IsPrimaryEngineFile(string)"/>
 	/// </remarks>
 	protected void CollectDefaultSerializedFiles(string root)
 	{
-		string filePath = FileSystem.Path.Join(root, GlobalGameManagersName);
-		if (MultiFileStream.Exists(filePath, FileSystem))
+		foreach (string file in FileSystem.Directory.EnumerateFiles(root))
 		{
-			AddFile(GlobalGameManagersName, filePath);
-		}
-		else
-		{
-			filePath = FileSystem.Path.Join(root, MainDataName);
-			if (MultiFileStream.Exists(filePath, FileSystem))
-			{
-				AddFile(MainDataName, filePath);
-			}
-		}
-
-		foreach (string levelFile in FileSystem.Directory.EnumerateFiles(root))
-		{
-			string name = FileSystem.Path.GetFileName(levelFile);
-			if (LevelTemplateRegex.IsMatch(name))
+			string name = FileSystem.Path.GetFileName(file);
+			if (IsPrimaryEngineFile(name))
 			{
 				string levelName = MultiFileStream.GetFileName(name);
-				AddFile(levelName, MultiFileStream.GetFilePath(levelFile));
+				AddFile(levelName, MultiFileStream.GetFilePath(file));
 			}
 		}
 	}
@@ -412,9 +398,9 @@ public abstract partial class PlatformGameStructure
 			FileSystem.File.Exists(Il2CppMetaDataPath);
 	}
 
-	[GeneratedRegex("^level(?:0|[1-9][0-9]*)(?:\\.split0)?$", RegexOptions.Compiled)]
+	[GeneratedRegex(@"^level\d+(?:\.split0)?$", RegexOptions.Compiled)]
 	private static partial Regex LevelTemplateRegex { get; }
 
-	[GeneratedRegex("^sharedassets[0-9]+\\.assets", RegexOptions.Compiled)]
+	[GeneratedRegex(@"^sharedassets\d+\.assets(?:\.split0)?$", RegexOptions.Compiled)]
 	private static partial Regex SharedAssetTemplateRegex { get; }
 }

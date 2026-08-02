@@ -36,7 +36,7 @@ public readonly partial struct FieldSerializer
 		{
 			return TryCreateSerializableType(genericInstanceType, typeCache, typeStack, out result, out failureReason);
 		}
-		TypeDefinition? typeDefinition = typeSignature.Resolve(runtimeContext);
+		TypeDefinition? typeDefinition = typeSignature.TryResolve(runtimeContext);
 		if (typeDefinition is null)
 		{
 			result = null;
@@ -160,13 +160,13 @@ public readonly partial struct FieldSerializer
 			}
 			else
 			{
-				fields.EnsureCapacity(baseMonoType.Fields.Count + genericInst.GenericType.Resolve(runtimeContext)!.Fields.Count);
+				fields.EnsureCapacity(baseMonoType.Fields.Count + genericInst.GenericType.Resolve(runtimeContext).Fields.Count);
 				fields.AddRange(baseMonoType.Fields);
 			}
 		}
 		else
 		{
-			fields.EnsureCapacity(genericInst.GenericType.Resolve(runtimeContext)!.Fields.Count);
+			fields.EnsureCapacity(genericInst.GenericType.Resolve(runtimeContext).Fields.Count);
 		}
 
 		if (TryCreateSerializableFields(typeStack, monoType, fields, GetFieldsInType(genericInst), typeCache, out failureReason))
@@ -273,7 +273,7 @@ public readonly partial struct FieldSerializer
 		switch (typeSignature)
 		{
 			case TypeDefOrRefSignature typeDefOrRefSignature:
-				TypeDefinition typeDefinition = typeDefOrRefSignature.Type.CheckedResolve(runtimeContext);
+				TypeDefinition typeDefinition = typeDefOrRefSignature.Type.Resolve(runtimeContext);
 				SerializableType fieldType;
 				if (typeDefinition.IsEnum)
 				{
@@ -349,7 +349,7 @@ public readonly partial struct FieldSerializer
 
 	private bool TryGetBaseType(GenericInstanceTypeSignature genericInstanceType, out TypeSignature? baseType)
 	{
-		TypeDefinition? typeDefinition = genericInstanceType.GenericType.Resolve(runtimeContext);
+		TypeDefinition? typeDefinition = genericInstanceType.GenericType.TryResolve(runtimeContext);
 		if (typeDefinition is null)
 		{
 			baseType = null;
@@ -371,7 +371,7 @@ public readonly partial struct FieldSerializer
 
 	private IEnumerable<(FieldDefinition, TypeSignature)> GetFieldsInType(GenericInstanceTypeSignature genericInst)
 	{
-		TypeDefinition? typeDefinition = genericInst.Resolve(runtimeContext);
+		TypeDefinition? typeDefinition = genericInst.TryResolve(runtimeContext);
 		if (typeDefinition is null)
 		{
 			return [];

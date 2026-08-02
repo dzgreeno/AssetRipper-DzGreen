@@ -114,7 +114,7 @@ public readonly partial struct FieldSerializer(UnityVersion version, RuntimeCont
 
 	private IEnumerable<FieldDefinition> AllFieldsFor(TypeDefinition definition)
 	{
-		TypeDefinition? baseType = definition.BaseType?.Resolve(runtimeContext);
+		TypeDefinition? baseType = definition.BaseType?.TryResolve(runtimeContext);
 
 		if (baseType != null)
 		{
@@ -146,7 +146,7 @@ public readonly partial struct FieldSerializer(UnityVersion version, RuntimeCont
 
 		if (typeReferenceScopeName == "mscorlib")
 		{
-			TypeDefinition? resolved = typeReference.Resolve(runtimeContext);
+			TypeDefinition? resolved = typeReference.TryResolve(runtimeContext);
 			return resolved == null;
 		}
 
@@ -175,7 +175,7 @@ public readonly partial struct FieldSerializer(UnityVersion version, RuntimeCont
 		if (typeReference.IsEnum(runtimeContext))
 		{
 			// Enums are serializable as long as their underlying type is serializable
-			TypeDefinition typeDefinition = typeReference.CheckedResolve(runtimeContext);
+			TypeDefinition typeDefinition = typeReference.Resolve(runtimeContext);
 			CorLibTypeSignature underlyingType = (CorLibTypeSignature)typeDefinition.GetEnumUnderlyingType()!;
 			return IsSerializablePrimitive(underlyingType);
 		}
@@ -304,7 +304,7 @@ public readonly partial struct FieldSerializer(UnityVersion version, RuntimeCont
 			return true;
 		}
 
-		TypeDefinition resolvedTypeDeclaration = typeDeclaration.CheckedResolve(runtimeContext);
+		TypeDefinition resolvedTypeDeclaration = typeDeclaration.Resolve(runtimeContext);
 
 		bool isSerializable = resolvedTypeDeclaration.IsSerializable;
 

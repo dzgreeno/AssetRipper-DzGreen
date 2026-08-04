@@ -15,7 +15,7 @@ public static class SerializedProgramExtensions
 		{
 			// where is tier in PlayerSubProgram?
 		}
-		else
+		else if (program.SubPrograms.Count > 0)
 		{
 			int tier = program.SubPrograms[0].ShaderHardwareTier;
 			for (int i = 1; i < program.SubPrograms.Count; i++)

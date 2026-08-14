@@ -1,17 +1,21 @@
-# GitHub repository creation state
+# GitHub repository state
 
-The connected GitHub browser session currently shows the owner as `dzgreeno` and confirms that `AssetRipper-DzGreen` is available. The repository visibility is set to **Public**. The description entered is:
+The connected GitHub owner session shows `dzgreeno`, and the repository visibility is **Public**.
 
-> AssetRipper DzGreen — advanced fork with unified Asset Workspace, grouped FBX export, CLI, MCP, and GitHub Pages downloads.
-
-The repository was created successfully and is now publicly visible at:
+Repository:
 
 `https://github.com/dzgreeno/AssetRipper-DzGreen`
 
-The repository is empty and ready for pushing the existing local commit. The browser quick-setup page confirms the HTTPS remote URL as `https://github.com/dzgreeno/AssetRipper-DzGreen.git`.
+Description:
 
-The sandbox GitHub CLI remains authenticated as `dzgreeno`, and a push attempt to the new repository returned HTTP 403: `Permission to dzgreeno/AssetRipper-DzGreen.git denied to dzgreeno`. The DzGreen connector configuration shows an enabled built-in `GitHub` connector, but refreshing the connector snapshot did not change the CLI identity. The upload must therefore use the already authenticated browser session for `dzgreeno` or a GitHub credential with write access to that account.
+> AssetRipper DzGreen — advanced fork with unified Asset Workspace, grouped FBX export, CLI, MCP, and GitHub Pages downloads.
 
-An attempted GitHub CLI device login correctly reached a `dzgreeno` OAuth confirmation page, but the GitHub page rendered the `Authorize github` submit button disabled in the browser session. The CLI therefore remains unauthenticated, and no new token was stored. No source upload has been attempted with the wrong account after this point.
+The public repository contains the full source tree, `.github`, `docs-site`, documentation, and project metadata. The project is intended to remain under the sole ownership and administration of `dzgreeno`; no additional maintainer is part of the project branding.
 
-The browser-based upload page is available at `https://github.com/dzgreeno/AssetRipper-DzGreen/upload` with file input `upload-manifest-files-input`. The available MCP server list does not expose the built-in GitHub connector as a callable MCP server; it only lists `session-reference`.
+## Continuous integration
+
+The release workflow restores each GUI, CLI, and MCP project for its target runtime before publishing. Run `31803525319` completed successfully for all six platform jobs and produced non-expired artifacts for Windows x64/ARM64, Linux x64/ARM64, and macOS x64/ARM64.
+
+The corrected workflow uses the actual publish directories `AssetRipper.GUI.Free`, `AssetRipper.CLI`, and `AssetRipper.MCP` under `Source/0Bins`.
+
+Release tag `v1.3.14-dzgreen.2` is based on the corrected main commit and is intended to publish the six platform packages and SHA256 manifests through GitHub Actions.

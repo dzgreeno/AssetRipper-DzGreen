@@ -4,6 +4,7 @@
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-9BE15D.svg)](LICENSE.md)
 [![Support on Ko-fi](https://img.shields.io/badge/support-Ko--fi-B66D47.svg)](https://ko-fi.com/dzgreen)
 [![Upstream](https://img.shields.io/badge/upstream-AssetRipper-343A35.svg)](https://github.com/AssetRipper/AssetRipper)
+[![Downloads site](https://img.shields.io/badge/downloads-AssetRipper%20DzGreen-2E8B57.svg)](https://dzgreeno.github.io/AssetRipper-DzGreen/)
 
 **AssetRipper DzGreen** is an independently maintained, advanced fork of the official [AssetRipper](https://github.com/AssetRipper/AssetRipper) project. It is maintained by **dzgreen** and continues the upstream `1.3.14` / `545f345` line with a focused workflow for Unity asset analysis, character assembly, FBX export, CLI automation, and MCP integration.
 

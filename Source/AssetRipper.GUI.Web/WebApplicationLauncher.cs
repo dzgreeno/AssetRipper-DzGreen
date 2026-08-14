@@ -209,8 +209,13 @@ app.MapStaticFile("/js/commands_page.js", "text/javascript");
 			app.MapGet(AssetAPI.Urls.CharacterModel, AssetAPI.GetCharacterModelData)
 				.Produces<byte[]>(contentType: "model/gltf-binary")
 				.WithAssetPathParameter();
+			app.MapGet(AssetAPI.Urls.CharacterFbxExport, AssetAPI.ExportCharacterFbx)
+				.Produces<string>(contentType: "text/plain")
+				.WithAssetPathParameter();
 			app.MapPost(AssetAPI.Urls.CharacterFbxExport, AssetAPI.ExportCharacterFbx)
 				.Produces<string>(contentType: "text/plain")
+				.WithAssetPathParameter();
+			app.MapPost(AssetAPI.Urls.CharacterExportFolder, AssetAPI.OpenCharacterExportFolder)
 				.WithAssetPathParameter();
 		app.MapGet(AssetAPI.Urls.Font, AssetAPI.GetFontData)
 			.Produces<byte[]>(contentType: "application/octet-stream")

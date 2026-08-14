@@ -245,18 +245,30 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 							new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("resetModelCamera").Close("Reset camera");
 							new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("toggleModelAnimation").Close("Animation: on");
 							WriteAnimationClipSelector(writer, assembly);
-							Button exportFbxButton = new Button(writer).WithId("assetBrowserCharacterFbxExport").WithType("button").WithClass("btn btn-sm btn-success");
-							if (assembly is not null)
-							{
-								exportFbxButton.WithCustomAttribute("data-export-url", AssetAPI.GetCharacterFbxExportUrl(assembly.Root.GetPath()));
+								Button exportFbxButton = new Button(writer).WithId("assetBrowserCharacterFbxExport").WithType("button").WithClass("btn btn-sm btn-success");
+								if (assembly is not null)
+								{
+									exportFbxButton.WithCustomAttribute("data-export-url", AssetAPI.GetCharacterFbxExportUrl(assembly.Root.GetPath()));
+								}
+								else
+								{
+									exportFbxButton.WithDisabled();
+								}
+								exportFbxButton.Close("Export Blender bundle");
+								Button openExportFolderButton = new Button(writer).WithId("assetBrowserOpenExportFolder").WithType("button").WithClass("btn btn-sm btn-outline-secondary");
+								if (assembly is not null)
+								{
+									openExportFolderButton.WithCustomAttribute("data-export-folder-url", AssetAPI.GetCharacterExportFolderUrl(assembly.Root.GetPath()));
+								}
+								else
+								{
+									openExportFolderButton.WithDisabled();
+								}
+								openExportFolderButton.Close("Open export folder");
+								new A(writer).WithId("assetBrowserCharacterBundleRetry").WithHref(assembly is null ? "#" : AssetAPI.GetCharacterFbxExportUrl(assembly.Root.GetPath())).WithClass("btn btn-sm btn-outline-info").WithCustomAttribute("download", "character_blender_bundle.zip").Close("Direct download");
 							}
-							else
-							{
-								exportFbxButton.WithDisabled();
-							}
-							exportFbxButton.Close("Export Blender bundle");
-					}
-						WriteWorkspaceContextTabs(writer, previewAsset);
+							WriteRenderControls(writer);
+							WriteWorkspaceContextTabs(writer, previewAsset);
 						if (previewUrl is not null)
 						{
 							using (new Div(writer).WithClass("asset-browser-preview-canvas-wrap").End())
@@ -333,7 +345,7 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 				{
 					foreach (CharacterAssemblyIndex.CharacterAssembly assembly in assemblies)
 					{
-						using (new Button(writer).WithType("button").WithClass("asset-browser-character-choice").WithCustomAttribute("data-character-preview-url", AssetAPI.GetCharacterModelUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-fbx-export-url", AssetAPI.GetCharacterFbxExportUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-animation-tracks", EncodeAnimationTracks(assembly.AnimationClips)).WithCustomAttribute("data-character-name", assembly.RootName).WithCustomAttribute("data-character-asset-url", AssetAPI.GetViewUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-yaml-url", AssetAPI.GetYamlUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-json-url", AssetAPI.GetJsonUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-collection", assembly.Root.Collection.Name).WithCustomAttribute("data-character-path-id", assembly.Root.PathID.ToString()).WithCustomAttribute("data-character-components", "GameObject · Transform · Animator hierarchy").End())
+							using (new Button(writer).WithType("button").WithClass("asset-browser-character-choice").WithCustomAttribute("data-character-preview-url", AssetAPI.GetCharacterModelUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-fbx-export-url", AssetAPI.GetCharacterFbxExportUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-export-folder-url", AssetAPI.GetCharacterExportFolderUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-animation-tracks", EncodeAnimationTracks(assembly.AnimationClips)).WithCustomAttribute("data-character-name", assembly.RootName).WithCustomAttribute("data-character-asset-url", AssetAPI.GetViewUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-yaml-url", AssetAPI.GetYamlUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-json-url", AssetAPI.GetJsonUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-collection", assembly.Root.Collection.Name).WithCustomAttribute("data-character-path-id", assembly.Root.PathID.ToString()).WithCustomAttribute("data-character-components", "GameObject · Transform · Animator hierarchy").End())
 						{
 							new Strong(writer).Close(assembly.RootName);
 							new Span(writer).Close($"{assembly.Meshes.Count} meshes · {assembly.Textures.Count} textures · {assembly.AnimationClips.Count} clips");
@@ -344,7 +356,55 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 		}
 	}
 
-	private static void WriteHierarchyGroup(TextWriter writer, string label, IEnumerable<IUnityObjectBase> assets)
+		private static void WriteRenderControls(TextWriter writer)
+		{
+			using (new Section(writer).WithClass("asset-browser-render-controls").WithCustomAttribute("aria-label", "Render controls").End())
+			{
+				using (new Div(writer).WithClass("asset-browser-render-controls-header").End())
+				{
+					new Span(writer).WithClass("asset-browser-tree-label").Close("RENDER CONTROL");
+					new Span(writer).WithClass("asset-browser-render-mode").Close("ATLAS STUDIO");
+				}
+				using (new Div(writer).WithClass("asset-browser-render-controls-grid").End())
+				{
+					using (new Div(writer).WithClass("asset-browser-render-actions").End())
+					{
+						new Button(writer).WithId("assetBrowserFrameModel").WithType("button").WithClass("btn btn-sm btn-outline-secondary").Close("Frame model");
+						new Button(writer).WithId("assetBrowserToggleProjection").WithType("button").WithClass("btn btn-sm btn-outline-secondary").Close("Perspective");
+						new Button(writer).WithId("assetBrowserToggleAutoRotate").WithType("button").WithClass("btn btn-sm btn-outline-secondary").WithCustomAttribute("aria-pressed", "false").Close("Auto rotate: off");
+						new Button(writer).WithId("assetBrowserCapturePreview").WithType("button").WithClass("btn btn-sm btn-outline-secondary").Close("Save PNG");
+					}
+					WriteRenderRange(writer, "assetBrowserCameraZoom", "Camera distance", "20", "180", "1", "50");
+					WriteRenderRange(writer, "assetBrowserLightingLevel", "Light level", "0", "160", "1", "105");
+					WriteRenderRange(writer, "assetBrowserAnimationSpeed", "Animation speed", "25", "200", "25", "100");
+					using (new Div(writer).WithClass("asset-browser-render-select-wrap").End())
+					{
+						new Label(writer).WithFor("assetBrowserBackdrop").WithClass("asset-browser-control-label").Close("Backdrop");
+						using (new Select(writer).WithId("assetBrowserBackdrop").WithClass("form-select form-select-sm").WithCustomAttribute("aria-label", "Preview backdrop").End())
+						{
+							new Option(writer).WithValue("atlas").Close("Atlas grid");
+							new Option(writer).WithValue("studio").Close("Studio slate");
+							new Option(writer).WithValue("light").Close("Light inspection");
+						}
+					}
+				}
+			}
+		}
+
+		private static void WriteRenderRange(TextWriter writer, string id, string label, string minimum, string maximum, string step, string value)
+		{
+			using (new Div(writer).WithClass("asset-browser-render-range").End())
+			{
+				using (new Div(writer).WithClass("asset-browser-render-range-title").End())
+				{
+					new Label(writer).WithFor(id).WithClass("asset-browser-control-label").Close(label);
+					new Span(writer).WithId(id + "Value").WithClass("asset-browser-render-value").Close(value + "%");
+				}
+				new Input(writer).WithId(id).WithType("range").WithClass("form-range").WithCustomAttribute("min", minimum).WithCustomAttribute("max", maximum).WithCustomAttribute("step", step).WithCustomAttribute("value", value).Close();
+			}
+		}
+
+		private static void WriteHierarchyGroup(TextWriter writer, string label, IEnumerable<IUnityObjectBase> assets)
 	{
 		IUnityObjectBase[] resolved = assets.OrderBy(asset => asset.GetBestName(), StringComparer.OrdinalIgnoreCase).Take(40).ToArray();
 		if (resolved.Length == 0)

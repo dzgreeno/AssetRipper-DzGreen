@@ -35,6 +35,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using SharpGLTF.Scenes;
 using System.Globalization;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -49,10 +50,11 @@ internal static class AssetAPI
 		public const string View = Base + "/View";
 		public const string Image = Base + "/Image";
 		public const string Audio = Base + "/Audio";
-		public const string Model = Base + "/Model.glb";
-		public const string CharacterModel = Base + "/Character.glb";
-		public const string CharacterFbxExport = Base + "/Character.fbx";
-		public const string Font = Base + "/Font";
+			public const string Model = Base + "/Model.glb";
+			public const string CharacterModel = Base + "/Character.glb";
+			public const string CharacterFbxExport = Base + "/Character.fbx";
+			public const string CharacterExportFolder = Base + "/Character.ExportFolder";
+			public const string Font = Base + "/Font";
 		public const string Video = Base + "/Video";
 		public const string Json = Base + "/Json";
 		public const string Yaml = Base + "/Yaml";
@@ -268,10 +270,15 @@ internal static class AssetAPI
 			return $"{Urls.CharacterModel}?{GetPathQuery(path)}";
 		}
 
-		public static string GetCharacterFbxExportUrl(AssetPath path)
-		{
-			return $"{Urls.CharacterFbxExport}?{GetPathQuery(path)}";
-		}
+			public static string GetCharacterFbxExportUrl(AssetPath path)
+			{
+				return $"{Urls.CharacterFbxExport}?{GetPathQuery(path)}";
+			}
+
+			public static string GetCharacterExportFolderUrl(AssetPath path)
+			{
+				return $"{Urls.CharacterExportFolder}?{GetPathQuery(path)}";
+			}
 
 		public static Task GetCharacterModelData(HttpContext context)
 		{
@@ -321,7 +328,7 @@ internal static class AssetAPI
 				string directory = System.IO.Path.Combine(GameFileLoader.Settings.ExportRootPath, "AssetWorkspace");
 				Directory.CreateDirectory(directory);
 				string safeName = CreateSafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
-				string characterDirectory = System.IO.Path.Combine(directory, safeName);
+					string characterDirectory = GetCharacterExportDirectory(root);
 				if (Directory.Exists(characterDirectory))
 				{
 					Directory.Delete(characterDirectory, recursive: true);
@@ -371,6 +378,37 @@ internal static class AssetAPI
 				}
 			}
 
+			public static Task OpenCharacterExportFolder(HttpContext context)
+			{
+				context.Response.DisableCaching();
+				if (!TryGetAssetFromQuery(context, out IUnityObjectBase? asset, out Task? failureTask))
+				{
+					return failureTask;
+				}
+				if (asset is not IGameObject gameObject)
+				{
+					return Results.BadRequest("Character export folder requires a GameObject root.").ExecuteAsync(context);
+				}
+
+				try
+				{
+					string characterDirectory = GetCharacterExportDirectory(gameObject.GetRoot());
+					Directory.CreateDirectory(characterDirectory);
+					Process.Start(new ProcessStartInfo
+					{
+						FileName = characterDirectory,
+						UseShellExecute = true,
+					});
+					Logger.Info(LogCategory.Export, $"Opened Workspace export folder: {characterDirectory}");
+					return Results.Ok().ExecuteAsync(context);
+				}
+				catch (Exception ex)
+				{
+					Logger.Error(ex);
+					return Results.InternalServerError($"Could not open the Workspace export folder: {ex.Message}").ExecuteAsync(context);
+				}
+			}
+
 			private static bool TryWriteCharacterGlb(IGameObject root, string outputPath, [NotNullWhen(false)] out string? errorMessage)
 			{
 				try
@@ -384,6 +422,13 @@ internal static class AssetAPI
 					errorMessage = ex.Message;
 					return false;
 				}
+			}
+
+			private static string GetCharacterExportDirectory(IGameObject root)
+			{
+				string workspaceDirectory = System.IO.Path.Combine(GameFileLoader.Settings.ExportRootPath, "AssetWorkspace");
+				string safeName = CreateSafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
+				return System.IO.Path.Combine(workspaceDirectory, safeName);
 			}
 
 			private static string CreateCharacterExportReadme(string safeName, bool hasBinaryFbx, string? binaryFbxErrorMessage, bool hasLegacyAsciiFbx)

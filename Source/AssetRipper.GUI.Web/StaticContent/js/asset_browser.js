@@ -29,8 +29,10 @@
 	const inspectorComponents = root.querySelector('#assetBrowserInspectorComponents');
 		const previewStatus = root.querySelector('#assetBrowserPreviewStatus');
 		const workbenchTitle = root.querySelector('#assetBrowserWorkbenchTitle');
-		const previewDownload = root.querySelector('#assetBrowserPreviewDownload');
-		const characterFbxExport = root.querySelector('#assetBrowserCharacterFbxExport');
+			const previewDownload = root.querySelector('#assetBrowserPreviewDownload');
+			const characterFbxExport = root.querySelector('#assetBrowserCharacterFbxExport');
+			const openExportFolder = root.querySelector('#assetBrowserOpenExportFolder');
+			const characterBundleRetry = root.querySelector('#assetBrowserCharacterBundleRetry');
 		const animationClipSelect = root.querySelector('#assetBrowserAnimationClip');
 		const contextLinks = {
 		asset: root.querySelector('#assetBrowserContextAsset'),
@@ -91,11 +93,19 @@
 			setHref(actionLinks.model, data.modelUrl);
 		}
 
-		function setCharacterFbxExportUrl(url) {
-			if (!characterFbxExport) return;
-			characterFbxExport.dataset.exportUrl = url || '';
-			characterFbxExport.disabled = !url;
-		}
+			function setCharacterExportUrls(url, exportFolderUrl) {
+				if (!characterFbxExport) return;
+				characterFbxExport.dataset.exportUrl = url || '';
+				characterFbxExport.disabled = !url;
+				if (characterBundleRetry) {
+					characterBundleRetry.href = url || '#';
+					characterBundleRetry.hidden = !url;
+				}
+				if (openExportFolder) {
+					openExportFolder.dataset.exportFolderUrl = exportFolderUrl || '';
+					openExportFolder.disabled = !exportFolderUrl;
+				}
+			}
 
 		function decodeAnimationTracks(value) {
 			return String(value || '').split(',').filter(Boolean).map(track => {
@@ -156,8 +166,9 @@
 			activeCharacter = choice;
 			root.querySelectorAll('.asset-browser-character-choice').forEach(candidate => candidate.classList.toggle('active', candidate === choice));
 			const name = choice.dataset.characterName || 'assembled character';
-			const previewUrl = choice.dataset.characterPreviewUrl || '';
-			const fbxExportUrl = choice.dataset.characterFbxExportUrl || '';
+				const previewUrl = choice.dataset.characterPreviewUrl || '';
+				const fbxExportUrl = choice.dataset.characterFbxExportUrl || '';
+				const exportFolderUrl = choice.dataset.characterExportFolderUrl || '';
 			const animationTracks = decodeAnimationTracks(choice.dataset.characterAnimationTracks);
 		const characterData = {
 			name,
@@ -176,7 +187,7 @@
 			previewDownload.download = `${name}.glb`;
 				previewDownload.hidden = !previewUrl;
 			}
-			setCharacterFbxExportUrl(fbxExportUrl);
+				setCharacterExportUrls(fbxExportUrl, exportFolderUrl);
 			updateAnimationClipSelector(animationTracks);
 			updateInspector(characterData);
 		updateAssetLinks(characterData);
@@ -227,35 +238,48 @@
 		}
 
 			async function exportSelectedCharacterFbx() {
-			const exportUrl = characterFbxExport?.dataset.exportUrl;
-			if (!exportUrl || !characterFbxExport) return;
-			const originalLabel = characterFbxExport.textContent;
-			characterFbxExport.disabled = true;
-				characterFbxExport.textContent = 'Exporting Blender bundle…';
-				if (previewStatus) previewStatus.textContent = 'Exporting binary FBX and Blender-ready GLB with animations…';
-			try {
-				const response = await fetch(exportUrl, { method: 'POST', headers: { Accept: 'application/zip' } });
-				if (!response.ok) throw new Error((await response.text()) || `Export failed (${response.status})`);
-				const blob = await response.blob();
-				const exportPath = response.headers.get('X-AssetRipper-Export-Path') || 'Ripped/AssetWorkspace';
+				const exportUrl = characterFbxExport?.dataset.exportUrl;
+				if (!exportUrl || !characterFbxExport) return;
+				const originalLabel = characterFbxExport.textContent;
+				characterFbxExport.disabled = true;
+				characterFbxExport.textContent = 'Preparing download…';
+				if (previewStatus) previewStatus.textContent = 'Creating the Blender bundle. Your browser download is being started directly…';
+				try {
 					const fallbackName = `${activeCharacter?.dataset.characterName || 'character'}_blender_bundle.zip`;
-				const download = document.createElement('a');
-				download.href = URL.createObjectURL(blob);
-				download.download = fallbackName;
-				document.body.appendChild(download);
-				download.click();
-				download.remove();
-				setTimeout(() => URL.revokeObjectURL(download.href), 0);
-					const exportFormat = response.headers.get('X-AssetRipper-Export-Format') || 'binary-fbx+glb';
-					if (previewStatus) previewStatus.textContent = `Blender bundle (${exportFormat}) saved locally and download started · ${exportPath}`;
+					const download = document.createElement('a');
+					download.href = exportUrl;
+					download.download = fallbackName;
+					document.body.appendChild(download);
+					download.click();
+					download.remove();
+					if (previewStatus) previewStatus.textContent = 'The direct browser download was requested. If it does not appear, use Direct download or Open export folder.';
 				} catch (error) {
 					const message = error instanceof Error ? error.message : 'Blender bundle export failed.';
-				if (previewStatus) previewStatus.textContent = message;
-			} finally {
-				characterFbxExport.disabled = false;
-					characterFbxExport.textContent = originalLabel || 'Export Blender bundle';
+					if (previewStatus) previewStatus.textContent = message;
+				} finally {
+					window.setTimeout(() => {
+						characterFbxExport.disabled = false;
+						characterFbxExport.textContent = originalLabel || 'Export Blender bundle';
+					}, 750);
+				}
 			}
-		}
+
+			async function openSelectedCharacterExportFolder() {
+				const folderUrl = openExportFolder?.dataset.exportFolderUrl;
+				if (!folderUrl || !openExportFolder) return;
+				openExportFolder.disabled = true;
+				if (previewStatus) previewStatus.textContent = 'Opening the local AssetWorkspace export folder…';
+				try {
+					const response = await fetch(folderUrl, { method: 'POST' });
+					if (!response.ok) throw new Error((await response.text()) || `Could not open folder (${response.status})`);
+					if (previewStatus) previewStatus.textContent = 'The local export folder was opened. The Blender ZIP remains there even if a browser blocks downloads.';
+				} catch (error) {
+					const message = error instanceof Error ? error.message : 'Could not open the local export folder.';
+					if (previewStatus) previewStatus.textContent = message;
+				} finally {
+					openExportFolder.disabled = false;
+				}
+			}
 
 	function firstVisibleRow() {
 		return rows.find(row => !row.hidden);
@@ -311,8 +335,9 @@
 	rows.forEach(row => row.addEventListener('click', () => selectRow(row)));
 		root.querySelector('#assetBrowserQuickAll')?.addEventListener('click', () => setQuickCategory(''));
 		root.querySelectorAll('.asset-browser-chip[data-category]').forEach(chip => chip.addEventListener('click', () => setQuickCategory(chip.dataset.category || '')));
-		root.querySelectorAll('.asset-browser-character-choice').forEach(choice => choice.addEventListener('click', () => selectCharacter(choice)));
-		characterFbxExport?.addEventListener('click', exportSelectedCharacterFbx);
+			root.querySelectorAll('.asset-browser-character-choice').forEach(choice => choice.addEventListener('click', () => selectCharacter(choice)));
+			characterFbxExport?.addEventListener('click', exportSelectedCharacterFbx);
+			openExportFolder?.addEventListener('click', openSelectedCharacterExportFolder);
 		animationClipSelect?.addEventListener('change', () => {
 			const track = animationClipSelect.value;
 			window.assetRipperModelPreview?.selectAnimationTrack(track);

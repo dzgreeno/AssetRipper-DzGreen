@@ -783,14 +783,269 @@ header {
 		margin-left: 0;
 	}
 }
-@media (max-width: 760px) {
-	.asset-browser-files-panel-header {
-		align-items: flex-start;
+	@media (max-width: 760px) {
+		.asset-browser-files-panel-header {
+			align-items: flex-start;
 		flex-direction: column;
 	}
 	.asset-browser-workbench-focus-preview .asset-browser-preview-canvas-wrap,
 	.asset-browser-workbench-focus-preview .asset-browser-preview-canvas {
 		height: 24rem;
 		min-height: 20rem;
+		}
 	}
+
+/* Asset Atlas Workspace — DzGreen design language: graphite/forest ground,
+   ivory content, lime action states, copper annotations, and atlas metadata. */
+:root {
+	--ar-bg: #141714;
+	--ar-surface: #1b211c;
+	--ar-surface-raised: #202820;
+	--ar-border: rgba(244, 240, 230, .14);
+	--ar-border-strong: rgba(244, 240, 230, .26);
+	--ar-text: #f4f0e6;
+	--ar-muted: #9aa397;
+	--ar-cyan: #9be15d;
+	--ar-purple: #b66d47;
+	--ar-success: #9be15d;
+	--ar-warning: #e6b56f;
+	--ar-radius: 7px;
+	--ar-shadow: 0 24px 72px rgba(0, 0, 0, .30);
+}
+
+body {
+	background:
+		radial-gradient(circle at 10% 0%, rgba(155, 225, 93, .07), transparent 32rem),
+		radial-gradient(circle at 90% 16%, rgba(182, 109, 71, .065), transparent 28rem),
+		#141714;
+	color: #f4f0e6;
+	font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+}
+body::selection { background: rgba(155, 225, 93, .28); color: #10140f; }
+header {
+	min-height: 62px;
+	padding-block: .55rem;
+	background: rgba(20, 23, 20, .92);
+	border-bottom-color: rgba(244, 240, 230, .15);
+	box-shadow: 0 1px 0 rgba(155, 225, 93, .13);
+}
+header::before {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	content: "";
+	background: repeating-linear-gradient(90deg, #b66d47 0 2px, transparent 2px 7px);
+	opacity: .7;
+}
+.dzgreen-brand__name { color: #f4f0e6; font-family: "Bahnschrift", "Segoe UI", sans-serif; font-size: 1.03rem; }
+.dzgreen-brand__status,
+.dzgreen-header-link,
+.asset-browser-tree-label,
+.asset-browser-control-label,
+.asset-browser-stat-label {
+	font-family: "Cascadia Mono", Consolas, monospace;
+	letter-spacing: .08em;
+}
+.dzgreen-brand__status { color: #9aa397; }
+.dzgreen-header-link { border-color: rgba(244, 240, 230, .22); color: #d8ded2; }
+.dzgreen-header-link:hover { border-color: #9be15d; background: rgba(155, 225, 93, .08); color: #9be15d; }
+.dzgreen-header-link--support { border-color: rgba(182, 109, 71, .65); color: #efb48f; }
+
+.btn {
+	border-radius: 999px;
+	font-family: "Cascadia Mono", Consolas, monospace;
+	font-size: .71rem;
+	letter-spacing: .04em;
+}
+.btn:hover:not(:disabled) { border-color: #9be15d; box-shadow: 0 8px 22px rgba(155, 225, 93, .11); }
+.btn-primary, .btn-success {
+	background: #9be15d;
+	border-color: #9be15d;
+	color: #10140f;
+	box-shadow: 0 12px 26px rgba(155, 225, 93, .14);
+}
+.btn-primary:hover:not(:disabled), .btn-success:hover:not(:disabled) { background: #b2ef78; color: #10140f; }
+.btn-outline-info, .btn-outline-secondary {
+	border-color: rgba(244, 240, 230, .24);
+	background: transparent;
+	color: #d9ded2;
+}
+.btn-outline-info:hover:not(:disabled), .btn-outline-secondary:hover:not(:disabled) {
+	background: rgba(155, 225, 93, .08);
+	color: #f4f0e6;
+}
+.form-control, .form-select {
+	border-color: rgba(244, 240, 230, .19);
+	background: rgba(20, 23, 20, .78);
+	color: #f4f0e6;
+}
+.form-control:focus, .form-select:focus {
+	border-color: #9be15d;
+	box-shadow: 0 0 0 .18rem rgba(155, 225, 93, .13);
+}
+
+.asset-browser-shell {
+	position: relative;
+	overflow: hidden;
+	margin: .75rem 0 1.2rem;
+	padding: clamp(1rem, 2vw, 1.65rem);
+	border: 1px solid rgba(244, 240, 230, .16);
+	border-radius: 3px;
+	background:
+		linear-gradient(rgba(244, 240, 230, .025) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(244, 240, 230, .025) 1px, transparent 1px),
+		#141714;
+	background-size: 32px 32px, 32px 32px, auto;
+	box-shadow: var(--ar-shadow), inset 0 1px rgba(255, 255, 255, .035);
+}
+.asset-browser-shell::before {
+	position: absolute;
+	top: 17px;
+	right: 20px;
+	left: 20px;
+	height: 1px;
+	content: "";
+	background: linear-gradient(90deg, #9be15d 0 28px, rgba(244, 240, 230, .12) 28px 100%);
+	opacity: .72;
+}
+.asset-browser-toolbar { position: relative; margin-top: .8rem; margin-bottom: 1.4rem; }
+.asset-browser-title {
+	max-width: 22ch;
+	color: #f4f0e6;
+	font-family: "Bahnschrift", "Segoe UI", sans-serif;
+	font-size: clamp(1.55rem, 2.5vw, 2.45rem);
+	font-weight: 650;
+	letter-spacing: -.055em;
+}
+.asset-browser-title::before {
+	display: block;
+	margin-bottom: .48rem;
+	color: #9be15d;
+	content: "ASSET ATLAS / WORKSPACE";
+	font-family: "Cascadia Mono", Consolas, monospace;
+	font-size: .58rem;
+	font-weight: 600;
+	letter-spacing: .13em;
+}
+.asset-browser-subtitle { max-width: 67ch; color: #aab1a5; }
+.asset-browser-actions { gap: .55rem; }
+.asset-browser-stats { gap: 0; margin-bottom: 1.2rem; border-top: 1px solid rgba(244, 240, 230, .15); border-bottom: 1px solid rgba(244, 240, 230, .15); }
+.asset-browser-stat { min-height: 79px; padding: .85rem .95rem; border: 0; border-right: 1px solid rgba(244, 240, 230, .11); border-radius: 0; background: rgba(27, 33, 28, .68); }
+.asset-browser-stat:last-child { border-right: 0; }
+.asset-browser-stat-value { color: #9be15d; font-family: "Bahnschrift", "Segoe UI", sans-serif; font-size: 1.35rem; letter-spacing: -.04em; }
+.asset-browser-stat-label { color: #899388; font-size: .62rem; }
+
+.asset-browser-workbench {
+	position: relative;
+	margin: 0 0 1rem;
+	padding: clamp(.9rem, 1.5vw, 1.25rem);
+	border: 1px solid rgba(244, 240, 230, .18);
+	border-radius: 3px;
+	background: rgba(27, 33, 28, .88);
+	box-shadow: 0 20px 58px rgba(0, 0, 0, .23);
+}
+.asset-browser-workbench::after {
+	position: absolute;
+	top: 0;
+	right: 26px;
+	width: 16px;
+	height: 16px;
+	border-top: 1px solid #9be15d;
+	border-right: 1px solid #9be15d;
+	content: "";
+}
+.asset-browser-workbench-header { padding-bottom: .85rem; border-bottom: 1px solid rgba(244, 240, 230, .12); }
+.asset-browser-workbench-header h2 { color: #f4f0e6; font-family: "Bahnschrift", "Segoe UI", sans-serif; font-size: 1.4rem; letter-spacing: -.045em; }
+.asset-browser-workbench-subtitle { color: #aab1a5; }
+.asset-browser-workbench-status { color: #9be15d; font-family: "Cascadia Mono", Consolas, monospace; }
+.asset-browser-status-dot { color: #9be15d; text-shadow: 0 0 12px rgba(155, 225, 93, .7); }
+.asset-browser-workbench-grid { gap: .85rem; }
+.asset-browser-hierarchy, .asset-browser-workbench-inspector {
+	border: 1px solid rgba(244, 240, 230, .12);
+	border-radius: 2px;
+	background: rgba(20, 23, 20, .74);
+}
+.asset-browser-hierarchy h3, .asset-browser-workbench-inspector h3 { color: #9be15d; }
+.asset-browser-tree-group { border-color: rgba(244, 240, 230, .09); border-radius: 0; background: rgba(0, 0, 0, .12); }
+.asset-browser-tree-link { color: #d9ded2; }
+.asset-browser-tree-link:hover { background: rgba(155, 225, 93, .08); color: #9be15d; }
+.asset-browser-tree-root { color: #9be15d; }
+.asset-browser-preview-panel { border-color: rgba(244, 240, 230, .16); border-radius: 2px; background: #101410; }
+.asset-browser-preview-toolbar { gap: .42rem; padding-bottom: .55rem; border-bottom: 1px solid rgba(244, 240, 230, .1); }
+.asset-browser-preview-canvas-wrap {
+	position: relative;
+	border-color: rgba(244, 240, 230, .16);
+	border-radius: 0;
+	background:
+		linear-gradient(rgba(155, 225, 93, .055) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(155, 225, 93, .055) 1px, transparent 1px),
+		radial-gradient(circle at 50% 42%, rgba(49, 58, 46, .80), #0e120e 70%);
+	background-size: 34px 34px, 34px 34px, auto;
+}
+.asset-browser-preview-canvas-wrap::before,
+.asset-browser-preview-canvas-wrap::after {
+	position: absolute;
+	z-index: 1;
+	pointer-events: none;
+	color: rgba(244, 240, 230, .55);
+	font-family: "Cascadia Mono", Consolas, monospace;
+	font-size: .54rem;
+	letter-spacing: .12em;
+}
+.asset-browser-preview-canvas-wrap::before { top: 12px; left: 13px; content: "N 04° / RENDER FIELD"; }
+.asset-browser-preview-canvas-wrap::after { right: 12px; bottom: 13px; content: "DZGREEN / GLB"; writing-mode: vertical-rl; }
+.asset-browser-preview-canvas-wrap.is-studio { background: radial-gradient(circle at 50% 34%, #36413a, #111711 73%); }
+.asset-browser-preview-canvas-wrap.is-light { background: #c9cec4; }
+.asset-browser-preview-status { color: #aab1a5; font-family: "Cascadia Mono", Consolas, monospace; }
+.asset-browser-fact strong { color: #9be15d; }
+.asset-browser-raw-link { color: #cdd9c7; }
+.asset-browser-raw-link:hover { color: #9be15d; }
+
+.asset-browser-character-switcher { border-color: rgba(244, 240, 230, .13); border-radius: 2px; background: rgba(20, 23, 20, .6); }
+.asset-browser-character-choice { border-color: rgba(244, 240, 230, .14); border-radius: 2px; background: rgba(27, 33, 28, .72); color: #d9ded2; }
+.asset-browser-character-choice strong { color: #f4f0e6; font-family: "Bahnschrift", "Segoe UI", sans-serif; }
+.asset-browser-character-choice:hover { border-color: rgba(155, 225, 93, .72); background: rgba(155, 225, 93, .07); }
+.asset-browser-character-choice.active { border-color: #9be15d; background: rgba(155, 225, 93, .10); box-shadow: inset 3px 0 #9be15d; }
+.asset-browser-context-tabs { border-color: rgba(244, 240, 230, .1); border-radius: 0; background: transparent; }
+.asset-browser-context-tab { border-radius: 0; }
+.asset-browser-context-tab:hover, .asset-browser-context-tab.active { background: rgba(155, 225, 93, .10); color: #9be15d; }
+
+.asset-browser-render-controls { margin: 0 0 .55rem; padding: .7rem; border: 1px solid rgba(244, 240, 230, .12); border-radius: 2px; background: rgba(20, 23, 20, .72); }
+.asset-browser-render-controls-header { display: flex; align-items: center; justify-content: space-between; gap: .8rem; margin-bottom: .6rem; }
+.asset-browser-render-mode { color: #b66d47; font-family: "Cascadia Mono", Consolas, monospace; font-size: .58rem; letter-spacing: .1em; }
+.asset-browser-render-controls-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; align-items: end; }
+.asset-browser-render-actions { grid-column: 1 / -1; }
+.asset-browser-render-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
+.asset-browser-render-range, .asset-browser-render-select-wrap { min-width: 0; }
+.asset-browser-render-range-title { display: flex; align-items: baseline; justify-content: space-between; gap: .35rem; }
+.asset-browser-render-range .asset-browser-control-label { margin-bottom: .22rem; white-space: nowrap; }
+.asset-browser-render-value { color: #9be15d; font-family: "Cascadia Mono", Consolas, monospace; font-size: .58rem; }
+.asset-browser-render-range .form-range { width: 100%; accent-color: #9be15d; }
+.asset-browser-render-range .form-range::-webkit-slider-runnable-track { background: rgba(244, 240, 230, .18); }
+.asset-browser-render-range .form-range::-webkit-slider-thumb { background: #9be15d; }
+
+.asset-browser-files-panel { border-color: rgba(244, 240, 230, .14); border-radius: 2px; background: rgba(27, 33, 28, .76); }
+.asset-browser-controls { border-color: rgba(244, 240, 230, .12); border-radius: 2px; background: rgba(20, 23, 20, .90); }
+.asset-browser-chip { border-color: rgba(244, 240, 230, .16); background: transparent; color: #c7cec2; }
+.asset-browser-chip:hover, .asset-browser-chip.is-active { border-color: #9be15d; background: rgba(155, 225, 93, .08); color: #9be15d; }
+.asset-browser-table-wrap { border-color: rgba(244, 240, 230, .14); border-radius: 2px; background: rgba(20, 23, 20, .82); }
+.asset-browser-table thead th { border-bottom-color: rgba(155, 225, 93, .28); background: #1b211c; color: #9aa397; font-family: "Cascadia Mono", Consolas, monospace; }
+.asset-browser-row:hover td, .asset-browser-row-selected td { background: rgba(155, 225, 93, .075) !important; }
+.asset-browser-row-selected td { box-shadow: inset 3px 0 #9be15d; }
+.asset-browser-category, .asset-browser-row-selected .asset-browser-name a { color: #9be15d; }
+.asset-browser-link { color: #e4e8dd; }
+.asset-browser-link:hover { color: #9be15d; }
+
+@media (max-width: 1200px) {
+	.asset-browser-render-controls-grid { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+}
+@media (max-width: 900px) {
+	.asset-browser-stat { border-bottom: 1px solid rgba(244, 240, 230, .1); }
+}
+@media (max-width: 640px) {
+	.asset-browser-render-controls-grid { grid-template-columns: 1fr; }
+	.asset-browser-stats { gap: 0; }
+	.asset-browser-stat { border-right: 1px solid rgba(244, 240, 230, .1); }
 }

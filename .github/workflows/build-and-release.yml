@@ -2,10 +2,10 @@ name: Build and Release AssetRipper DzGreen
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     tags: ["v*.*.*"]
   pull_request:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -41,8 +41,13 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore
-        run: dotnet restore AssetRipper.slnx --locked-mode
+      - name: Restore runtime-specific projects
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet restore "${{ env.GUI_PROJECT }}" --runtime "${{ matrix.runtime }}" --locked-mode
+          dotnet restore "${{ env.CLI_PROJECT }}" --runtime "${{ matrix.runtime }}" --locked-mode
+          dotnet restore "${{ env.MCP_PROJECT }}" --runtime "${{ matrix.runtime }}" --locked-mode
 
       - name: Publish GUI
         run: dotnet publish ${{ env.GUI_PROJECT }} -c Release -r ${{ matrix.runtime }} --self-contained true -p:PublishAot=false --no-restore

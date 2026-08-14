@@ -31,3 +31,19 @@
 - [x] Validate artifact structure and document remaining source-data limitations without decrypting or bypassing any protection.
 
 > 2026-08-14 local validation findings: archive integrity passed; 10 Unity bundles loaded under Unity 2018.4.18f1 with 2,458 assets and zero processing issues in both best-effort and strict modes. Strict FBX batch export produced five Assimp-readable files with geometry, skin clusters, bones, textures, and animation stacks. GLB batch export produced five Assimp-readable files with mesh and animations; hero20050 and hero20051 retain their meshes through a rigid fallback because the input exposes no resolvable bone PPtrs for their four weighted meshes. The GUI landing route is reachable. Direct browser interaction on the connected local browser failed after navigation, so the Workspace UI requires one final manual browser pass.
+
+## Portable GUI User Test Package
+
+- [x] Publish the Windows GUI test build into a self-contained portable directory.
+- [x] Copy the validated character bundles into a clearly named `TestData` folder beside the application.
+- [x] Create Arabic test instructions covering launch, folder loading, Workspace visibility/collapse, and Unicode filtering.
+- [x] Archive the portable package and verify its file list and checksum before sharing it with the user.
+- [ ] Receive the user's Workspace test result and address any reported issue before requesting permission to push.
+
+## Workspace Direct FBX Export Follow-up
+
+- [x] Trace the `Export FBX` action in the assembled-character workspace and confirm why it routes to the general project export page.
+- [x] Add a direct, explicit FBX character-export action that uses the selected assembled root and includes associated animation clips.
+- [x] Surface a clear completion or error notification with the saved output location in the Workspace.
+- [x] Build and test the GUI action against `hero20053`: the direct endpoint produced an Assimp-readable FBX with 6 meshes, 113 bones, 94 animations, and texture sidecars.
+- [ ] Regenerate the Windows portable test package with the direct Workspace FBX export fix and request a final user check.

@@ -27,10 +27,11 @@
 	const inspectorCollection = root.querySelector('#assetBrowserInspectorCollection');
 	const inspectorPathId = root.querySelector('#assetBrowserInspectorPathId');
 	const inspectorComponents = root.querySelector('#assetBrowserInspectorComponents');
-	const previewStatus = root.querySelector('#assetBrowserPreviewStatus');
-	const workbenchTitle = root.querySelector('#assetBrowserWorkbenchTitle');
-	const previewDownload = root.querySelector('#assetBrowserPreviewDownload');
-	const contextLinks = {
+		const previewStatus = root.querySelector('#assetBrowserPreviewStatus');
+		const workbenchTitle = root.querySelector('#assetBrowserWorkbenchTitle');
+		const previewDownload = root.querySelector('#assetBrowserPreviewDownload');
+		const characterFbxExport = root.querySelector('#assetBrowserCharacterFbxExport');
+		const contextLinks = {
 		asset: root.querySelector('#assetBrowserContextAsset'),
 		yaml: root.querySelector('#assetBrowserContextYaml'),
 		json: root.querySelector('#assetBrowserContextJson'),
@@ -77,8 +78,8 @@
 		element.hidden = !href;
 	}
 
-	function updateAssetLinks(data) {
-		setHref(contextLinks.asset, data.viewUrl);
+		function updateAssetLinks(data) {
+			setHref(contextLinks.asset, data.viewUrl);
 		setHref(contextLinks.yaml, data.yamlUrl);
 		setHref(contextLinks.json, data.jsonUrl);
 		setHref(contextLinks.dependencies, data.viewUrl);
@@ -86,8 +87,14 @@
 		setHref(actionLinks.view, data.viewUrl);
 		setHref(actionLinks.yaml, data.yamlUrl);
 		setHref(actionLinks.json, data.jsonUrl);
-		setHref(actionLinks.model, data.modelUrl);
-	}
+			setHref(actionLinks.model, data.modelUrl);
+		}
+
+		function setCharacterFbxExportUrl(url) {
+			if (!characterFbxExport) return;
+			characterFbxExport.dataset.exportUrl = url || '';
+			characterFbxExport.disabled = !url;
+		}
 
 	function setPanelCollapsed(panel, button, collapsed, key, labels) {
 		if (!panel || !button) return;
@@ -126,10 +133,11 @@
 
 	function selectCharacter(choice, loadPreview = true) {
 		if (!choice) return;
-		activeCharacter = choice;
-		root.querySelectorAll('.asset-browser-character-choice').forEach(candidate => candidate.classList.toggle('active', candidate === choice));
-		const name = choice.dataset.characterName || 'assembled character';
-		const previewUrl = choice.dataset.characterPreviewUrl || '';
+			activeCharacter = choice;
+			root.querySelectorAll('.asset-browser-character-choice').forEach(candidate => candidate.classList.toggle('active', candidate === choice));
+			const name = choice.dataset.characterName || 'assembled character';
+			const previewUrl = choice.dataset.characterPreviewUrl || '';
+			const fbxExportUrl = choice.dataset.characterFbxExportUrl || '';
 		const characterData = {
 			name,
 			className: 'GameObject',
@@ -145,9 +153,10 @@
 		if (previewDownload) {
 			previewDownload.href = previewUrl || '#';
 			previewDownload.download = `${name}.glb`;
-			previewDownload.hidden = !previewUrl;
-		}
-		updateInspector(characterData);
+				previewDownload.hidden = !previewUrl;
+			}
+			setCharacterFbxExportUrl(fbxExportUrl);
+			updateInspector(characterData);
 		updateAssetLinks(characterData);
 		if (loadPreview && previewUrl && window.assetRipperModelPreview?.load) {
 			if (previewStatus) previewStatus.textContent = `Loading assembled hierarchy · ${name}`;
@@ -186,14 +195,35 @@
 		}
 	}
 
-	function clearSelection() {
+		function clearSelection() {
 		selectedRow = null;
 		rows.forEach(candidate => candidate.classList.remove('asset-browser-row-selected'));
 		if (inspectorEmpty) inspectorEmpty.hidden = false;
 		if (inspectorDetails) inspectorDetails.hidden = true;
 		inspector?.classList.remove('asset-browser-inspector-active');
-		if (previewStatus) previewStatus.textContent = 'No asset matches the current filters.';
-	}
+			if (previewStatus) previewStatus.textContent = 'No asset matches the current filters.';
+		}
+
+		async function exportSelectedCharacterFbx() {
+			const exportUrl = characterFbxExport?.dataset.exportUrl;
+			if (!exportUrl || !characterFbxExport) return;
+			const originalLabel = characterFbxExport.textContent;
+			characterFbxExport.disabled = true;
+			characterFbxExport.textContent = 'Exporting FBX…';
+			if (previewStatus) previewStatus.textContent = 'Exporting selected character FBX with animations…';
+			try {
+				const response = await fetch(exportUrl, { method: 'POST', headers: { Accept: 'text/plain' } });
+				const message = await response.text();
+				if (!response.ok) throw new Error(message || `Export failed (${response.status})`);
+				if (previewStatus) previewStatus.textContent = `FBX export complete · ${message}`;
+			} catch (error) {
+				const message = error instanceof Error ? error.message : 'FBX export failed.';
+				if (previewStatus) previewStatus.textContent = message;
+			} finally {
+				characterFbxExport.disabled = false;
+				characterFbxExport.textContent = originalLabel || 'Export FBX';
+			}
+		}
 
 	function firstVisibleRow() {
 		return rows.find(row => !row.hidden);
@@ -247,9 +277,10 @@
 		control?.addEventListener(control === search ? 'input' : 'change', scheduleApplyFilters);
 	}
 	rows.forEach(row => row.addEventListener('click', () => selectRow(row)));
-	root.querySelector('#assetBrowserQuickAll')?.addEventListener('click', () => setQuickCategory(''));
-	root.querySelectorAll('.asset-browser-chip[data-category]').forEach(chip => chip.addEventListener('click', () => setQuickCategory(chip.dataset.category || '')));
-	root.querySelectorAll('.asset-browser-character-choice').forEach(choice => choice.addEventListener('click', () => selectCharacter(choice)));
+		root.querySelector('#assetBrowserQuickAll')?.addEventListener('click', () => setQuickCategory(''));
+		root.querySelectorAll('.asset-browser-chip[data-category]').forEach(chip => chip.addEventListener('click', () => setQuickCategory(chip.dataset.category || '')));
+		root.querySelectorAll('.asset-browser-character-choice').forEach(choice => choice.addEventListener('click', () => selectCharacter(choice)));
+		characterFbxExport?.addEventListener('click', exportSelectedCharacterFbx);
 
 	bindPanelToggle(filesPanel, filesToggle, 'assetripper.assetBrowser.filesCollapsed', { hide: 'Hide asset list', show: 'Show asset list' });
 	bindPanelToggle(hierarchyPanel, hierarchyToggle, 'assetripper.assetBrowser.hierarchyCollapsed', { hide: 'Hierarchy', show: 'Show hierarchy' });

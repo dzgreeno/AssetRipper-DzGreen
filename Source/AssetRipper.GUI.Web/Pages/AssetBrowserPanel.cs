@@ -240,10 +240,19 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 						{
 							new A(writer).WithId("assetBrowserPreviewDownload").WithHref(previewUrl).WithClass("btn btn-sm btn-primary").WithCustomAttribute("download", "character.glb").Close("Download GLB");
 						}
-						new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("toggleModelLighting").Close("Lighting: on");
-						new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("resetModelCamera").Close("Reset camera");
-						new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("toggleModelAnimation").Close("Animation: on");
-						new A(writer).WithHref("/Commands").WithClass("btn btn-sm btn-success").Close("Export FBX");
+							new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("toggleModelLighting").Close("Lighting: on");
+							new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("resetModelCamera").Close("Reset camera");
+							new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("toggleModelAnimation").Close("Animation: on");
+							Button exportFbxButton = new Button(writer).WithId("assetBrowserCharacterFbxExport").WithType("button").WithClass("btn btn-sm btn-success");
+							if (assembly is not null)
+							{
+								exportFbxButton.WithCustomAttribute("data-export-url", AssetAPI.GetCharacterFbxExportUrl(assembly.Root.GetPath()));
+							}
+							else
+							{
+								exportFbxButton.WithDisabled();
+							}
+							exportFbxButton.Close("Export FBX");
 					}
 						WriteWorkspaceContextTabs(writer, previewAsset);
 						if (previewUrl is not null)
@@ -322,7 +331,7 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 				{
 					foreach (CharacterAssemblyIndex.CharacterAssembly assembly in assemblies)
 					{
-						using (new Button(writer).WithType("button").WithClass("asset-browser-character-choice").WithCustomAttribute("data-character-preview-url", AssetAPI.GetCharacterModelUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-name", assembly.RootName).WithCustomAttribute("data-character-asset-url", AssetAPI.GetViewUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-yaml-url", AssetAPI.GetYamlUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-json-url", AssetAPI.GetJsonUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-collection", assembly.Root.Collection.Name).WithCustomAttribute("data-character-path-id", assembly.Root.PathID.ToString()).WithCustomAttribute("data-character-components", "GameObject · Transform · Animator hierarchy").End())
+						using (new Button(writer).WithType("button").WithClass("asset-browser-character-choice").WithCustomAttribute("data-character-preview-url", AssetAPI.GetCharacterModelUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-fbx-export-url", AssetAPI.GetCharacterFbxExportUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-name", assembly.RootName).WithCustomAttribute("data-character-asset-url", AssetAPI.GetViewUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-yaml-url", AssetAPI.GetYamlUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-json-url", AssetAPI.GetJsonUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-collection", assembly.Root.Collection.Name).WithCustomAttribute("data-character-path-id", assembly.Root.PathID.ToString()).WithCustomAttribute("data-character-components", "GameObject · Transform · Animator hierarchy").End())
 						{
 							new Strong(writer).Close(assembly.RootName);
 							new Span(writer).Close($"{assembly.Meshes.Count} meshes · {assembly.Textures.Count} textures · {assembly.AnimationClips.Count} clips");

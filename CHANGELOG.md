@@ -8,6 +8,8 @@ Character assembly now indexes both `SkinnedMeshRenderer` and `MeshFilter` compo
 
 GLB export includes skinned meshes, cached joint nodes, corrected submesh/material mapping, and AnimationClip TRS tracks. If an input exposes weighted vertices but no resolvable bone references, GLB now preserves the mesh as a logged rigid fallback rather than silently dropping it. FBX ASCII export includes collision-safe texture sidecars, bind-pose-aware transform links, isolated malformed animation clips, document-root connections, standard object definitions, valid animation property quoting, mesh-node typing, and correct bone-to-cluster relationship direction for independent importer compatibility.
 
+The assembled-character Workspace now exports the selected root directly from its `Export FBX` button. The action no longer redirects to the general project-export page: it writes the FBX and texture sidecars to `<ExportRootPath>/AssetWorkspace`, includes associated animation clips, and reports the resulting local path in the preview status area.
+
 The CLI exposes strict processing diagnostics and returns a non-zero status when recoverable issues remain. The MCP stdio server documents the supported lifecycle versions, exposes processing issues as a read-only tool, validates the declared output contract, and propagates strict mode to controlled loads and exports. CI now follows the repository's `main` branch and performs restore, build, and test as separate steps.
 
 Serialized-file parsing now derives a generation-appropriate Unity version for legacy formats and malformed signatures instead of using a fixed modern fallback. MCP input and output paths are normalized and can be confined with `ASSETRIPPER_MCP_ALLOWED_ROOTS`.

@@ -4,6 +4,7 @@ using AssetRipper.Export.Modules.Audio;
 using AssetRipper.Export.Modules.Models;
 using AssetRipper.Export.Modules.Textures;
 using AssetRipper.Export.PrimaryContent;
+using AssetRipper.Export.PrimaryContent.Models;
 using AssetRipper.Export.UnityProjects;
 using AssetRipper.Export.UnityProjects.Scripts;
 using AssetRipper.Export.UnityProjects.Shaders;
@@ -13,6 +14,7 @@ using AssetRipper.Import.AssetCreation;
 using AssetRipper.Import.Logging;
 using AssetRipper.Import.Structure.Assembly;
 using AssetRipper.Import.Structure.Assembly.Managers;
+using AssetRipper.IO.Files;
 using AssetRipper.Processing.Textures;
 using AssetRipper.SourceGenerated.Classes.ClassID_1;
 using AssetRipper.SourceGenerated.Classes.ClassID_115;
@@ -45,9 +47,10 @@ internal static class AssetAPI
 		public const string View = Base + "/View";
 		public const string Image = Base + "/Image";
 		public const string Audio = Base + "/Audio";
-			public const string Model = Base + "/Model.glb";
-			public const string CharacterModel = Base + "/Character.glb";
-			public const string Font = Base + "/Font";
+		public const string Model = Base + "/Model.glb";
+		public const string CharacterModel = Base + "/Character.glb";
+		public const string CharacterFbxExport = Base + "/Character.fbx";
+		public const string Font = Base + "/Font";
 		public const string Video = Base + "/Video";
 		public const string Json = Base + "/Json";
 		public const string Yaml = Base + "/Yaml";
@@ -263,6 +266,11 @@ internal static class AssetAPI
 			return $"{Urls.CharacterModel}?{GetPathQuery(path)}";
 		}
 
+		public static string GetCharacterFbxExportUrl(AssetPath path)
+		{
+			return $"{Urls.CharacterFbxExport}?{GetPathQuery(path)}";
+		}
+
 		public static Task GetCharacterModelData(HttpContext context)
 		{
 			context.Response.DisableCaching();
@@ -291,6 +299,53 @@ internal static class AssetAPI
 				Logger.Error(ex);
 				return context.Response.NotFound("Character model could not be decoded.");
 			}
+		}
+
+		public static Task ExportCharacterFbx(HttpContext context)
+		{
+			context.Response.DisableCaching();
+			if (!TryGetAssetFromQuery(context, out IUnityObjectBase? asset, out Task? failureTask))
+			{
+				return failureTask;
+			}
+			if (asset is not IGameObject gameObject)
+			{
+				return Results.BadRequest("Character FBX export requires a GameObject root.").ExecuteAsync(context);
+			}
+
+			IGameObject root = gameObject.GetRoot();
+			try
+			{
+				string directory = System.IO.Path.Combine(GameFileLoader.Settings.ExportRootPath, "AssetWorkspace");
+				Directory.CreateDirectory(directory);
+				string safeName = CreateSafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
+				string outputPath = System.IO.Path.Combine(directory, safeName + ".fbx");
+				FbxAsciiExporter exporter = new() { IncludeAnimations = true };
+				bool success = exporter.Export(exporter.GetCharacterAssets(root, GameFileLoader.GameBundle.FetchAssets()), outputPath, LocalFileSystem.Instance);
+				if (!success || !File.Exists(outputPath))
+				{
+					Logger.Error(LogCategory.Export, $"Workspace FBX export failed for '{root.GetBestName()}'.");
+					return Results.InternalServerError("FBX export failed. See the local status log for details.").ExecuteAsync(context);
+				}
+
+				Logger.Info(LogCategory.Export, $"Workspace FBX export completed: {outputPath}");
+				return Results.Text(outputPath, "text/plain").ExecuteAsync(context);
+			}
+			catch (Exception ex)
+			{
+				Logger.Error(ex);
+				return Results.InternalServerError($"FBX export failed: {ex.Message}").ExecuteAsync(context);
+			}
+		}
+
+		private static string CreateSafeFileName(string value, string fallback)
+		{
+			string candidate = string.IsNullOrWhiteSpace(value) ? fallback : value;
+			foreach (char invalid in System.IO.Path.GetInvalidFileNameChars())
+			{
+				candidate = candidate.Replace(invalid, '_');
+			}
+			return string.IsNullOrWhiteSpace(candidate) ? fallback : candidate;
 		}
 		#endregion
 

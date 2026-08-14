@@ -11,15 +11,12 @@ namespace AssetRipper.GUI.Web.Pages;
 
 internal static class AssetBrowserPanel
 {
-	private const int MaxRenderedAssets = 5000;
-
 	public static void Write(TextWriter writer, GameBundle bundle)
 	{
 		AssetRow[] rows = bundle.FetchAssetCollections()
 			.SelectMany(collection => collection.Select(asset => CreateRow(asset, collection)))
 			.OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
 			.ThenBy(row => row.ClassName, StringComparer.OrdinalIgnoreCase)
-			.Take(MaxRenderedAssets)
 			.ToArray();
 
 		HashSet<string> classes = rows.Select(row => row.ClassName).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -30,7 +27,7 @@ internal static class AssetBrowserPanel
 		int textures = rows.Count(row => row.Category == "Texture");
 		CharacterAssemblyIndex.CharacterAssembly[] characterAssemblies = CharacterAssemblyIndex.Build(bundle);
 
-		using (new Section(writer).WithClass("asset-browser-shell").WithCustomAttribute("data-asset-browser", "true").End())
+			using (new Section(writer).WithClass("asset-browser-shell").WithCustomAttribute("data-asset-browser", "true").WithCustomAttribute("data-asset-total", rows.Length.ToString()).End())
 		{
 			using (new Div(writer).WithClass("asset-browser-toolbar").End())
 			{
@@ -53,8 +50,20 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 				WriteStat(writer, "GameObjects", gameObjects.ToString());
 				WriteStat(writer, "Meshes", meshes.ToString());
 				WriteStat(writer, "Animations", animations.ToString());
-				WriteStat(writer, "Textures", textures.ToString());
-			}
+					WriteStat(writer, "Textures", textures.ToString());
+				}
+				if (rows.Length > 5000)
+				{
+					new P(writer).WithClass("asset-browser-large-set-note").Close($"All {rows.Length} processed assets are available. Use search or filters to narrow the workspace.");
+				}
+				if (GameFileLoader.ProcessingIssues.Count > 0)
+				{
+					using (new Div(writer).WithClass("alert alert-warning asset-browser-processing-warning").End())
+					{
+						new Strong(writer).Close($"{GameFileLoader.ProcessingIssues.Count} optional processing issue(s) were recorded.");
+						new P(writer).Close("The workspace remains usable. Review the processing log before exporting if a component is missing.");
+					}
+				}
 
 					using (new Div(writer).WithClass("asset-browser-layout").End())
 				{
@@ -130,12 +139,12 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 						{
 							using (new Tr(writer)
 								.WithClass("asset-browser-row")
-								.WithCustomAttribute("data-asset-name", row.Name.ToHtml())
-								.WithCustomAttribute("data-asset-class", row.ClassName.ToHtml())
+									.WithCustomAttribute("data-asset-name", row.Name)
+									.WithCustomAttribute("data-asset-class", row.ClassName)
 								.WithCustomAttribute("data-asset-category", row.Category)
-								.WithCustomAttribute("data-asset-collection", row.CollectionName.ToHtml())
-									.WithCustomAttribute("data-asset-search", row.SearchText.ToHtml())
-										.WithCustomAttribute("data-asset-components", row.ComponentSummary.ToHtml())
+									.WithCustomAttribute("data-asset-collection", row.CollectionName)
+										.WithCustomAttribute("data-asset-search", row.SearchText)
+											.WithCustomAttribute("data-asset-components", row.ComponentSummary)
 .WithCustomAttribute("data-asset-model-url", row.ModelUrl ?? string.Empty)
 											.WithCustomAttribute("data-asset-view-url", row.ViewUrl)
 											.WithCustomAttribute("data-asset-yaml-url", row.YamlUrl)
@@ -152,7 +161,7 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 															{
 																PathLinking.WriteLink(writer, row.Collection, row.CollectionName, "asset-browser-link asset-browser-link-muted");
 															}
-															new Td(writer).WithClass("asset-browser-components").WithCustomAttribute("title", row.ComponentSummary.ToHtml()).Close(row.ComponentSummary);
+															new Td(writer).WithClass("asset-browser-components").WithCustomAttribute("title", row.ComponentSummary).Close(row.ComponentSummary);
 															new Td(writer).WithClass("asset-browser-path-id").Close(row.Asset.PathID.ToString());
 							}
 						}

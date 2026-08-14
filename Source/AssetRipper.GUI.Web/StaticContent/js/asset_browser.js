@@ -46,6 +46,7 @@
 	const modelCategories = new Set(['GameObject', 'Mesh', 'Material', 'Animation']);
 	let selectedRow = null;
 	let activeCharacter = root.querySelector('.asset-browser-character-choice');
+	let filterFrame = 0;
 	const storage = {
 		get(key, fallback) {
 			try {
@@ -61,7 +62,7 @@
 	};
 
 	function normalized(value) {
-		return (value || '').toLocaleLowerCase();
+		return String(value || '').normalize('NFKC').toLowerCase();
 	}
 
 	function matchesCategory(row, selectedCategory) {
@@ -185,6 +186,15 @@
 		}
 	}
 
+	function clearSelection() {
+		selectedRow = null;
+		rows.forEach(candidate => candidate.classList.remove('asset-browser-row-selected'));
+		if (inspectorEmpty) inspectorEmpty.hidden = false;
+		if (inspectorDetails) inspectorDetails.hidden = true;
+		inspector?.classList.remove('asset-browser-inspector-active');
+		if (previewStatus) previewStatus.textContent = 'No asset matches the current filters.';
+	}
+
 	function firstVisibleRow() {
 		return rows.find(row => !row.hidden);
 	}
@@ -211,8 +221,19 @@
 			row.hidden = !matches;
 			if (matches) visible++;
 		});
-		if (resultCount) resultCount.textContent = `${visible} of ${rows.length} assets`;
-		if (selectedRow?.hidden) selectRow(firstVisibleRow());
+		if (resultCount) resultCount.textContent = `${visible} of ${root.dataset.assetTotal || rows.length} assets`;
+		if (selectedRow?.hidden) {
+			const first = firstVisibleRow();
+			if (first) selectRow(first); else clearSelection();
+		}
+	}
+
+	function scheduleApplyFilters() {
+		if (filterFrame) cancelAnimationFrame(filterFrame);
+		filterFrame = requestAnimationFrame(() => {
+			filterFrame = 0;
+			applyFilters();
+		});
 	}
 
 	function setQuickCategory(value) {
@@ -223,7 +244,7 @@
 	}
 
 	for (const control of [search, category, classFilter, collection]) {
-		control?.addEventListener(control === search ? 'input' : 'change', applyFilters);
+		control?.addEventListener(control === search ? 'input' : 'change', scheduleApplyFilters);
 	}
 	rows.forEach(row => row.addEventListener('click', () => selectRow(row)));
 	root.querySelector('#assetBrowserQuickAll')?.addEventListener('click', () => setQuickCategory(''));

@@ -36,8 +36,14 @@ public sealed class AssetRipperToolService
 	private const int DefaultAssetLimit = 2000;
 
 	public bool IsLoaded => GameFileLoader.IsLoaded;
+	public bool StrictProcessing
+	{
+		get => GameFileLoader.StrictProcessing;
+		set => GameFileLoader.StrictProcessing = value;
+	}
+	public IReadOnlyList<ProcessingIssue> ProcessingIssues => GameFileLoader.ProcessingIssues;
 
-	public LoadSummary Load(IEnumerable<string> inputPaths, ModelExportFormat modelFormat = ModelExportFormat.Fbx)
+	public LoadSummary Load(IEnumerable<string> inputPaths, ModelExportFormat modelFormat = ModelExportFormat.Fbx, bool strict = false)
 	{
 		string[] paths = inputPaths
 			.Where(path => !string.IsNullOrWhiteSpace(path))
@@ -57,11 +63,13 @@ public sealed class AssetRipperToolService
 		}
 
 		GameFileLoader.ConfigureAutomation(modelFormat);
+		GameFileLoader.StrictProcessing = strict;
 		GameFileLoader.LoadAndProcess(paths);
 		return new LoadSummary(
 			GameFileLoader.LoadedInputPaths.Select(Path.GetFileName).Where(name => name is not null).Cast<string>().ToArray(),
 			GameFileLoader.GameBundle.FetchAssets().Count(),
-			GameFileLoader.CurrentGameData.ProjectVersion.ToString());
+			GameFileLoader.CurrentGameData.ProjectVersion.ToString(),
+			GameFileLoader.ProcessingIssues.ToArray());
 	}
 
 	public IReadOnlyList<AssetSummary> ListAssets(string? filter = null, int limit = DefaultAssetLimit)
@@ -74,6 +82,18 @@ public sealed class AssetRipperToolService
 			.OrderBy(asset => asset.GetBestName(), StringComparer.OrdinalIgnoreCase)
 			.ThenBy(asset => asset.ClassName, StringComparer.OrdinalIgnoreCase)
 			.Take(limit)
+			.Select(ToAssetSummary)
+			.ToArray();
+	}
+
+	public IReadOnlyList<AssetSummary> ListAllAssets(string? filter = null)
+	{
+		EnsureLoaded();
+		string query = filter?.Trim() ?? string.Empty;
+		return GameFileLoader.GameBundle.FetchAssets()
+			.Where(asset => Matches(asset, query))
+			.OrderBy(asset => asset.GetBestName(), StringComparer.OrdinalIgnoreCase)
+			.ThenBy(asset => asset.ClassName, StringComparer.OrdinalIgnoreCase)
 			.Select(ToAssetSummary)
 			.ToArray();
 	}
@@ -150,11 +170,12 @@ public sealed class AssetRipperToolService
 			meshes,
 			materials.Select(item => ToAssetSummary(item)).ToArray(),
 			textures.Select(item => ToAssetSummary(item)).ToArray(),
-			clips.Select(item => ToAssetSummary(item)).ToArray(),
-			bones.Count,
-			weightedMeshes,
-			missingWeights,
-			GameFileLoader.CurrentGameData.ProjectVersion.ToString());
+				clips.Select(item => ToAssetSummary(item)).ToArray(),
+				bones.Count,
+				weightedMeshes,
+				missingWeights,
+				GameFileLoader.CurrentGameData.ProjectVersion.ToString(),
+				GameFileLoader.ProcessingIssues.ToArray());
 	}
 
 	public FbxExportResult ExportFbxWithAnimation(string? filter, string outputDirectory, bool includeAnimations = true)
@@ -163,10 +184,10 @@ public sealed class AssetRipperToolService
 		string directory = PrepareOutputDirectory(outputDirectory);
 		IGameObject root = ResolveRoot(filter);
 		FbxAsciiExporter exporter = new() { IncludeAnimations = includeAnimations };
-		string safeName = SafeFileName(root.GetBestName(), $"character_{root.PathID}");
+		string safeName = SafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
 		string path = Path.Combine(directory, safeName + ".fbx");
 		bool success = exporter.Export(exporter.GetCharacterAssets(root), path, LocalFileSystem.Instance);
-		return new FbxExportResult(success, path, safeName, includeAnimations, File.Exists(path), CountFiles(directory));
+		return new FbxExportResult(success, path, safeName, includeAnimations, File.Exists(path), CountFiles(directory), GameFileLoader.ProcessingIssues.ToArray());
 	}
 
 	public BatchProcessResult BatchProcess(string outputDirectory, string? filter, bool raw, bool fbx, bool includeAnimations = true)
@@ -178,7 +199,7 @@ public sealed class AssetRipperToolService
 		{
 			string rawDirectory = Path.Combine(directory, "raw");
 			Directory.CreateDirectory(rawDirectory);
-			foreach (AssetSummary asset in ListAssets(filter, DefaultAssetLimit))
+				foreach (AssetSummary asset in ListAllAssets(filter))
 			{
 				IUnityObjectBase? resolved = ResolveAsset(asset.PathId, asset.Collection);
 				if (resolved is null)
@@ -195,7 +216,7 @@ public sealed class AssetRipperToolService
 			foreach (IGameObject root in FindCharacterRoots(filter))
 			{
 				FbxAsciiExporter exporter = new() { IncludeAnimations = includeAnimations };
-				string safeName = SafeFileName(root.GetBestName(), $"character_{root.PathID}");
+					string safeName = SafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
 				string path = Path.Combine(directory, safeName + ".fbx");
 				if (exporter.Export(exporter.GetCharacterAssets(root), path, LocalFileSystem.Instance))
 				{
@@ -204,8 +225,9 @@ public sealed class AssetRipperToolService
 			}
 		}
 		string manifestPath = Path.Combine(directory, "assetripper-batch-manifest.json");
-		File.WriteAllText(manifestPath, JsonSerializer.Serialize(new { generatedUtc = DateTimeOffset.UtcNow, raw, fbx, includeAnimations, files }, JsonOptions), new UTF8Encoding(false));
-		return new BatchProcessResult(directory, files.ToArray(), manifestPath, raw, fbx, includeAnimations);
+		ProcessingIssue[] issues = GameFileLoader.ProcessingIssues.ToArray();
+		File.WriteAllText(manifestPath, JsonSerializer.Serialize(new { generatedUtc = DateTimeOffset.UtcNow, raw, fbx, includeAnimations, files, issues }, JsonOptions), new UTF8Encoding(false));
+		return new BatchProcessResult(directory, files.ToArray(), manifestPath, raw, fbx, includeAnimations, issues);
 	}
 
 	public string ToRawJson(IUnityObjectBase asset)
@@ -242,10 +264,15 @@ public sealed class AssetRipperToolService
 
 	private IGameObject ResolveRoot(string? filter)
 	{
-		IGameObject? root = FindCharacterRoots(filter).FirstOrDefault();
-		if (root is not null)
+		IGameObject[] roots = FindCharacterRoots(filter).ToArray();
+		if (roots.Length == 1)
 		{
-			return root;
+			return roots[0];
+		}
+		if (roots.Length > 1)
+		{
+			string candidates = string.Join(", ", roots.Take(8).Select(root => $"{root.GetBestName()} ({root.PathID})"));
+			throw new InvalidOperationException($"The filter matched multiple character roots. Choose one explicitly: {candidates}");
 		}
 		throw new InvalidOperationException(string.IsNullOrWhiteSpace(filter) ? "No character or prefab root was found." : $"No character or prefab root matched '{filter}'.");
 	}
@@ -277,7 +304,7 @@ public sealed class AssetRipperToolService
 		}
 		catch
 		{
-			return string.Equals(clip.Collection, root.Collection);
+			return false;
 		}
 	}
 
@@ -338,12 +365,12 @@ public sealed class AssetRipperToolService
 	private static int CountFiles(string directory) => Directory.Exists(directory) ? Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories).Count() : 0;
 }
 
-public sealed record LoadSummary(IReadOnlyList<string> InputFiles, int AssetCount, string UnityVersion);
+public sealed record LoadSummary(IReadOnlyList<string> InputFiles, int AssetCount, string UnityVersion, IReadOnlyList<ProcessingIssue> Issues);
 public sealed record AssetSummary(string Name, string ClassName, long PathId, string Collection, bool IsComponent, bool IsGameObject);
 public sealed record MeshInspection(string Name, long PathId, string Collection, int VertexCount, int SubMeshCount, int UvChannelCount, bool HasSkin, int BindPoseCount, bool HasTangents, bool HasNormals, int BlendShapeCount, int BlendShapeFrameCount);
-public sealed record PrefabInspection(AssetSummary Root, IReadOnlyList<AssetSummary> Hierarchy, IReadOnlyList<AssetSummary> Components, IReadOnlyList<MeshInspection> Meshes, IReadOnlyList<AssetSummary> Materials, IReadOnlyList<AssetSummary> Textures, IReadOnlyList<AssetSummary> AnimationClips, int BoneCount, int WeightedMeshCount, int MissingWeightMeshCount, string UnityVersion);
-public sealed record FbxExportResult(bool Success, string Path, string RootName, bool IncludeAnimations, bool FileExists, int FilesWritten);
-public sealed record BatchProcessResult(string OutputDirectory, IReadOnlyList<string> Files, string ManifestPath, bool Raw, bool Fbx, bool IncludeAnimations);
+public sealed record PrefabInspection(AssetSummary Root, IReadOnlyList<AssetSummary> Hierarchy, IReadOnlyList<AssetSummary> Components, IReadOnlyList<MeshInspection> Meshes, IReadOnlyList<AssetSummary> Materials, IReadOnlyList<AssetSummary> Textures, IReadOnlyList<AssetSummary> AnimationClips, int BoneCount, int WeightedMeshCount, int MissingWeightMeshCount, string UnityVersion, IReadOnlyList<ProcessingIssue> Issues);
+public sealed record FbxExportResult(bool Success, string Path, string RootName, bool IncludeAnimations, bool FileExists, int FilesWritten, IReadOnlyList<ProcessingIssue> Issues);
+public sealed record BatchProcessResult(string OutputDirectory, IReadOnlyList<string> Files, string ManifestPath, bool Raw, bool Fbx, bool IncludeAnimations, IReadOnlyList<ProcessingIssue> Issues);
 
 internal sealed class ReferenceComparer<T> : IEqualityComparer<T> where T : class
 {

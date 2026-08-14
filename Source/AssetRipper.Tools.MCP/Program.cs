@@ -67,8 +67,8 @@ internal sealed class McpStdioServer(TextReader input, TextWriter output, TextWr
 				{
 					["protocolVersion"] = NegotiateProtocolVersion(arguments),
 					["capabilities"] = new JsonObject { ["tools"] = new JsonObject { ["listChanged"] = false } },
-					["serverInfo"] = new JsonObject { ["name"] = "assetripper", ["title"] = "AssetRipper Asset Processing Server", ["version"] = "1.3.14-custom" },
-					["instructions"] = "Inspect Unity assets and export grouped FBX scenes. Export tools write only to the explicitly supplied output directory and do not decrypt or bypass protected content."
+						["serverInfo"] = new JsonObject { ["name"] = "AssetRipper DzGreen", ["title"] = "AssetRipper DzGreen Asset Processing Server", ["version"] = "1.4.0-dev" },
+					["instructions"] = "Inspect Unity assets and export grouped FBX scenes. inputPaths must point to existing files or directories. Set ASSETRIPPER_MCP_ALLOWED_ROOTS to a semicolon-separated allowlist when the host needs path confinement. Export tools write only to the explicitly supplied output directory and do not decrypt or bypass protected content."
 				});
 				break;
 			case "notifications/initialized":
@@ -98,17 +98,19 @@ internal sealed class McpStdioServer(TextReader input, TextWriter output, TextWr
 			await WriteErrorAsync(id, -32602, "tools/call requires params.name and params.arguments.");
 			return;
 		}
-		string name = nameElement.GetString() ?? string.Empty;
-		JsonElement arguments = parameters.TryGetProperty("arguments", out JsonElement args) && args.ValueKind == JsonValueKind.Object ? args : default;
-		try
-		{
-			EnsureLoadedIfRequested(arguments);
+			string name = nameElement.GetString() ?? string.Empty;
+			JsonElement arguments = parameters.TryGetProperty("arguments", out JsonElement args) && args.ValueKind == JsonValueKind.Object ? args : default;
+			try
+			{
+				service.StrictProcessing = GetBool(arguments, "strict", false);
+				EnsureLoadedIfRequested(arguments);
 			object result = name switch
 			{
 				"list_assets" => new { assets = service.ListAssets(GetString(arguments, "filter"), GetInt(arguments, "limit", 2000)) },
-				"inspect_prefab" => service.InspectPrefab(GetString(arguments, "filter")),
-				"export_fbx_with_anim" => service.ExportFbxWithAnimation(GetString(arguments, "filter"), RequireString(arguments, "outputDirectory"), GetBool(arguments, "includeAnim", true)),
-				"batch_process" => service.BatchProcess(RequireString(arguments, "outputDirectory"), GetString(arguments, "filter"), GetBool(arguments, "raw", false), GetBool(arguments, "fbx", true), GetBool(arguments, "includeAnim", true)),
+					"inspect_prefab" => service.InspectPrefab(GetString(arguments, "filter")),
+					"processing_issues" => new { issues = service.ProcessingIssues },
+					"export_fbx_with_anim" => service.ExportFbxWithAnimation(GetString(arguments, "filter"), RequireOutputDirectory(arguments), GetBool(arguments, "includeAnim", true)),
+					"batch_process" => service.BatchProcess(RequireOutputDirectory(arguments), GetString(arguments, "filter"), GetBool(arguments, "raw", false), GetBool(arguments, "fbx", true), GetBool(arguments, "includeAnim", true)),
 				_ => throw new ToolNotFoundException(name)
 			};
 			await WriteToolResultAsync(id, result, false);
@@ -123,18 +125,28 @@ internal sealed class McpStdioServer(TextReader input, TextWriter output, TextWr
 		}
 	}
 
-	private void EnsureLoadedIfRequested(JsonElement arguments)
-	{
-		if (arguments.ValueKind != JsonValueKind.Object || !arguments.TryGetProperty("inputPaths", out JsonElement inputPaths) || inputPaths.ValueKind != JsonValueKind.Array)
+		private void EnsureLoadedIfRequested(JsonElement arguments)
 		{
-			return;
+			if (arguments.ValueKind != JsonValueKind.Object || !arguments.TryGetProperty("inputPaths", out JsonElement inputPaths))
+			{
+				return;
+			}
+			if (inputPaths.ValueKind != JsonValueKind.Array)
+			{
+				throw new ArgumentException("inputPaths must be an array of existing files or directories.");
+			}
+			string[] paths = inputPaths.EnumerateArray()
+				.Select(item => item.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(item.GetString())
+					? item.GetString()!
+					: throw new ArgumentException("Every inputPaths item must be a non-empty string."))
+				.Select(ValidateExistingPath)
+				.ToArray();
+			if (paths.Length == 0)
+			{
+				throw new ArgumentException("inputPaths must contain at least one existing file or directory.");
+			}
+			service.Load(paths, strict: service.StrictProcessing);
 		}
-		string[] paths = inputPaths.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.String).Select(item => item.GetString()!).Where(path => !string.IsNullOrWhiteSpace(path)).ToArray();
-		if (paths.Length > 0)
-		{
-			service.Load(paths);
-		}
-	}
 
 	private async Task WriteToolResultAsync(JsonElement? id, object value, bool isError)
 	{
@@ -204,7 +216,46 @@ internal sealed class McpStdioServer(TextReader input, TextWriter output, TextWr
 		return arguments.ValueKind == JsonValueKind.Object && arguments.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
 	}
 
-	private static string RequireString(JsonElement arguments, string name) => GetString(arguments, name) is { Length: > 0 } value ? value : throw new ArgumentException($"Missing required argument: {name}");
+		private static string RequireString(JsonElement arguments, string name) => GetString(arguments, name) is { Length: > 0 } value ? value : throw new ArgumentException($"Missing required argument: {name}");
+
+		private static string RequireOutputDirectory(JsonElement arguments)
+		{
+			string path = RequireString(arguments, "outputDirectory");
+			string fullPath = Path.GetFullPath(path);
+			EnsureAllowedPath(fullPath);
+			return fullPath;
+		}
+
+		private static string ValidateExistingPath(string path)
+		{
+			string fullPath = Path.GetFullPath(path);
+			if (!File.Exists(fullPath) && !Directory.Exists(fullPath))
+			{
+				throw new FileNotFoundException($"MCP input path does not exist: {fullPath}", fullPath);
+			}
+			EnsureAllowedPath(fullPath);
+			return fullPath;
+		}
+
+		private static void EnsureAllowedPath(string fullPath)
+		{
+			string? configuredRoots = Environment.GetEnvironmentVariable("ASSETRIPPER_MCP_ALLOWED_ROOTS");
+			if (string.IsNullOrWhiteSpace(configuredRoots))
+			{
+				return;
+			}
+			string candidate = Path.GetFullPath(fullPath);
+			foreach (string root in configuredRoots.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+			{
+				string normalizedRoot = Path.GetFullPath(root);
+				string relative = Path.GetRelativePath(normalizedRoot, candidate);
+				if (relative == "." || (!relative.Equals("..", StringComparison.Ordinal) && !relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) && !relative.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal)))
+				{
+					return;
+				}
+			}
+			throw new UnauthorizedAccessException($"MCP path is outside ASSETRIPPER_MCP_ALLOWED_ROOTS: {candidate}");
+		}
 
 	private static bool GetBool(JsonElement arguments, string name, bool fallback) => arguments.ValueKind == JsonValueKind.Object && arguments.TryGetProperty(name, out JsonElement value) && value.ValueKind is JsonValueKind.True or JsonValueKind.False ? value.GetBoolean() : fallback;
 
@@ -221,25 +272,35 @@ internal sealed class McpStdioServer(TextReader input, TextWriter output, TextWr
 				["limit"] = new JsonObject { ["type"] = "integer", ["minimum"] = 1, ["maximum"] = 10000 }
 			}
 		}),
-		Tool("inspect_prefab", "Inspect a resolved Unity Prefab or character root, including hierarchy, meshes, materials, textures, clips, bones, and skin-weight diagnostics.", new JsonObject
-		{
-			["type"] = "object",
-			["properties"] = new JsonObject
+			Tool("inspect_prefab", "Inspect a resolved Unity Prefab or character root, including hierarchy, meshes, materials, textures, clips, bones, and skin-weight diagnostics.", new JsonObject
 			{
-				["inputPaths"] = new JsonObject { ["type"] = "array", ["items"] = new JsonObject { ["type"] = "string" } },
-				["filter"] = new JsonObject { ["type"] = "string", ["description"] = "Character or prefab name, class, collection, or Path ID." }
-			}
-		}),
-		Tool("export_fbx_with_anim", "Export one resolved character/prefab as grouped FBX with hierarchy, materials, texture sidecars, skin clusters, and optional AnimationClip TRS curves.", new JsonObject
+				["type"] = "object",
+				["properties"] = new JsonObject
+				{
+					["inputPaths"] = new JsonObject { ["type"] = "array", ["items"] = new JsonObject { ["type"] = "string" } },
+					["filter"] = new JsonObject { ["type"] = "string", ["description"] = "Character or prefab name, class, collection, or Path ID." }
+				}
+			}),
+			Tool("processing_issues", "Return recoverable import and processing issues recorded for the current session.", new JsonObject
+			{
+				["type"] = "object",
+				["properties"] = new JsonObject
+				{
+					["inputPaths"] = new JsonObject { ["type"] = "array", ["items"] = new JsonObject { ["type"] = "string" } },
+					["strict"] = new JsonObject { ["type"] = "boolean", ["default"] = false }
+				}
+			}),
+			Tool("export_fbx_with_anim", "Export one resolved character/prefab as grouped FBX with hierarchy, materials, texture sidecars, skin clusters, and optional AnimationClip TRS curves.", new JsonObject
 		{
 			["type"] = "object",
 			["required"] = new JsonArray("outputDirectory"),
 			["properties"] = new JsonObject
 			{
-				["inputPaths"] = new JsonObject { ["type"] = "array", ["items"] = new JsonObject { ["type"] = "string" } },
-				["filter"] = new JsonObject { ["type"] = "string" },
-				["outputDirectory"] = new JsonObject { ["type"] = "string" },
-				["includeAnim"] = new JsonObject { ["type"] = "boolean", ["default"] = true }
+					["inputPaths"] = new JsonObject { ["type"] = "array", ["items"] = new JsonObject { ["type"] = "string" } },
+					["filter"] = new JsonObject { ["type"] = "string" },
+					["outputDirectory"] = new JsonObject { ["type"] = "string" },
+					["includeAnim"] = new JsonObject { ["type"] = "boolean", ["default"] = true },
+					["strict"] = new JsonObject { ["type"] = "boolean", ["default"] = false }
 			}
 		}),
 		Tool("batch_process", "Load Unity files and run a controlled batch export of raw JSON assets and/or grouped FBX character scenes.", new JsonObject
@@ -249,15 +310,16 @@ internal sealed class McpStdioServer(TextReader input, TextWriter output, TextWr
 			["properties"] = new JsonObject
 			{
 				["inputPaths"] = new JsonObject { ["type"] = "array", ["items"] = new JsonObject { ["type"] = "string" } },
-				["filter"] = new JsonObject { ["type"] = "string" },
-				["outputDirectory"] = new JsonObject { ["type"] = "string" },
-				["raw"] = new JsonObject { ["type"] = "boolean", ["default"] = false },
-				["fbx"] = new JsonObject { ["type"] = "boolean", ["default"] = true },
-				["includeAnim"] = new JsonObject { ["type"] = "boolean", ["default"] = true }
+					["filter"] = new JsonObject { ["type"] = "string" },
+					["outputDirectory"] = new JsonObject { ["type"] = "string" },
+					["raw"] = new JsonObject { ["type"] = "boolean", ["default"] = false },
+					["fbx"] = new JsonObject { ["type"] = "boolean", ["default"] = true },
+					["includeAnim"] = new JsonObject { ["type"] = "boolean", ["default"] = true },
+					["strict"] = new JsonObject { ["type"] = "boolean", ["default"] = false }
 			}
 		}));
 
-	private static JsonObject Tool(string name, string description, JsonObject schema) => new() { ["name"] = name, ["description"] = description, ["inputSchema"] = schema, ["annotations"] = new JsonObject { ["readOnlyHint"] = name is "list_assets" or "inspect_prefab", ["destructiveHint"] = false } };
+		private static JsonObject Tool(string name, string description, JsonObject schema) => new() { ["name"] = name, ["description"] = description, ["inputSchema"] = schema, ["annotations"] = new JsonObject { ["readOnlyHint"] = name is "list_assets" or "inspect_prefab" or "processing_issues", ["destructiveHint"] = false } };
 
 	private sealed class ToolNotFoundException(string name) : Exception($"Unknown tool: {name}");
 }

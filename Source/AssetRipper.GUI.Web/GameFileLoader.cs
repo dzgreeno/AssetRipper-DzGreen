@@ -22,6 +22,12 @@ public static class GameFileLoader
 	public static IAssemblyManager AssemblyManager => GameData!.AssemblyManager;
 	public static FullConfiguration Settings { get; } = LoadSettings();
 	public static bool Headless { get; set; }
+	public static bool StrictProcessing
+	{
+		get => ProcessingIssueRegistry.Strict;
+		set => ProcessingIssueRegistry.Strict = value;
+	}
+	public static IReadOnlyList<ProcessingIssue> ProcessingIssues => ProcessingIssueRegistry.Snapshot();
 
 	public static void ConfigureAutomation(ModelExportFormat modelExportFormat = ModelExportFormat.Fbx)
 	{
@@ -50,6 +56,7 @@ public static class GameFileLoader
 
 	public static void Reset()
 	{
+		ProcessingIssueRegistry.Clear();
 			if (GameData is not null)
 			{
 				GameData = null;
@@ -100,7 +107,7 @@ public static class GameFileLoader
 
 			try
 			{
-				foreach (string sibling in Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly))
+					foreach (string sibling in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
 				{
 					if (IsUnityCompanionFile(Path.GetFileName(sibling), familyPrefixes))
 					{

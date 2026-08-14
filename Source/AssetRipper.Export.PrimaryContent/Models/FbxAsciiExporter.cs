@@ -186,10 +186,11 @@ private readonly List<FbxBlendShapeChannelNode> blendShapeChannels = [];
 	private readonly List<FbxAnimationCurveNode> animationCurveNodes = [];
 	private readonly List<FbxAnimationCurve> animationCurves = [];
 	private readonly List<FbxConnection> connections = [];
-	private readonly Dictionary<ITransform, FbxModel> transformModels = new(ReferenceEqualityComparer.Instance);
-	private readonly Dictionary<IMaterial, FbxMaterial> materialCache = new(ReferenceEqualityComparer.Instance);
-		private readonly Dictionary<ITexture2D, FbxTexture> textureCache = new(ReferenceEqualityComparer.Instance);
-	private readonly HashSet<ITransform> buildingTransforms = new(ReferenceEqualityComparer.Instance);
+		private readonly Dictionary<ITransform, FbxModel> transformModels = new(ReferenceEqualityComparer.Instance);
+		private readonly Dictionary<IMaterial, FbxMaterial> materialCache = new(ReferenceEqualityComparer.Instance);
+			private readonly Dictionary<ITexture2D, FbxTexture> textureCache = new(ReferenceEqualityComparer.Instance);
+		private readonly HashSet<string> textureFileNames = new(StringComparer.OrdinalIgnoreCase);
+		private readonly HashSet<ITransform> buildingTransforms = new(ReferenceEqualityComparer.Instance);
 	private readonly FbxModel sceneRoot;
 
 		private FbxSceneBuilder()
@@ -434,7 +435,17 @@ public static FbxSceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool i
 			{
 				return cached;
 			}
-			string safeName = FileSystem.FixInvalidFileNameCharacters(string.IsNullOrWhiteSpace(texture.Name.String) ? $"Texture_{texture.PathID}" : texture.Name.String);
+			string baseName = FileSystem.FixInvalidFileNameCharacters(string.IsNullOrWhiteSpace(texture.Name.String) ? $"Texture_{texture.PathID}" : texture.Name.String);
+			string safeName = baseName;
+			if (!textureFileNames.Add(safeName))
+			{
+				safeName = $"{baseName}_{texture.PathID}";
+				int suffix = 2;
+				while (!textureFileNames.Add(safeName))
+				{
+					safeName = $"{baseName}_{texture.PathID}_{suffix++}";
+				}
+			}
 			FbxTexture fbxTexture = new(NewId(), $"Texture::{safeName}", safeName, texture, offset, scale);
 		textures.Add(fbxTexture);
 		textureCache.Add(texture, fbxTexture);
@@ -505,9 +516,16 @@ public static FbxSceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool i
 		{
 			foreach (IAnimationClip clip in root.Collection.Bundle.GetRoot().FetchAssets().OfType<IAnimationClip>())
 			{
-				if (clip.FindRoots().Any(candidate => ReferenceEquals(candidate.GetRoot(), root)))
+				try
 				{
-					clips.Add(clip);
+					if (clip.FindRoots().Any(candidate => ReferenceEquals(candidate.GetRoot(), root)))
+					{
+						clips.Add(clip);
+					}
+				}
+				catch (Exception ex)
+				{
+					Logger.Warning(LogCategory.Export, $"Skipping animation clip '{clip.GetBestName()}' ({clip.PathID}) because its root bindings could not be resolved: {ex.Message}");
 				}
 			}
 		}
@@ -719,6 +737,16 @@ FbxAnimationCurveNode nodeData = new(NewId(), "AnimCurveNode::R");
 	internal static Vector3 ToFbxVector(Vector3 value) => new(-value.X, value.Y, value.Z);
 	internal static Vector4 ToFbxTangent(Vector4 value) => new(-value.X, value.Y, value.Z, -value.W);
 	internal static Quaternion ToFbxQuaternion(Quaternion value) => new(value.X, -value.Y, -value.Z, value.W);
+	private static Matrix4x4 ToFbxMatrix(Matrix4x4 unityMatrix)
+	{
+		if (!Matrix4x4.Decompose(unityMatrix, out Vector3 scale, out Quaternion rotation, out Vector3 translation))
+		{
+			return unityMatrix;
+		}
+		return Matrix4x4.CreateScale(scale)
+			* Matrix4x4.CreateFromQuaternion(ToFbxQuaternion(rotation))
+			* Matrix4x4.CreateTranslation(ToFbxVector(translation * (float)UnityToFbxScale));
+	}
 	private static Vector3 ToFbxEulerDegrees(Quaternion value)
 	{
 		Quaternion q = ToFbxQuaternion(value);
@@ -1177,9 +1205,13 @@ FbxAnimationCurveNode nodeData = new(NewId(), "AnimCurveNode::R");
 			writer.WriteLine($"  Weights: *{weights.Count} {{");
 			writer.WriteLine("   a: " + string.Join(",", weights.Select(w => F(w.Weight))));
 			writer.WriteLine("  }");
-			WriteMatrix(writer, "Transform", geometryGlobal);
-			Matrix4x4 link = bone.GlobalMatrix;
-			WriteMatrix(writer, "TransformLink", link);
+				WriteMatrix(writer, "Transform", geometryGlobal);
+				Matrix4x4 link = bone.GlobalMatrix;
+				if (data.BindPose is { Length: > 0 } && boneIndex < data.BindPose.Length && Matrix4x4.Invert(data.BindPose[boneIndex], out Matrix4x4 relativeBoneBind))
+				{
+					link = geometryGlobal * ToFbxMatrix(relativeBoneBind);
+				}
+				WriteMatrix(writer, "TransformLink", link);
 			writer.WriteLine(" }");
 		}
 	}

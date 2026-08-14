@@ -100,99 +100,121 @@ public class EditorFormatProcessor : IAssetProcessor
 
 	private void Convert(IUnityObjectBase asset)
 	{
-		switch (asset)
+		try
 		{
-			//ordered by approximate frequency
-			case IGameObject gameObject:
-				gameObject.ConvertToEditorFormat(tagManager);
-				break;
-			case IRenderer renderer:
-				EditorFormatConverter.Convert(renderer);
-				break;
-			case ISpriteAtlas spriteAtlas:
-				spriteAtlas.ConvertToEditorFormat();
-				break;
-			case IAnimationClip animationClip:
-				AnimationClipConverter.Process(animationClip, checksumCache!.Value);
-				break;
-			case INavMeshSettings navMeshSettings:
-				navMeshSettings.ConvertToEditorFormat();
-				break;
-			case TypeTreeObject { IsPlayerSettings: true } playerSettings:
-				SerializableStructure editorStructure = playerSettings.EditorFields;
-				if (editorStructure.ContainsField("webGLLinkerTarget"))
+			switch (asset)
+			{
+				//ordered by approximate frequency
+				case IGameObject gameObject:
+					gameObject.ConvertToEditorFormat(tagManager);
+					break;
+				case IRenderer renderer:
+					EditorFormatConverter.Convert(renderer);
+					break;
+				case ISpriteAtlas spriteAtlas:
+					spriteAtlas.ConvertToEditorFormat();
+					break;
+				case IAnimationClip animationClip:
+					AnimationClipConverter.Process(animationClip, checksumCache!.Value);
+					break;
+				case INavMeshSettings navMeshSettings:
+					navMeshSettings.ConvertToEditorFormat();
+					break;
+				case TypeTreeObject { IsPlayerSettings: true } playerSettings:
+					SerializableStructure editorStructure = playerSettings.EditorFields;
+					if (editorStructure.ContainsField("webGLLinkerTarget"))
+					{
+						editorStructure["webGLLinkerTarget"].AsInt32 = 1;
+					}
+					if (editorStructure.ContainsField("allowUnsafeCode"))
+					{
+						editorStructure["allowUnsafeCode"].AsBoolean = true;
+					}
+					ApiCompatibilityLevel compatibilityLevel;
+					ScriptingRuntimeVersion runtimeVersion;
+					Debug.Assert(assemblyManager is not null);
+					if (assemblyManager.HasMscorlib2)
+					{
+						compatibilityLevel = ApiCompatibilityLevel.NET_2_0;
+						runtimeVersion = ScriptingRuntimeVersion.Legacy;
+					}
+					else
 				{
-					editorStructure["webGLLinkerTarget"].AsInt32 = 1;
+						compatibilityLevel = ApiCompatibilityLevel.NET_Unity_4_8;
+						runtimeVersion = ScriptingRuntimeVersion.Latest;
+					}
+					if (editorStructure.ContainsField("apiCompatibilityLevel"))
+					{
+						editorStructure["apiCompatibilityLevel"].AsInt32 = (int)compatibilityLevel;
+					}
+					if (editorStructure.ContainsField("scriptingRuntimeVersion"))
+					{
+						editorStructure["scriptingRuntimeVersion"].AsInt32 = (int)runtimeVersion;
+					}
+					break;
 				}
-				if (editorStructure.ContainsField("allowUnsafeCode"))
-				{
-					editorStructure["allowUnsafeCode"].AsBoolean = true;
-				}
-				ApiCompatibilityLevel compatibilityLevel;
-				ScriptingRuntimeVersion runtimeVersion;
-				Debug.Assert(assemblyManager is not null);
-				if (assemblyManager.HasMscorlib2)
-				{
-					compatibilityLevel = ApiCompatibilityLevel.NET_2_0;
-					runtimeVersion = ScriptingRuntimeVersion.Legacy;
-				}
-				else
-				{
-					compatibilityLevel = ApiCompatibilityLevel.NET_Unity_4_8;
-					runtimeVersion = ScriptingRuntimeVersion.Latest;
-				}
-				if (editorStructure.ContainsField("apiCompatibilityLevel"))
-				{
-					editorStructure["apiCompatibilityLevel"].AsInt32 = (int)compatibilityLevel;
-				}
-				if (editorStructure.ContainsField("scriptingRuntimeVersion"))
-				{
-					editorStructure["scriptingRuntimeVersion"].AsInt32 = (int)runtimeVersion;
-				}
-				break;
+		}
+		catch (Exception exception)
+		{
+			HandleProcessingError(asset, "EditorFormatConversion", exception);
 		}
 	}
 
 	private static void ConvertAsync(IUnityObjectBase asset)
 	{
-		switch (asset)
+		try
 		{
-			//ordered by approximate frequency
-			case ITransform transform:
-				EditorFormatConverterAsync.Convert(transform);
-				break;
-			case IMesh mesh:
-				mesh.SetMeshOptimizationFlags(MeshOptimizationFlags.Everything);
-				break;
-			case ITerrain terrain:
-				terrain.ScaleInLightmap = 0.0512f;
-				break;
-			case IPlayableDirector playableDirector:
-				EditorFormatConverterAsync.Convert(playableDirector);
-				break;
-			case IAssetBundle assetBundle:
-				// PreloadTable is not used by AssetRipper and can be very large, so clear it to save memory and processing time.
-				assetBundle.PreloadTable.Clear();
-				assetBundle.PreloadTable.Capacity = 0;
-				break;
-			case IGraphicsSettings graphicsSettings:
-				graphicsSettings.ConvertToEditorFormat();
-				break;
-			case IQualitySettings qualitySettings:
-				qualitySettings.ConvertToEditorFormat();
-				break;
-			case IPhysics2DSettings physics2DSettings:
-				physics2DSettings.ConvertToEditorFormat();
-				break;
-			case ILightmapSettings lightmapSettings:
-				lightmapSettings.ConvertToEditorFormat();
-				break;
-			case ILightingSettings lightingSettings:
-				lightingSettings.ConvertToEditorFormat();
-				break;
-			case IUnityConnectSettings unityConnectSettings:
-				unityConnectSettings.ConvertToEditorFormat();
-				break;
+			switch (asset)
+			{
+				//ordered by approximate frequency
+				case ITransform transform:
+					EditorFormatConverterAsync.Convert(transform);
+					break;
+				case IMesh mesh:
+					mesh.SetMeshOptimizationFlags(MeshOptimizationFlags.Everything);
+					break;
+				case ITerrain terrain:
+					terrain.ScaleInLightmap = 0.0512f;
+					break;
+				case IPlayableDirector playableDirector:
+					EditorFormatConverterAsync.Convert(playableDirector);
+					break;
+				case IAssetBundle assetBundle:
+					// PreloadTable is not used by AssetRipper and can be very large, so clear it to save memory and processing time.
+					assetBundle.PreloadTable.Clear();
+					assetBundle.PreloadTable.Capacity = 0;
+					break;
+				case IGraphicsSettings graphicsSettings:
+					graphicsSettings.ConvertToEditorFormat();
+					break;
+				case IQualitySettings qualitySettings:
+					qualitySettings.ConvertToEditorFormat();
+					break;
+				case IPhysics2DSettings physics2DSettings:
+					physics2DSettings.ConvertToEditorFormat();
+					break;
+				case ILightmapSettings lightmapSettings:
+					lightmapSettings.ConvertToEditorFormat();
+					break;
+				case ILightingSettings lightingSettings:
+					lightingSettings.ConvertToEditorFormat();
+					break;
+				case IUnityConnectSettings unityConnectSettings:
+					unityConnectSettings.ConvertToEditorFormat();
+					break;
+			}
 		}
+		catch (Exception exception)
+		{
+			HandleProcessingError(asset, "EditorFormatAsync", exception);
+		}
+	}
+
+	private static void HandleProcessingError(IUnityObjectBase asset, string stage, Exception exception)
+	{
+		ProcessingIssueRegistry.Record(asset, stage, exception);
+		Logger.Error(exception);
+			ProcessingIssueRegistry.ThrowIfStrict($"{stage} failed for {asset.ClassName} '{asset.GetBestName()}' ({asset.PathID}).", exception);
+			Logger.Warning(LogCategory.Processing, $"{stage} skipped {asset.ClassName} '{asset.GetBestName()}' ({asset.PathID}) in best-effort mode: {exception.Message}");
 	}
 }

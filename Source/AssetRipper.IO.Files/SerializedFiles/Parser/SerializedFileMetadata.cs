@@ -1,5 +1,6 @@
 ﻿using AssetRipper.IO.Endian;
 using AssetRipper.IO.Files.BundleFiles;
+using AssetRipper.IO.Files.SerializedFiles;
 using AssetRipper.IO.Files.SerializedFiles.IO;
 using AssetRipper.IO.Files.Streams.Smart;
 
@@ -75,15 +76,17 @@ public sealed class SerializedFileMetadata
 
 	private void Read(SerializedReader reader, long dataOffset)
 	{
+		UnityVersion = reader.Generation.ToDefaultUnityVersion();
+		reader.Version = UnityVersion;
 		if (HasSignature(reader.Generation))
 		{
 			string signature = reader.ReadStringZeroTerm();
 			if (!UnityVersion.TryParse(signature, out UnityVersion version, out _) || version.Equals(0, 0, 0))
 			{
-				// Keep malformed or obfuscated metadata readable. The LTS baseline is
-				// only used when parsing the source string failed completely.
-				version = new UnityVersion(2021, 3, 0, UnityVersionType.Final, 1);
-					BundleHeaderNormalizer.ReportAutoFix($"[Auto-Fix] Missing or invalid Unity version '{signature}' in serialized metadata; using fallback {version}");
+					// Keep malformed or obfuscated metadata readable while preserving the
+					// format-generation era instead of forcing every file to a 2021 LTS shape.
+					version = reader.Generation.ToDefaultUnityVersion();
+					BundleHeaderNormalizer.ReportAutoFix($"[Auto-Fix] Missing or invalid Unity version '{signature}' in serialized metadata; using generation fallback {version}");
 			}
 			UnityVersion = version;
 			reader.Version = version;

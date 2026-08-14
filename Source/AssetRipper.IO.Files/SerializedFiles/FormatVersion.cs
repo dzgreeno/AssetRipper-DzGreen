@@ -87,7 +87,7 @@ public enum FormatVersion
 }
 internal static class FormatVersionExtensions
 {
-	private static UnityVersion ToDefaultUnityVersion(this FormatVersion generation)
+	internal static UnityVersion ToDefaultUnityVersion(this FormatVersion generation)
 	{
 		return generation switch
 		{
@@ -95,6 +95,18 @@ internal static class FormatVersionExtensions
 			FormatVersion.Unknown_5 => new UnityVersion(1, 6),
 			FormatVersion.Unknown_6 => new UnityVersion(2, 5),
 			FormatVersion.Unknown_7 => new UnityVersion(3, 0, 0, UnityVersionType.Beta, 1),
+			FormatVersion.Unknown_8 => new UnityVersion(3, 0),
+			FormatVersion.Unknown_9 => new UnityVersion(3, 5),
+			<= FormatVersion.Unknown_14 => new UnityVersion(5, 0),
+			FormatVersion.SupportsStrippedObject => new UnityVersion(5, 1),
+			FormatVersion.RefactoredClassId => new UnityVersion(5, 5),
+			FormatVersion.RefactorTypeData => new UnityVersion(5, 5),
+			FormatVersion.RefactorShareableTypeTreeData => new UnityVersion(2019, 1),
+			FormatVersion.TypeTreeNodeWithTypeFlags => new UnityVersion(2019, 1),
+			FormatVersion.SupportsRefObject => new UnityVersion(2019, 2),
+			FormatVersion.StoresTypeDependencies => new UnityVersion(2019, 3),
+			FormatVersion.LargeFilesSupport => new UnityVersion(2020, 1),
+			FormatVersion.ExtractedTypeTreeSupport => new UnityVersion(6000, 5, 0, UnityVersionType.Alpha, 5),
 			_ => throw new ArgumentOutOfRangeException(nameof(generation)),
 		};
 	}

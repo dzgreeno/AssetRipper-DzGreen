@@ -26,7 +26,7 @@ internal static class Program
 			}
 
 			AssetRipperToolService service = new();
-			LoadSummary load = service.Load(options.Inputs, ModelExportFormat.Fbx);
+			LoadSummary load = service.Load(options.Inputs, ModelExportFormat.Fbx, options.StrictProcessing);
 			object result;
 			if (options.BatchProcess || options.Raw)
 			{
@@ -45,6 +45,11 @@ internal static class Program
 				result = new { load, assets = service.ListAssets(options.Filter, options.Limit) };
 			}
 			Console.WriteLine(JsonSerializer.Serialize(result, JsonOptions));
+			if (load.Issues.Count > 0)
+			{
+				Console.Error.WriteLine($"AssetRipper CLI completed with {load.Issues.Count} recoverable processing issue(s). See the JSON issues array or batch manifest.");
+				return 3;
+			}
 			return 0;
 		}
 		catch (Exception ex)
@@ -65,7 +70,8 @@ internal sealed class CliOptions
 	public bool Raw { get; private set; }
 	public bool Fbx { get; private set; }
 	public bool InspectPrefab { get; private set; }
-	public bool BatchProcess { get; private set; }
+		public bool BatchProcess { get; private set; }
+		public bool StrictProcessing { get; private set; }
 	public bool Help { get; private set; }
 
 	public static CliOptions Parse(string[] args)
@@ -123,6 +129,9 @@ internal sealed class CliOptions
 				case "batch":
 					options.BatchProcess = true;
 					break;
+				case "strict":
+					options.StrictProcessing = ParseBoolean(key, inlineValue, args, ref i, true);
+					break;
 				default:
 					throw new ArgumentException($"Unknown option '--{key}'.");
 			}
@@ -173,9 +182,10 @@ Core options:
   --inspect-prefab         Inspect the resolved prefab/character hierarchy.
   --fbx                   Export the selected character/prefab as grouped FBX.
   --include-anim[=bool]    Include AnimationClip TRS curves in FBX (default: true).
-  --raw                   Write raw JSON assets under output/raw.
-  --batch-process          Run batch mode; combine with --raw and/or --fbx.
-  --help, -h               Show this help.
+	  --raw                   Write raw JSON assets under output/raw.
+	  --batch-process         Run batch mode; combine with --raw and/or --fbx.
+	  --strict[=bool]         Fail on the first processing error instead of continuing with diagnostics.
+	  --help, -h              Show this help.
 
 Examples:
   AssetRipper.CLI --input game_Data --inspect-prefab --filter hero

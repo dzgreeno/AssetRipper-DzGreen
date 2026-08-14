@@ -2,13 +2,17 @@ name: Test
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v7
@@ -17,8 +21,11 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Build Project
-        run: dotnet build
+      - name: Restore dependencies
+        run: dotnet restore --nologo
 
-      - name: Run Tests
-        run: dotnet test
+      - name: Build solution
+        run: dotnet build --no-restore --nologo -v:minimal
+
+      - name: Run tests
+        run: dotnet test --no-build --nologo -v:minimal

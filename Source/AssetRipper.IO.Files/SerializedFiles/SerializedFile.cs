@@ -212,7 +212,7 @@ public sealed class SerializedFile : FileBase
 		return new()
 		{
 			Generation = builder.Generation,
-			Version = builder.Version,
+				Version = builder.Version.Equals(0, 0, 0) ? builder.Generation.ToDefaultUnityVersion() : builder.Version,
 			Platform = builder.Platform,
 			EndianType = builder.EndianType,
 			m_dependencies = builder.Dependencies.ToArray(),

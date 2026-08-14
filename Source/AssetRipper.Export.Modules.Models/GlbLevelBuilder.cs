@@ -13,15 +13,22 @@ using AssetRipper.SourceGenerated.Classes.ClassID_28;
 using AssetRipper.SourceGenerated.Classes.ClassID_33;
 using AssetRipper.SourceGenerated.Classes.ClassID_4;
 using AssetRipper.SourceGenerated.Classes.ClassID_43;
+using AssetRipper.SourceGenerated.Classes.ClassID_74;
+using AssetRipper.SourceGenerated.Classes.ClassID_137;
 using AssetRipper.SourceGenerated.Extensions;
 using AssetRipper.SourceGenerated.Subclasses.PPtr_Material;
+using AssetRipper.SourceGenerated.Subclasses.QuaternionCurve;
 using AssetRipper.SourceGenerated.Subclasses.SubMesh;
 using AssetRipper.SourceGenerated.Subclasses.UnityTexEnv;
+using AssetRipper.SourceGenerated.Subclasses.Vector3Curve;
+using AssetRipper.SourceGenerated.Subclasses.Keyframe_Quaternionf;
+using AssetRipper.SourceGenerated.Subclasses.Keyframe_Vector3f;
 using SharpGLTF.Geometry;
 using SharpGLTF.Materials;
 using SharpGLTF.Memory;
 using SharpGLTF.Scenes;
 using System.Buffers;
+using System.Numerics;
 
 namespace AssetRipper.Export.Modules.Models;
 
@@ -29,16 +36,19 @@ public static class GlbLevelBuilder
 {
 	public static SceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool isScene)
 	{
+		IUnityObjectBase[] sourceAssets = assets.ToArray();
 		SceneBuilder sceneBuilder = new();
 		BuildParameters parameters = new BuildParameters(isScene);
 
 		HashSet<IUnityObjectBase> exportedAssets = new();
+		HashSet<IGameObject> roots = new(ReferenceEqualityComparer.Instance);
 
-		foreach (IUnityObjectBase asset in assets)
+		foreach (IUnityObjectBase asset in sourceAssets)
 		{
 			if (!exportedAssets.Contains(asset) && asset is IGameObject or IComponent)
 			{
 				IGameObject root = GetRoot(asset);
+				roots.Add(root);
 
 				AddGameObjectToScene(sceneBuilder, parameters, null, Transformation.Identity, Transformation.Identity, root.GetTransform());
 
@@ -48,11 +58,120 @@ public static class GlbLevelBuilder
 				}
 			}
 		}
+		AddAnimationClips(sceneBuilder, parameters, roots);
 
 		return sceneBuilder;
 	}
 
-	private static void AddGameObjectToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder? parentNode, Transformation parentGlobalTransform, Transformation parentGlobalInverseTransform, ITransform transform)
+	private static void AddAnimationClips(SceneBuilder sceneBuilder, BuildParameters parameters, IEnumerable<IGameObject> roots)
+	{
+		HashSet<IAnimationClip> clips = new(ReferenceEqualityComparer.Instance);
+		foreach (IGameObject root in roots)
+		{
+			foreach (IAnimationClip clip in root.Collection.Bundle.GetRoot().FetchAssets().OfType<IAnimationClip>())
+			{
+				try
+				{
+					if (clip.FindRoots().Any(candidate => ReferenceEquals(candidate.GetRoot(), root)))
+					{
+						clips.Add(clip);
+					}
+				}
+				catch
+				{
+					// A malformed optional clip must not remove the character preview.
+				}
+			}
+		}
+
+		foreach (IAnimationClip clip in clips)
+		{
+			string track = $"{clip.GetBestName()}::{clip.PathID}";
+			foreach (IGameObject root in roots)
+			{
+				AddVector3Tracks(parameters, root.GetTransform(), clip.PositionCurves_C74, track, isTranslation: true);
+				AddVector3Tracks(parameters, root.GetTransform(), clip.ScaleCurves_C74, track, isTranslation: false);
+				AddQuaternionTracks(parameters, root.GetTransform(), clip.RotationCurves_C74, track);
+			}
+		}
+	}
+
+	private static void AddVector3Tracks(BuildParameters parameters, ITransform root, IEnumerable<IVector3Curve> curves, string track, bool isTranslation)
+	{
+		foreach (IVector3Curve curve in curves)
+		{
+			ITransform? transform = FindTransform(root, curve.Path.String);
+			if (transform is null || !parameters.NodeCache.TryGetValue(transform, out NodeBuilder? node))
+			{
+				continue;
+			}
+			Dictionary<float, Vector3> keyframes = [];
+			foreach (IKeyframe_Vector3f key in curve.Curve.Curve)
+			{
+				Vector3 value = key.Value.CastToStruct();
+				keyframes[key.Time] = isTranslation ? GlbCoordinateConversion.ToGltfVector3Convert(value) : value;
+			}
+			if (keyframes.Count == 0)
+			{
+				continue;
+			}
+			if (isTranslation)
+			{
+				node.WithLocalTranslation(track, keyframes);
+			}
+			else
+			{
+				node.WithLocalScale(track, keyframes);
+			}
+		}
+	}
+
+	private static void AddQuaternionTracks(BuildParameters parameters, ITransform root, IEnumerable<IQuaternionCurve> curves, string track)
+	{
+		foreach (IQuaternionCurve curve in curves)
+		{
+			ITransform? transform = FindTransform(root, curve.Path.String);
+			if (transform is null || !parameters.NodeCache.TryGetValue(transform, out NodeBuilder? node))
+			{
+				continue;
+			}
+			Dictionary<float, Quaternion> keyframes = [];
+			foreach (IKeyframe_Quaternionf key in curve.Curve.Curve)
+			{
+				keyframes[key.Time] = GlbCoordinateConversion.ToGltfQuaternionConvert(key.Value);
+			}
+			if (keyframes.Count > 0)
+			{
+				node.WithLocalRotation(track, keyframes);
+			}
+		}
+	}
+
+	private static ITransform? FindTransform(ITransform root, string path)
+	{
+		if (string.IsNullOrEmpty(path))
+		{
+			return root;
+		}
+		string[] parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+		if (parts.Length > 0 && string.Equals(parts[0], root.GameObject_C4P?.Name.String, StringComparison.Ordinal))
+		{
+			parts = parts[1..];
+		}
+		ITransform current = root;
+		foreach (string part in parts)
+		{
+			ITransform? next = current.Children_C4P.WhereNotNull().FirstOrDefault(child => string.Equals(child.GameObject_C4P?.Name.String, part, StringComparison.Ordinal));
+			if (next is null)
+			{
+				return null;
+			}
+			current = next;
+		}
+		return current;
+	}
+
+		private static void AddGameObjectToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder? parentNode, Transformation parentGlobalTransform, Transformation parentGlobalInverseTransform, ITransform transform)
 	{
 		IGameObject? gameObject = transform.GameObject_C4P;
 		if (gameObject is null)
@@ -66,6 +185,7 @@ public static class GlbLevelBuilder
 		Transformation globalInverseTransform = parentGlobalInverseTransform * localInverseTransform;
 
 		NodeBuilder node = parentNode is null ? new NodeBuilder(gameObject.Name) : parentNode.CreateNode(gameObject.Name);
+		parameters.NodeCache[transform] = node;
 		if (parentNode is not null || parameters.IsScene)
 		{
 			node.LocalTransform = new SharpGLTF.Transforms.AffineTransform(
@@ -75,30 +195,53 @@ public static class GlbLevelBuilder
 		}
 		sceneBuilder.AddNode(node);
 
-		if (gameObject.TryGetComponent(out IMeshFilter? meshFilter)
-			&& meshFilter.TryGetMesh(out IMesh? mesh)
-			&& mesh.IsSet()
-			&& parameters.TryGetOrMakeMeshData(mesh, out MeshData meshData))
-		{
-			if (gameObject.TryGetComponent(out IRenderer? meshRenderer))
-			{
-				if (ReferencesDynamicMesh(meshRenderer))
-				{
-
-					AddDynamicMeshToScene(sceneBuilder, parameters, node, mesh, meshData, new MaterialList(meshRenderer));
-				}
-				else
-				{
-					int[] subsetIndices = GetSubsetIndices(meshRenderer);
-					AddStaticMeshToScene(sceneBuilder, parameters, node, mesh, meshData, subsetIndices, new MaterialList(meshRenderer), globalTransform, globalInverseTransform);
-				}
-			}
-		}
-
 		foreach (ITransform childTransform in transform.Children_C4P.WhereNotNull())
 		{
 			AddGameObjectToScene(sceneBuilder, parameters, node, localTransform * parentGlobalTransform, parentGlobalInverseTransform * localInverseTransform, childTransform);
 		}
+
+		if (gameObject.TryGetComponent(out ISkinnedMeshRenderer? skinnedRenderer)
+			&& skinnedRenderer.MeshP is IMesh skinnedMesh
+			&& skinnedMesh.IsSet()
+			&& parameters.TryGetOrMakeMeshData(skinnedMesh, out MeshData skinnedData)
+			&& skinnedData.HasSkin)
+		{
+			ITransform[] bones = skinnedRenderer.BonesP.WhereNotNull().ToArray();
+			if (bones.Length > 0 && bones.All(parameters.NodeCache.ContainsKey))
+			{
+				AddSkinnedMeshToScene(sceneBuilder, parameters, node, skinnedMesh, skinnedData, new MaterialList(skinnedRenderer), bones);
+			}
+		}
+		else if (gameObject.TryGetComponent(out IMeshFilter? meshFilter)
+			&& meshFilter.TryGetMesh(out IMesh? mesh)
+			&& mesh.IsSet()
+			&& parameters.TryGetOrMakeMeshData(mesh, out MeshData meshData)
+			&& gameObject.TryGetComponent(out IRenderer? meshRenderer))
+		{
+			if (ReferencesDynamicMesh(meshRenderer))
+			{
+				AddDynamicMeshToScene(sceneBuilder, parameters, node, mesh, meshData, new MaterialList(meshRenderer));
+			}
+			else
+			{
+				int[] subsetIndices = GetSubsetIndices(meshRenderer, mesh.SubMeshes.Count);
+				AddStaticMeshToScene(sceneBuilder, parameters, node, mesh, meshData, subsetIndices, new MaterialList(meshRenderer), globalTransform, globalInverseTransform);
+			}
+		}
+	}
+
+	private static void AddSkinnedMeshToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder node, IMesh mesh, MeshData meshData, MaterialList materialList, IReadOnlyList<ITransform> bones)
+	{
+		(ISubMesh, MaterialBuilder)[] subMeshArray = ArrayPool<(ISubMesh, MaterialBuilder)>.Shared.Rent(mesh.SubMeshes.Count);
+		for (int i = 0; i < mesh.SubMeshes.Count; i++)
+		{
+			subMeshArray[i] = (mesh.SubMeshes[i], parameters.GetOrMakeMaterial(materialList[i]));
+		}
+		ArraySegment<(ISubMesh, MaterialBuilder)> arraySegment = new(subMeshArray, 0, mesh.SubMeshes.Count);
+		IMeshBuilder<MaterialBuilder> subMeshBuilder = GlbSubMeshBuilder.BuildSubMeshes(arraySegment, mesh.Is16BitIndices(), meshData, Transformation.Identity, Transformation.Identity);
+		NodeBuilder[] joints = bones.Select(bone => parameters.NodeCache[bone]).ToArray();
+		sceneBuilder.AddSkinnedMesh(subMeshBuilder, node.WorldMatrix, joints);
+		ArrayPool<(ISubMesh, MaterialBuilder)>.Shared.Return(subMeshArray);
 	}
 
 	private static void AddDynamicMeshToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder node, IMesh mesh, MeshData meshData, MaterialList materialList)
@@ -120,10 +263,10 @@ public static class GlbLevelBuilder
 	{
 		(ISubMesh, MaterialBuilder)[] subMeshArray = ArrayPool<(ISubMesh, MaterialBuilder)>.Shared.Rent(subsetIndices.Length);
 		AccessListBase<ISubMesh> subMeshes = mesh.SubMeshes;
-		for (int i = 0; i < subsetIndices.Length; i++)
-		{
-			ISubMesh subMesh = subMeshes[subsetIndices[i]];
-			MaterialBuilder materialBuilder = parameters.GetOrMakeMaterial(materialList[i]);
+			for (int i = 0; i < subsetIndices.Length; i++)
+			{
+				ISubMesh subMesh = subMeshes[subsetIndices[i]];
+				MaterialBuilder materialBuilder = parameters.GetOrMakeMaterial(materialList[subsetIndices[i]]);
 			subMeshArray[i] = (subMesh, materialBuilder);
 		}
 		ArraySegment<(ISubMesh, MaterialBuilder)> arraySegment = new ArraySegment<(ISubMesh, MaterialBuilder)>(subMeshArray, 0, subsetIndices.Length);
@@ -148,7 +291,7 @@ public static class GlbLevelBuilder
 			|| renderer.Has_SubsetIndices_C25() && renderer.SubsetIndices_C25.Count == 0;
 	}
 
-	private static int[] GetSubsetIndices(IRenderer renderer)
+		private static int[] GetSubsetIndices(IRenderer renderer, int subMeshCount)
 	{
 		AccessListBase<IPPtr_Material> materials = renderer.Materials_C25;
 		if (renderer.Has_SubsetIndices_C25())
@@ -161,18 +304,19 @@ public static class GlbLevelBuilder
 		}
 		else
 		{
-			return Array.Empty<int>();
+				return Enumerable.Range(0, subMeshCount).ToArray();
 		}
 	}
 
-	private readonly record struct BuildParameters(
-		MaterialBuilder DefaultMaterial,
-		Dictionary<ITexture2D, MemoryImage> ImageCache,
-		Dictionary<IMaterial, MaterialBuilder> MaterialCache,
-		Dictionary<IMesh, MeshData> MeshCache,
-		bool IsScene)
-	{
-		public BuildParameters(bool isScene) : this(new MaterialBuilder("DefaultMaterial"), new(), new(), new(), isScene) { }
+		private readonly record struct BuildParameters(
+			MaterialBuilder DefaultMaterial,
+			Dictionary<ITexture2D, MemoryImage> ImageCache,
+			Dictionary<IMaterial, MaterialBuilder> MaterialCache,
+			Dictionary<IMesh, MeshData> MeshCache,
+			Dictionary<ITransform, NodeBuilder> NodeCache,
+			bool IsScene)
+		{
+			public BuildParameters(bool isScene) : this(new MaterialBuilder("DefaultMaterial"), new(), new(), new(), new(ReferenceEqualityComparer.Instance), isScene) { }
 		public bool TryGetOrMakeMeshData(IMesh mesh, out MeshData meshData)
 		{
 			if (MeshCache.TryGetValue(mesh, out meshData))

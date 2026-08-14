@@ -5,7 +5,8 @@ using AssetRipper.SourceGenerated.Classes.ClassID_1;
 using AssetRipper.SourceGenerated.Classes.ClassID_18;
 using AssetRipper.SourceGenerated.Classes.ClassID_21;
 using AssetRipper.SourceGenerated.Classes.ClassID_25;
-using AssetRipper.SourceGenerated.Classes.ClassID_28;
+	using AssetRipper.SourceGenerated.Classes.ClassID_28;
+	using AssetRipper.SourceGenerated.Classes.ClassID_33;
 using AssetRipper.SourceGenerated.Classes.ClassID_43;
 using AssetRipper.SourceGenerated.Classes.ClassID_74;
 using AssetRipper.SourceGenerated.Classes.ClassID_90;
@@ -84,6 +85,7 @@ internal static class CharacterAssemblyIndex
 	private static bool IsCharacterCandidate(IGameObject gameObject)
 	{
 		return gameObject.TryGetComponent<ISkinnedMeshRenderer>(out _)
+			|| gameObject.TryGetComponent<IMeshFilter>(out _)
 			|| gameObject.TryGetComponent<IAnimator>(out _)
 			|| gameObject.TryGetComponent<IAnimation>(out _);
 	}
@@ -167,10 +169,21 @@ internal static class CharacterAssemblyIndex
 						}
 						foreach (IMaterial material in skinned.MaterialsP.WhereNotNull())
 					{
-						AddMaterialAndTextures(material);
+							AddMaterialAndTextures(material);
+						}
 					}
-				}
-				else if (asset is IRenderer renderer)
+					else if (asset is IMeshFilter meshFilter)
+					{
+						if (meshFilter.TryGetMesh(out IMesh? mesh))
+						{
+							meshes.Add(mesh);
+						}
+						else
+						{
+							missingLinks.Add($"MeshFilter.Mesh missing from {meshFilter.GetBestName()} ({meshFilter.PathID})");
+						}
+					}
+					else if (asset is IRenderer renderer)
 				{
 					foreach (IPPtr_Material materialPointer in renderer.Materials_C25)
 					{

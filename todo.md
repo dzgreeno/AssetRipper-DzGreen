@@ -1,9 +1,10 @@
 # AssetRipper DzGreen — Upload Checklist
 
-- [ ] Verify the public Ko-fi page and determine whether the user wants link integration only or direct account-page editing.
-- [ ] Confirm the intended GitHub repository owner/name and whether a new private repository may be created if it does not exist.
+- [x] Verify the public Ko-fi page and confirm that the user wants project upload first.
+- [x] Confirm the intended GitHub owner: `dzgreeno`.
+- [ ] Confirm the target repository name under `dzgreeno` before creating it.
 - [ ] Review the source tree, GitHub Pages artifact, Windows package, and checksum files before upload.
-- [ ] Add or verify Ko-fi links in README, NOTICE, GitHub Funding, GUI header/footer, and GitHub Pages.
-- [ ] Create or update the GitHub repository without deleting unrelated existing content.
+- [ ] Create or update the GitHub repository under `dzgreeno` without deleting unrelated existing content.
 - [ ] Upload the source tree, GitHub Pages artifact/source, release package, and checksum manifests.
 - [ ] Verify repository tree, release assets, GitHub Actions workflows, and Pages configuration after upload.
+- [ ] Only after upload verification, improve the Ko-fi support link and related copy.

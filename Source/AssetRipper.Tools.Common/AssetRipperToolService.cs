@@ -18,6 +18,7 @@ using AssetRipper.SourceGenerated.Classes.ClassID_33;
 using AssetRipper.SourceGenerated.Classes.ClassID_43;
 using AssetRipper.SourceGenerated.Classes.ClassID_74;
 using AssetRipper.SourceGenerated.Classes.ClassID_90;
+using AssetRipper.SourceGenerated.Classes.ClassID_91;
 using AssetRipper.SourceGenerated.Classes.ClassID_95;
 using AssetRipper.SourceGenerated.Classes.ClassID_137;
 using AssetRipper.SourceGenerated.Extensions;
@@ -186,7 +187,7 @@ public sealed class AssetRipperToolService
 		FbxAsciiExporter exporter = new() { IncludeAnimations = includeAnimations };
 		string safeName = SafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
 		string path = Path.Combine(directory, safeName + ".fbx");
-		bool success = exporter.Export(exporter.GetCharacterAssets(root), path, LocalFileSystem.Instance);
+		bool success = exporter.Export(exporter.GetCharacterAssets(root, GameFileLoader.GameBundle.FetchAssets()), path, LocalFileSystem.Instance);
 		return new FbxExportResult(success, path, safeName, includeAnimations, File.Exists(path), CountFiles(directory), GameFileLoader.ProcessingIssues.ToArray());
 	}
 
@@ -218,7 +219,7 @@ public sealed class AssetRipperToolService
 				FbxAsciiExporter exporter = new() { IncludeAnimations = includeAnimations };
 					string safeName = SafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
 				string path = Path.Combine(directory, safeName + ".fbx");
-				if (exporter.Export(exporter.GetCharacterAssets(root), path, LocalFileSystem.Instance))
+				if (exporter.Export(exporter.GetCharacterAssets(root, GameFileLoader.GameBundle.FetchAssets()), path, LocalFileSystem.Instance))
 				{
 					files.Add(path);
 				}
@@ -300,6 +301,18 @@ public sealed class AssetRipperToolService
 	{
 		try
 		{
+			foreach (IAnimator animator in root.FetchHierarchy().OfType<IAnimator>())
+			{
+				if (animator.ContainsAnimationClip(clip))
+				{
+					return true;
+				}
+			}
+			string rootName = root.GetBestName();
+			if (GameFileLoader.GameBundle.FetchAssets().OfType<IAnimatorController>().Any(controller => string.Equals(controller.GetBestName(), rootName, StringComparison.OrdinalIgnoreCase) && controller.ContainsAnimationClip(clip)))
+			{
+				return true;
+			}
 			return clip.FindRoots().Any(candidate => ReferenceEquals(candidate.GetRoot(), root));
 		}
 		catch

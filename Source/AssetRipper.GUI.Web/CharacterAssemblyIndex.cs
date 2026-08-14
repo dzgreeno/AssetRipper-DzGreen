@@ -60,7 +60,7 @@ internal static class CharacterAssemblyIndex
 			{
 				foreach (CharacterAssemblyBuilder builder in builders)
 				{
-					if (clip.FindRoots().Any(root => ReferenceEquals(root.GetRoot(), builder.Root)))
+						if (IsClipForRoot(clip, builder.Root, allAssets))
 					{
 						builder.AnimationClips.Add(clip);
 					}
@@ -80,6 +80,19 @@ internal static class CharacterAssemblyIndex
 			.Where(assembly => assembly.HierarchyAssetCount > 0 || assembly.AnimationClips.Count > 0)
 			.OrderBy(assembly => assembly.RootName, StringComparer.OrdinalIgnoreCase)
 			.ToArray();
+	}
+
+	private static bool IsClipForRoot(IAnimationClip clip, IGameObject root, IEnumerable<IUnityObjectBase> candidates)
+	{
+		foreach (IAnimator animator in root.FetchHierarchy().OfType<IAnimator>())
+		{
+			if (animator.ContainsAnimationClip(clip))
+			{
+				return true;
+			}
+		}
+		return candidates.OfType<IAnimatorController>().Any(controller => string.Equals(controller.GetBestName(), root.GetBestName(), StringComparison.OrdinalIgnoreCase) && controller.ContainsAnimationClip(clip))
+			|| clip.FindRoots().Any(candidate => ReferenceEquals(candidate.GetRoot(), root));
 	}
 
 	private static bool IsCharacterCandidate(IGameObject gameObject)

@@ -107,6 +107,17 @@ public sealed class FbxAsciiExporter : IContentExtractor
 	public IEnumerable<IUnityObjectBase> GetCharacterAssets(IGameObject inputRoot)
 	{
 		IGameObject root = inputRoot.GetRoot();
+		return GetCharacterAssets(root, root.Collection.Bundle.GetRoot().FetchAssets());
+	}
+
+	public IEnumerable<IUnityObjectBase> GetCharacterAssets(IGameObject inputRoot, IEnumerable<IUnityObjectBase> availableAssets)
+	{
+		IGameObject root = inputRoot.GetRoot();
+		IUnityObjectBase[] candidates = availableAssets.ToArray();
+		IAnimatorController[] namedControllers = candidates
+			.OfType<IAnimatorController>()
+			.Where(controller => string.Equals(controller.GetBestName(), root.GetBestName(), StringComparison.OrdinalIgnoreCase))
+			.ToArray();
 		HashSet<IUnityObjectBase> assets = new(ReferenceEqualityComparer.Instance);
 		foreach (IEditorExtension hierarchyAsset in root.FetchHierarchy())
 		{
@@ -146,12 +157,16 @@ public sealed class FbxAsciiExporter : IContentExtractor
 				if (animator.Controller_PPtr_RuntimeAnimatorController_4_3P is IRuntimeAnimatorController runtimeController) assets.Add(runtimeController);
 			}
 		}
+		foreach (IAnimatorController controller in namedControllers)
+		{
+			assets.Add(controller);
+		}
 
-		foreach (IAnimationClip clip in root.Collection.Bundle.GetRoot().FetchAssets().OfType<IAnimationClip>())
+		foreach (IAnimationClip clip in candidates.OfType<IAnimationClip>())
 		{
 			try
 			{
-				if (clip.FindRoots().Any(candidate => ReferenceEquals(candidate.GetRoot(), root)))
+				if (IsClipForRoot(clip, root, namedControllers))
 				{
 					assets.Add(clip);
 				}
@@ -160,8 +175,21 @@ public sealed class FbxAsciiExporter : IContentExtractor
 			{
 				Logger.Warning(LogCategory.Export, $"Could not resolve AnimationClip '{clip.GetBestName()}' for character '{root.GetBestName()}': {ex.Message}");
 			}
-		}
+	}
 		return assets;
+	}
+
+	private static bool IsClipForRoot(IAnimationClip clip, IGameObject root, IReadOnlyCollection<IAnimatorController> namedControllers)
+	{
+		foreach (IAnimator animator in root.FetchHierarchy().OfType<IAnimator>())
+		{
+			if (animator.ContainsAnimationClip(clip))
+			{
+				return true;
+			}
+		}
+		return namedControllers.Any(controller => controller.ContainsAnimationClip(clip))
+			|| clip.FindRoots().Any(candidate => ReferenceEquals(candidate.GetRoot(), root));
 	}
 }
 
@@ -197,6 +225,7 @@ private readonly List<FbxBlendShapeChannelNode> blendShapeChannels = [];
 		{
 			sceneRoot = new FbxModel(NewId(), "SceneRoot", "Null", null, Matrix4x4.Identity);
 			models.Add(sceneRoot);
+			connections.Add(new("OO", sceneRoot.Id, 0, null));
 		}
 
 		public int GeometryCount => geometries.Count;
@@ -204,10 +233,11 @@ private readonly List<FbxBlendShapeChannelNode> blendShapeChannels = [];
 		public int AnimationCount => animationStacks.Count;
 		public int MaterialCount => materials.Count;
 
-public static FbxSceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool includeAnimations = true)
-		{
-			FbxSceneBuilder builder = new();
-		List<IGameObject> roots = GetRoots(assets).ToList();
+	public static FbxSceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool includeAnimations = true)
+			{
+				FbxSceneBuilder builder = new();
+			IUnityObjectBase[] sourceAssets = assets.ToArray();
+			List<IGameObject> roots = GetRoots(sourceAssets).ToList();
 		foreach (IGameObject root in roots)
 		{
 			ITransform? transform = root.GetTransform();
@@ -226,7 +256,7 @@ public static FbxSceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool i
 				// Only emit loose mesh nodes when the requested collection contains meshes but no hierarchy.
 				if (roots.Count == 0)
 				{
-					foreach (IMesh mesh in assets.OfType<IMesh>())
+						foreach (IMesh mesh in sourceAssets.OfType<IMesh>())
 					{
 						if (MeshData.TryMakeFromMesh(mesh, out MeshData meshData))
 						{
@@ -242,9 +272,9 @@ public static FbxSceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool i
 					}
 				}
 
-			if (includeAnimations)
-			{
-				builder.AddAnimationClips(roots);
+				if (includeAnimations)
+				{
+					builder.AddAnimationClips(roots, sourceAssets.OfType<IAnimationClip>());
 			}
 			return builder;
 	}
@@ -352,6 +382,7 @@ public static FbxSceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool i
 
 	private void AddMesh(IMesh mesh, MeshData data, FbxModel model, IRenderer? renderer, IReadOnlyList<ITransform> bones)
 	{
+		model.SetType("Mesh");
 		FbxGeometry geometry = FbxGeometry.Create(NewId(), mesh.Name.String, data, renderer, this);
 			geometries.Add(geometry);
 			connections.Add(new("OO", geometry.Id, model.Id, null));
@@ -371,9 +402,13 @@ public static FbxSceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool i
 			}
 		}
 
-		if (data.HasSkin && data.BindPose is { Length: > 0 })
-		{
-			FbxSkin skin = new(NewId(), $"Skin::{mesh.Name.String}");
+			if (data.HasSkin && data.BindPose is { Length: > 0 })
+			{
+				if (bones.Count < data.BindPose.Length)
+				{
+					Logger.Warning(LogCategory.Export, $"FBX mesh '{mesh.GetBestName()}' has {data.BindPose.Length} bind poses but only {bones.Count} resolved bone references; unnamed fallback joints will be written for the missing references.");
+				}
+				FbxSkin skin = new(NewId(), $"Skin::{mesh.Name.String}");
 			skins.Add(skin);
 			connections.Add(new("OO", skin.Id, geometry.Id, null));
 			for (int boneIndex = 0; boneIndex < data.BindPose.Length; boneIndex++)
@@ -382,7 +417,7 @@ public static FbxSceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool i
 				FbxCluster cluster = FbxCluster.Create(NewId(), boneModel, data, boneIndex, model.GlobalMatrix);
 				clusters.Add(cluster);
 				connections.Add(new("OO", cluster.Id, skin.Id, null));
-				connections.Add(new("OO", cluster.Id, boneModel.Id, null));
+				connections.Add(new("OO", boneModel.Id, cluster.Id, null));
 			}
 		}
 	}
@@ -509,31 +544,18 @@ public static FbxSceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool i
 			}
 		}
 
-		private void AddAnimationClips(IReadOnlyList<IGameObject> roots)
-	{
-		HashSet<IAnimationClip> clips = new(ReferenceEqualityComparer.Instance);
-		foreach (IGameObject root in roots)
+		private void AddAnimationClips(IReadOnlyList<IGameObject> roots, IEnumerable<IAnimationClip> candidates)
 		{
-			foreach (IAnimationClip clip in root.Collection.Bundle.GetRoot().FetchAssets().OfType<IAnimationClip>())
+			HashSet<IAnimationClip> clips = new(ReferenceEqualityComparer.Instance);
+			foreach (IAnimationClip clip in candidates)
 			{
-				try
-				{
-					if (clip.FindRoots().Any(candidate => ReferenceEquals(candidate.GetRoot(), root)))
-					{
-						clips.Add(clip);
-					}
-				}
-				catch (Exception ex)
-				{
-					Logger.Warning(LogCategory.Export, $"Skipping animation clip '{clip.GetBestName()}' ({clip.PathID}) because its root bindings could not be resolved: {ex.Message}");
-				}
+				clips.Add(clip);
+			}
+			foreach (IAnimationClip clip in clips)
+			{
+				AddAnimationClip(clip, roots);
 			}
 		}
-		foreach (IAnimationClip clip in clips)
-		{
-			AddAnimationClip(clip, roots);
-		}
-	}
 
 	private void AddAnimationClip(IAnimationClip clip, IReadOnlyList<IGameObject> roots)
 	{
@@ -810,10 +832,20 @@ FbxAnimationCurveNode nodeData = new(NewId(), "AnimCurveNode::R");
 			writer.WriteLine("  P: \"TimeMode\",\"enum\",\"Integer\",\"\",6");
 			writer.WriteLine(" }");
 			writer.WriteLine("}");
-			writer.WriteLine("Definitions:  {");
-			writer.WriteLine(" Version: 100");
-			writer.WriteLine($" Count: {scene.ObjectCount}");
-			writer.WriteLine("}");
+				writer.WriteLine("Definitions:  {");
+				writer.WriteLine(" Version: 100");
+				writer.WriteLine($" Count: {scene.ObjectCount}");
+				WriteDefinition(writer, "Model", scene.models.Count);
+				WriteDefinition(writer, "Geometry", scene.geometries.Count + scene.shapeGeometries.Count);
+				WriteDefinition(writer, "Material", scene.materials.Count);
+				WriteDefinition(writer, "Video", scene.videos.Count);
+				WriteDefinition(writer, "Texture", scene.textures.Count);
+				WriteDefinition(writer, "Deformer", scene.skins.Count + scene.clusters.Count + scene.blendShapes.Count + scene.blendShapeChannels.Count);
+				WriteDefinition(writer, "AnimationStack", scene.animationStacks.Count);
+				WriteDefinition(writer, "AnimationLayer", scene.animationLayers.Count);
+				WriteDefinition(writer, "AnimationCurveNode", scene.animationCurveNodes.Count);
+				WriteDefinition(writer, "AnimationCurve", scene.animationCurves.Count);
+				writer.WriteLine("}");
 			writer.WriteLine("Objects:  {");
 			foreach (FbxModel model in scene.models) model.Write(writer);
 				foreach (FbxGeometry geometry in scene.geometries) geometry.Write(writer);
@@ -848,6 +880,16 @@ FbxAnimationCurveNode nodeData = new(NewId(), "AnimCurveNode::R");
 				writer.WriteLine();
 			}
 			writer.WriteLine("}");
+		}
+
+		private static void WriteDefinition(TextWriter writer, string objectType, int count)
+		{
+			if (count > 0)
+			{
+				writer.WriteLine($" ObjectType: \"{objectType}\" {{");
+				writer.WriteLine($"  Count: {count}");
+				writer.WriteLine(" }");
+			}
 		}
 
 		private int ObjectCount => scene.models.Count + scene.geometries.Count + scene.shapeGeometries.Count + scene.blendShapes.Count + scene.blendShapeChannels.Count + scene.materials.Count + scene.videos.Count + scene.textures.Count + scene.skins.Count + scene.clusters.Count + scene.animationStacks.Count + scene.animationLayers.Count + scene.animationCurveNodes.Count + scene.animationCurves.Count;
@@ -1063,7 +1105,8 @@ FbxAnimationCurveNode nodeData = new(NewId(), "AnimCurveNode::R");
 
 	private sealed class FbxModel(long id, string name, string type, FbxModel? parent, Matrix4x4 local) : FbxObject(id, $"Model::{name}")
 	{
-		public string Type { get; } = type;
+		public string Type { get; private set; } = type;
+		public void SetType(string type) => Type = type;
 		public Matrix4x4 LocalMatrix { get; } = local;
 		public Matrix4x4 GlobalMatrix => Parent is null ? LocalMatrix : LocalMatrix * Parent.GlobalMatrix;
 		public FbxModel? Parent { get; } = parent;
@@ -1246,9 +1289,9 @@ FbxAnimationCurveNode nodeData = new(NewId(), "AnimCurveNode::R");
 		{
 			writer.WriteLine($" AnimationCurveNode: {Id}, \"{Escape(Name)}\", \"\" {{");
 			writer.WriteLine("  Properties70:  {");
-			writer.WriteLine("   P: \\\"d|X\\\",\\\"Number\\\",\\\"\\\",\\\"A\\\",0");
-			writer.WriteLine("   P: \\\"d|Y\\\",\\\"Number\\\",\\\"\\\",\\\"A\\\",0");
-			writer.WriteLine("   P: \\\"d|Z\\\",\\\"Number\\\",\\\"\\\",\\\"A\\\",0");
+				writer.WriteLine("   P: \"d|X\",\"Number\",\"\",\"A\",0");
+				writer.WriteLine("   P: \"d|Y\",\"Number\",\"\",\"A\",0");
+				writer.WriteLine("   P: \"d|Z\",\"Number\",\"\",\"A\",0");
 			writer.WriteLine("  }");
 			writer.WriteLine(" }");
 		}

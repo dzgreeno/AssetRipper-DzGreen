@@ -2,6 +2,8 @@
 using AssetRipper.Assets.Collections;
 using AssetRipper.Assets.Generics;
 using AssetRipper.Export.Modules.Textures;
+
+using AssetRipper.Import.Logging;
 using AssetRipper.Numerics;
 using AssetRipper.Primitives;
 using AssetRipper.SourceGenerated.Classes.ClassID_1;
@@ -14,6 +16,8 @@ using AssetRipper.SourceGenerated.Classes.ClassID_33;
 using AssetRipper.SourceGenerated.Classes.ClassID_4;
 using AssetRipper.SourceGenerated.Classes.ClassID_43;
 using AssetRipper.SourceGenerated.Classes.ClassID_74;
+using AssetRipper.SourceGenerated.Classes.ClassID_91;
+using AssetRipper.SourceGenerated.Classes.ClassID_95;
 using AssetRipper.SourceGenerated.Classes.ClassID_137;
 using AssetRipper.SourceGenerated.Extensions;
 using AssetRipper.SourceGenerated.Subclasses.PPtr_Material;
@@ -34,9 +38,10 @@ namespace AssetRipper.Export.Modules.Models;
 
 public static class GlbLevelBuilder
 {
-	public static SceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool isScene)
+	public static SceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool isScene, IEnumerable<IUnityObjectBase>? animationAssets = null)
 	{
 		IUnityObjectBase[] sourceAssets = assets.ToArray();
+		IUnityObjectBase[] animationCandidates = animationAssets?.ToArray() ?? sourceAssets;
 		SceneBuilder sceneBuilder = new();
 		BuildParameters parameters = new BuildParameters(isScene);
 
@@ -58,21 +63,22 @@ public static class GlbLevelBuilder
 				}
 			}
 		}
-		AddAnimationClips(sceneBuilder, parameters, roots);
+		AddAnimationClips(sceneBuilder, parameters, roots, animationCandidates);
 
 		return sceneBuilder;
 	}
 
-	private static void AddAnimationClips(SceneBuilder sceneBuilder, BuildParameters parameters, IEnumerable<IGameObject> roots)
+	private static void AddAnimationClips(SceneBuilder sceneBuilder, BuildParameters parameters, IEnumerable<IGameObject> roots, IEnumerable<IUnityObjectBase> animationCandidates)
 	{
 		HashSet<IAnimationClip> clips = new(ReferenceEqualityComparer.Instance);
+		IAnimatorController[] controllers = animationCandidates.OfType<IAnimatorController>().ToArray();
 		foreach (IGameObject root in roots)
 		{
-			foreach (IAnimationClip clip in root.Collection.Bundle.GetRoot().FetchAssets().OfType<IAnimationClip>())
+			foreach (IAnimationClip clip in animationCandidates.OfType<IAnimationClip>())
 			{
 				try
 				{
-					if (clip.FindRoots().Any(candidate => ReferenceEquals(candidate.GetRoot(), root)))
+					if (IsClipForRoot(clip, root, controllers))
 					{
 						clips.Add(clip);
 					}
@@ -84,8 +90,8 @@ public static class GlbLevelBuilder
 			}
 		}
 
-		foreach (IAnimationClip clip in clips)
-		{
+			foreach (IAnimationClip clip in clips)
+			{
 			string track = $"{clip.GetBestName()}::{clip.PathID}";
 			foreach (IGameObject root in roots)
 			{
@@ -93,10 +99,23 @@ public static class GlbLevelBuilder
 				AddVector3Tracks(parameters, root.GetTransform(), clip.ScaleCurves_C74, track, isTranslation: false);
 				AddQuaternionTracks(parameters, root.GetTransform(), clip.RotationCurves_C74, track);
 			}
+			}
 		}
+
+	private static bool IsClipForRoot(IAnimationClip clip, IGameObject root, IReadOnlyCollection<IAnimatorController> controllers)
+	{
+			foreach (IAnimator animator in root.FetchHierarchy().OfType<IAnimator>())
+			{
+				if (animator.ContainsAnimationClip(clip))
+				{
+					return true;
+			}
+		}
+		return controllers.Any(controller => string.Equals(controller.GetBestName(), root.GetBestName(), StringComparison.OrdinalIgnoreCase) && controller.ContainsAnimationClip(clip))
+			|| clip.FindRoots().Any(candidate => ReferenceEquals(candidate.GetRoot(), root));
 	}
 
-	private static void AddVector3Tracks(BuildParameters parameters, ITransform root, IEnumerable<IVector3Curve> curves, string track, bool isTranslation)
+		private static void AddVector3Tracks(BuildParameters parameters, ITransform root, IEnumerable<IVector3Curve> curves, string track, bool isTranslation)
 	{
 		foreach (IVector3Curve curve in curves)
 		{
@@ -202,19 +221,22 @@ public static class GlbLevelBuilder
 
 		if (gameObject.TryGetComponent(out ISkinnedMeshRenderer? skinnedRenderer)
 			&& skinnedRenderer.MeshP is IMesh skinnedMesh
-			&& skinnedMesh.IsSet()
 			&& parameters.TryGetOrMakeMeshData(skinnedMesh, out MeshData skinnedData)
-			&& skinnedData.HasSkin)
+		)
 		{
 			ITransform[] bones = skinnedRenderer.BonesP.WhereNotNull().ToArray();
-			if (bones.Length > 0 && bones.All(parameters.NodeCache.ContainsKey))
+			if (skinnedData.HasSkin && bones.Length > 0 && bones.All(parameters.NodeCache.ContainsKey))
 			{
 				AddSkinnedMeshToScene(sceneBuilder, parameters, node, skinnedMesh, skinnedData, new MaterialList(skinnedRenderer), bones);
+			}
+			else
+			{
+				Logger.Warning(LogCategory.Export, $"GLB exported skinned mesh '{skinnedMesh.GetBestName()}' as a rigid mesh because its bone references could not be resolved.");
+				AddDynamicMeshToScene(sceneBuilder, parameters, node, skinnedMesh, skinnedData, new MaterialList(skinnedRenderer));
 			}
 		}
 		else if (gameObject.TryGetComponent(out IMeshFilter? meshFilter)
 			&& meshFilter.TryGetMesh(out IMesh? mesh)
-			&& mesh.IsSet()
 			&& parameters.TryGetOrMakeMeshData(mesh, out MeshData meshData)
 			&& gameObject.TryGetComponent(out IRenderer? meshRenderer))
 		{

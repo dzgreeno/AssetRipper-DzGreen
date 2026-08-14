@@ -278,7 +278,7 @@ internal static class AssetAPI
 			MemoryStream stream = new();
 			try
 			{
-				SceneBuilder sceneBuilder = GlbLevelBuilder.Build(root.FetchHierarchy().OfType<IUnityObjectBase>(), false);
+				SceneBuilder sceneBuilder = GlbLevelBuilder.Build(root.FetchHierarchy().OfType<IUnityObjectBase>(), false, GameFileLoader.GameBundle.FetchAssets());
 				if (GlbWriter.TryWrite(sceneBuilder, stream, out string? errorMessage))
 				{
 					return Results.Bytes(stream.ToArray(), "model/gltf-binary", "character.glb").ExecuteAsync(context);

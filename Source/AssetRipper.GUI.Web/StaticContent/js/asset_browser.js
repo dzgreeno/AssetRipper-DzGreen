@@ -2,7 +2,10 @@
 	const root = document.querySelector('[data-asset-browser="true"]');
 	if (!root) return;
 
-	const rows = Array.from(root.querySelectorAll('.asset-browser-row'));
+		const rowsContainer = root.querySelector('#assetBrowserRows');
+		const pagerPrevious = root.querySelector('#assetBrowserPagerPrevious');
+		const pagerNext = root.querySelector('#assetBrowserPagerNext');
+		const pagerSummary = root.querySelector('#assetBrowserPagerSummary');
 	const search = root.querySelector('#assetBrowserSearch');
 	const category = root.querySelector('#assetBrowserCategory');
 	const classFilter = root.querySelector('#assetBrowserClass');
@@ -50,7 +53,11 @@
 	const modelCategories = new Set(['GameObject', 'Mesh', 'Material', 'Animation']);
 	let selectedRow = null;
 	let activeCharacter = root.querySelector('.asset-browser-character-choice');
-	let filterFrame = 0;
+		let filterFrame = 0;
+		let pageOffset = 0;
+		let pageTotal = Number(root.dataset.assetTotal || 0);
+		const pageSize = Number(rowsContainer?.dataset.pageSize || 200);
+		let pagingInFlight = false;
 	const storage = {
 		get(key, fallback) {
 			try {
@@ -65,9 +72,13 @@
 		}
 	};
 
-	function normalized(value) {
-		return String(value || '').normalize('NFKC').toLowerCase();
-	}
+		function normalized(value) {
+			return String(value || '').normalize('NFKC').toLowerCase();
+		}
+
+		function getRows() {
+			return Array.from(root.querySelectorAll('.asset-browser-row'));
+		}
 
 	function matchesCategory(row, selectedCategory) {
 		if (!selectedCategory) return true;
@@ -200,7 +211,7 @@
 	function selectRow(row) {
 		if (!row) return;
 		selectedRow = row;
-		rows.forEach(candidate => candidate.classList.toggle('asset-browser-row-selected', candidate === row));
+			getRows().forEach(candidate => candidate.classList.toggle('asset-browser-row-selected', candidate === row));
 		const data = {
 			name: row.dataset.assetName || '-',
 			className: row.dataset.assetClass || '-',
@@ -230,7 +241,7 @@
 
 		function clearSelection() {
 		selectedRow = null;
-		rows.forEach(candidate => candidate.classList.remove('asset-browser-row-selected'));
+			getRows().forEach(candidate => candidate.classList.remove('asset-browser-row-selected'));
 		if (inspectorEmpty) inspectorEmpty.hidden = false;
 		if (inspectorDetails) inspectorDetails.hidden = true;
 		inspector?.classList.remove('asset-browser-inspector-active');
@@ -281,45 +292,64 @@
 				}
 			}
 
-	function firstVisibleRow() {
-		return rows.find(row => !row.hidden);
-	}
-
-	function applyFilters() {
-		const query = normalized(search?.value);
-		const selectedCategory = category?.value || '';
-		const selectedClass = classFilter?.value || '';
-		const selectedCollection = collection?.value || '';
-		let visible = 0;
-		rows.forEach(row => {
-			const searchable = normalized([
-				row.dataset.assetSearch,
-				row.dataset.assetName,
-				row.dataset.assetClass,
-				row.dataset.assetCategory,
-				row.dataset.assetCollection,
-				row.dataset.assetComponents
-			].join(' '));
-			const matches = (!query || searchable.includes(query))
-				&& matchesCategory(row, selectedCategory)
-				&& (!selectedClass || row.dataset.assetClass === selectedClass)
-				&& (!selectedCollection || row.dataset.assetCollection === selectedCollection);
-			row.hidden = !matches;
-			if (matches) visible++;
-		});
-		if (resultCount) resultCount.textContent = `${visible} of ${root.dataset.assetTotal || rows.length} assets`;
-		if (selectedRow?.hidden) {
-			const first = firstVisibleRow();
-			if (first) selectRow(first); else clearSelection();
+		function firstVisibleRow() {
+			return getRows()[0] || null;
 		}
-	}
+
+		function updatePager() {
+			const first = pageTotal === 0 ? 0 : pageOffset + 1;
+			const last = Math.min(pageOffset + getRows().length, pageTotal);
+			if (pagerSummary) pagerSummary.textContent = pageTotal === 0 ? 'No assets match this filter' : `Showing ${first}–${last} of ${pageTotal} assets`;
+			if (resultCount) resultCount.textContent = `${pageTotal} matching assets`;
+			if (pagerPrevious) pagerPrevious.disabled = pagingInFlight || pageOffset <= 0;
+			if (pagerNext) pagerNext.disabled = pagingInFlight || pageOffset + pageSize >= pageTotal;
+		}
+
+		function bindRows() {
+			getRows().forEach(row => row.addEventListener('click', () => selectRow(row)));
+		}
+
+		async function loadPage(offset = 0) {
+			if (!rowsContainer || pagingInFlight) return;
+			pagingInFlight = true;
+			updatePager();
+			const parameters = new URLSearchParams({
+				offset: String(Math.max(0, offset)),
+				take: String(pageSize),
+				q: search?.value || '',
+				category: category?.value || '',
+				class: classFilter?.value || '',
+				collection: collection?.value || ''
+			});
+			try {
+				const response = await fetch(`/Assets/WorkspaceRows?${parameters.toString()}`, { cache: 'no-store' });
+				if (!response.ok) throw new Error(`Workspace query failed (${response.status})`);
+				rowsContainer.innerHTML = await response.text();
+				pageOffset = Number(response.headers.get('X-AssetRipper-Offset') || 0);
+				pageTotal = Number(response.headers.get('X-AssetRipper-Total') || 0);
+				selectedRow = null;
+				bindRows();
+				const first = firstVisibleRow();
+				if (first) selectRow(first); else clearSelection();
+			} catch (error) {
+				console.error('Workspace paging failed:', error);
+				if (resultCount) resultCount.textContent = 'Could not load matching assets. Try again.';
+			} finally {
+				pagingInFlight = false;
+				updatePager();
+			}
+		}
+
+		function applyFilters() {
+			return loadPage(0);
+		}
 
 	function scheduleApplyFilters() {
-		if (filterFrame) cancelAnimationFrame(filterFrame);
-		filterFrame = requestAnimationFrame(() => {
-			filterFrame = 0;
-			applyFilters();
-		});
+			if (filterFrame) window.clearTimeout(filterFrame);
+			filterFrame = window.setTimeout(() => {
+				filterFrame = 0;
+				applyFilters();
+			}, 180);
 	}
 
 	function setQuickCategory(value) {
@@ -332,12 +362,14 @@
 	for (const control of [search, category, classFilter, collection]) {
 		control?.addEventListener(control === search ? 'input' : 'change', scheduleApplyFilters);
 	}
-	rows.forEach(row => row.addEventListener('click', () => selectRow(row)));
+		bindRows();
 		root.querySelector('#assetBrowserQuickAll')?.addEventListener('click', () => setQuickCategory(''));
 		root.querySelectorAll('.asset-browser-chip[data-category]').forEach(chip => chip.addEventListener('click', () => setQuickCategory(chip.dataset.category || '')));
 			root.querySelectorAll('.asset-browser-character-choice').forEach(choice => choice.addEventListener('click', () => selectCharacter(choice)));
 			characterFbxExport?.addEventListener('click', exportSelectedCharacterFbx);
 			openExportFolder?.addEventListener('click', openSelectedCharacterExportFolder);
+		pagerPrevious?.addEventListener('click', () => loadPage(Math.max(0, pageOffset - pageSize)));
+		pagerNext?.addEventListener('click', () => loadPage(pageOffset + pageSize));
 		animationClipSelect?.addEventListener('change', () => {
 			const track = animationClipSelect.value;
 			window.assetRipperModelPreview?.selectAnimationTrack(track);
@@ -387,6 +419,6 @@
 
 	if (inspectorDetails) inspectorDetails.hidden = true;
 	if (activeCharacter) selectCharacter(activeCharacter, false);
-	setQuickCategory('');
-	selectRow(firstVisibleRow());
+		updatePager();
+		selectRow(firstVisibleRow());
 })();

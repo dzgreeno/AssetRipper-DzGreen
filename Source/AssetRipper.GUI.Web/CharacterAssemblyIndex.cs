@@ -27,7 +27,7 @@ namespace AssetRipper.GUI.Web;
 /// </summary>
 internal static class CharacterAssemblyIndex
 {
-	public static CharacterAssembly[] Build(GameBundle bundle)
+	public static CharacterAssembly[] Build(GameBundle bundle, int maximumRoots = 48)
 	{
 		List<IUnityObjectBase> allAssets = bundle.FetchAssets().ToList();
 		List<CharacterAssemblyBuilder> builders = [];
@@ -42,11 +42,16 @@ internal static class CharacterAssemblyIndex
 			IGameObject root = gameObject.GetRoot();
 			if (!byRoot.TryGetValue(root, out CharacterAssemblyBuilder? builder))
 			{
+				if (builders.Count >= maximumRoots)
+				{
+					continue;
+				}
 				builder = new CharacterAssemblyBuilder(root);
 				byRoot.Add(root, builder);
 				builders.Add(builder);
+				// A root may have many candidate children. Traverse its hierarchy once, not once per child.
+				builder.AddHierarchy(root.FetchHierarchy());
 			}
-			builder.AddHierarchy(root.FetchHierarchy());
 		}
 
 		foreach (CharacterAssemblyBuilder builder in builders)

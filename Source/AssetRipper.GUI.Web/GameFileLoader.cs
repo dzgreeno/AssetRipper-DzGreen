@@ -7,6 +7,7 @@ using AssetRipper.Import.Structure.Assembly.Managers;
 using AssetRipper.IO.Files;
 using AssetRipper.NativeDialogs;
 using AssetRipper.Processing;
+using AssetRipper.GUI.Web.Pages;
 
 namespace AssetRipper.GUI.Web;
 
@@ -57,6 +58,7 @@ public static class GameFileLoader
 	public static void Reset()
 	{
 		ProcessingIssueRegistry.Clear();
+		AssetBrowserPanel.ResetCache();
 			if (GameData is not null)
 			{
 				GameData = null;

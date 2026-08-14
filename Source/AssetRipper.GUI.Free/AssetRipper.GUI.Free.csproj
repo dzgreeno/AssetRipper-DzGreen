@@ -33,4 +33,9 @@
 		<ProjectReference Include="..\AssetRipper.GUI.Web\AssetRipper.GUI.Web.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Content Include="..\AssetRipper.GUI.Web\NativeTools\win-x64\assimp.exe" Link="assimp.exe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+		<Content Include="..\AssetRipper.GUI.Web\NativeTools\win-x64\ASSIMP-LICENSE.txt" Link="ASSIMP-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
 </Project>

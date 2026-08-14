@@ -7,18 +7,29 @@ using AssetRipper.SourceGenerated.Classes.ClassID_1;
 using AssetRipper.SourceGenerated.Classes.ClassID_43;
 using AssetRipper.SourceGenerated.Classes.ClassID_74;
 using AssetRipper.SourceGenerated.Extensions;
+using Microsoft.AspNetCore.Http;
 
 namespace AssetRipper.GUI.Web.Pages;
 
 internal static class AssetBrowserPanel
 {
+	private const int InitialRowPageSize = 200;
+	private static readonly Lock rowCacheLock = new();
+	private static GameBundle? cachedBundle;
+	private static AssetRow[] cachedRows = [];
+
+	public static void ResetCache()
+	{
+		lock (rowCacheLock)
+		{
+			cachedBundle = null;
+			cachedRows = [];
+		}
+	}
+
 	public static void Write(TextWriter writer, GameBundle bundle)
 	{
-		AssetRow[] rows = bundle.FetchAssetCollections()
-			.SelectMany(collection => collection.Select(asset => CreateRow(asset, collection)))
-			.OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
-			.ThenBy(row => row.ClassName, StringComparer.OrdinalIgnoreCase)
-			.ToArray();
+		AssetRow[] rows = GetRows(bundle);
 
 		HashSet<string> classes = rows.Select(row => row.ClassName).ToHashSet(StringComparer.OrdinalIgnoreCase);
 		HashSet<string> collections = rows.Select(row => row.CollectionName).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -26,7 +37,11 @@ internal static class AssetBrowserPanel
 		int meshes = rows.Count(row => row.Category == "Mesh");
 		int animations = rows.Count(row => row.Category == "Animation");
 		int textures = rows.Count(row => row.Category == "Texture");
-		CharacterAssemblyIndex.CharacterAssembly[] characterAssemblies = CharacterAssemblyIndex.Build(bundle);
+		// Full character reconstruction can traverse every component relationship. For very large
+		// libraries, keep the workspace immediately responsive and let the user narrow to a root asset first.
+		CharacterAssemblyIndex.CharacterAssembly[] characterAssemblies = rows.Length > 8_000
+			? []
+			: CharacterAssemblyIndex.Build(bundle);
 
 			using (new Section(writer).WithClass("asset-browser-shell").WithCustomAttribute("data-asset-browser", "true").WithCustomAttribute("data-asset-total", rows.Length.ToString()).End())
 		{
@@ -56,6 +71,10 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 				if (rows.Length > 5000)
 				{
 					new P(writer).WithClass("asset-browser-large-set-note").Close($"All {rows.Length} processed assets are available. Use search or filters to narrow the workspace.");
+					if (characterAssemblies.Length == 0)
+					{
+						new P(writer).WithClass("asset-browser-large-set-note").Close("Automatic character assembly is deferred for this large library to keep browsing responsive. Filter to a GameObject, Mesh, or Animation to inspect and preview its resolved data.");
+					}
 				}
 				if (GameFileLoader.ProcessingIssues.Count > 0)
 				{
@@ -134,41 +153,13 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 														new Th(writer).Close("Path ID");
 						}
 					}
-					using (new Tbody(writer).End())
+					using (new Tbody(writer).WithId("assetBrowserRows").WithCustomAttribute("data-page-size", InitialRowPageSize.ToString()).End())
 					{
-						foreach (AssetRow row in rows)
-						{
-							using (new Tr(writer)
-								.WithClass("asset-browser-row")
-									.WithCustomAttribute("data-asset-name", row.Name)
-									.WithCustomAttribute("data-asset-class", row.ClassName)
-								.WithCustomAttribute("data-asset-category", row.Category)
-									.WithCustomAttribute("data-asset-collection", row.CollectionName)
-										.WithCustomAttribute("data-asset-search", row.SearchText)
-											.WithCustomAttribute("data-asset-components", row.ComponentSummary)
-.WithCustomAttribute("data-asset-model-url", row.ModelUrl ?? string.Empty)
-											.WithCustomAttribute("data-asset-view-url", row.ViewUrl)
-											.WithCustomAttribute("data-asset-yaml-url", row.YamlUrl)
-											.WithCustomAttribute("data-asset-json-url", row.JsonUrl)
-											.End())
-							{
-								using (new Td(writer).WithClass("asset-browser-name").End())
-								{
-									PathLinking.WriteLink(writer, row.Asset, row.Name, "asset-browser-link");
-								}
-								new Td(writer).WithClass("asset-browser-class").Close(row.ClassName);
-								new Td(writer).WithClass("asset-browser-category").Close(row.Category);
-															using (new Td(writer).WithClass("asset-browser-collection").End())
-															{
-																PathLinking.WriteLink(writer, row.Collection, row.CollectionName, "asset-browser-link asset-browser-link-muted");
-															}
-															new Td(writer).WithClass("asset-browser-components").WithCustomAttribute("title", row.ComponentSummary).Close(row.ComponentSummary);
-															new Td(writer).WithClass("asset-browser-path-id").Close(row.Asset.PathID.ToString());
-							}
-						}
+						WriteRows(writer, rows.Take(InitialRowPageSize));
 					}
-											}
+								}
 							}
+							WritePager(writer, rows.Length);
 						}
 					}
 				}
@@ -176,7 +167,118 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 		}
 	}
 
-	private static void WriteWorkspaceWorkbench(TextWriter writer, AssetRow[] rows, CharacterAssemblyIndex.CharacterAssembly[] assemblies)
+	public static Task GetWorkspaceRows(HttpContext context)
+	{
+		context.Response.Headers.CacheControl = "no-store";
+			if (!GameFileLoader.IsLoaded)
+			{
+				return Results.Conflict("Load game data before requesting workspace rows.").ExecuteAsync(context);
+			}
+
+			int offset = GetBoundedInt(context.Request.Query["offset"], 0, 0, int.MaxValue);
+			int take = GetBoundedInt(context.Request.Query["take"], InitialRowPageSize, 1, 500);
+			string query = context.Request.Query["q"].ToString();
+			string category = context.Request.Query["category"].ToString();
+			string className = context.Request.Query["class"].ToString();
+			string collection = context.Request.Query["collection"].ToString();
+			AssetRow[] rows = GetRows(GameFileLoader.GameBundle);
+			IEnumerable<AssetRow> filteredRows = rows.Where(row => RowMatches(row, query, category, className, collection));
+			int total = filteredRows.Count();
+			using StringWriter writer = new();
+			WriteRows(writer, filteredRows.Skip(offset).Take(take));
+			context.Response.Headers["X-AssetRipper-Total"] = total.ToString();
+			context.Response.Headers["X-AssetRipper-Offset"] = offset.ToString();
+			return Results.Content(writer.ToString(), "text/html; charset=utf-8").ExecuteAsync(context);
+		}
+
+		private static AssetRow[] GetRows(GameBundle bundle)
+		{
+			lock (rowCacheLock)
+			{
+				if (ReferenceEquals(cachedBundle, bundle))
+				{
+					return cachedRows;
+				}
+
+				cachedRows = bundle.FetchAssetCollections()
+					.SelectMany(collection => collection.Select(asset => CreateRow(asset, collection)))
+					.OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
+					.ThenBy(row => row.ClassName, StringComparer.OrdinalIgnoreCase)
+					.ToArray();
+				cachedBundle = bundle;
+				return cachedRows;
+			}
+		}
+
+		private static bool RowMatches(AssetRow row, string query, string category, string className, string collection)
+		{
+			if (!string.IsNullOrWhiteSpace(query) && !row.SearchText.Contains(query, StringComparison.OrdinalIgnoreCase))
+			{
+				return false;
+			}
+			if (!string.IsNullOrWhiteSpace(category) && category != "All" && category != row.Category && (category != "Model" || row.Category is not ("GameObject" or "Mesh" or "Material" or "Animation")))
+			{
+				return false;
+			}
+			return (string.IsNullOrWhiteSpace(className) || className == row.ClassName)
+				&& (string.IsNullOrWhiteSpace(collection) || collection == row.CollectionName);
+		}
+
+		private static int GetBoundedInt(string? value, int fallback, int minimum, int maximum)
+		{
+		return int.TryParse(value, out int parsed) ? System.Math.Clamp(parsed, minimum, maximum) : fallback;
+		}
+
+		private static void WriteRows(TextWriter writer, IEnumerable<AssetRow> rows)
+		{
+			foreach (AssetRow row in rows)
+			{
+				using (new Tr(writer)
+					.WithClass("asset-browser-row")
+					.WithCustomAttribute("data-asset-name", row.Name)
+					.WithCustomAttribute("data-asset-class", row.ClassName)
+					.WithCustomAttribute("data-asset-category", row.Category)
+					.WithCustomAttribute("data-asset-collection", row.CollectionName)
+					.WithCustomAttribute("data-asset-search", row.SearchText)
+					.WithCustomAttribute("data-asset-components", row.ComponentSummary)
+					.WithCustomAttribute("data-asset-model-url", row.ModelUrl ?? string.Empty)
+					.WithCustomAttribute("data-asset-view-url", row.ViewUrl)
+					.WithCustomAttribute("data-asset-yaml-url", row.YamlUrl)
+					.WithCustomAttribute("data-asset-json-url", row.JsonUrl)
+					.End())
+				{
+					using (new Td(writer).WithClass("asset-browser-name").End())
+					{
+						PathLinking.WriteLink(writer, row.Asset, row.Name, "asset-browser-link");
+					}
+					new Td(writer).WithClass("asset-browser-class").Close(row.ClassName);
+					new Td(writer).WithClass("asset-browser-category").Close(row.Category);
+					using (new Td(writer).WithClass("asset-browser-collection").End())
+					{
+						PathLinking.WriteLink(writer, row.Collection, row.CollectionName, "asset-browser-link asset-browser-link-muted");
+					}
+					new Td(writer).WithClass("asset-browser-components").WithCustomAttribute("title", row.ComponentSummary).Close(row.ComponentSummary);
+					new Td(writer).WithClass("asset-browser-path-id").Close(row.Asset.PathID.ToString());
+				}
+			}
+		}
+
+		private static void WritePager(TextWriter writer, int totalRows)
+		{
+			using (new Div(writer).WithClass("asset-browser-pager").End())
+			{
+				new Button(writer).WithId("assetBrowserPagerPrevious").WithType("button").WithClass("btn btn-sm btn-outline-secondary").WithDisabled().Close("Previous");
+				new Span(writer).WithId("assetBrowserPagerSummary").WithClass("asset-browser-pager-summary").Close($"Showing 1–{System.Math.Min(totalRows, InitialRowPageSize)} of {totalRows} assets");
+				Button nextButton = new Button(writer).WithId("assetBrowserPagerNext").WithType("button").WithClass("btn btn-sm btn-outline-secondary");
+				if (totalRows <= InitialRowPageSize)
+				{
+					nextButton.WithDisabled();
+				}
+				nextButton.Close("Next");
+			}
+		}
+
+		private static void WriteWorkspaceWorkbench(TextWriter writer, AssetRow[] rows, CharacterAssemblyIndex.CharacterAssembly[] assemblies)
 	{
 		CharacterAssemblyIndex.CharacterAssembly? assembly = assemblies.FirstOrDefault();
 		IUnityObjectBase? previewAsset = assembly?.Meshes.FirstOrDefault()

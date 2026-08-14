@@ -7,6 +7,7 @@ internal static class StatusLog
 {
 	private const int MaximumLines = 120;
 	private static readonly ConcurrentQueue<string> lines = new();
+	private static readonly ConcurrentQueue<string> completeLines = new();
 	private static int initialized;
 
 	public static void Initialize()
@@ -23,9 +24,16 @@ internal static class StatusLog
 		return lines.ToArray();
 	}
 
+	public static string GetCompleteText()
+	{
+		Initialize();
+		return string.Join(Environment.NewLine, completeLines) + Environment.NewLine;
+	}
+
 	private static void AddLine(string line)
 	{
 		lines.Enqueue(line);
+		completeLines.Enqueue(line);
 		while (lines.Count > MaximumLines && lines.TryDequeue(out _))
 		{
 		}
@@ -48,12 +56,12 @@ internal static class StatusLog
 					_ => "Status",
 				},
 			};
-			string normalized = message.Trim().Replace("\r\n", " ").Replace('\n', ' ');
-			if (normalized.Length > 500)
+			string[] messageLines = (message ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+			AddLine($"[{prefix}] {messageLines[0]}");
+			foreach (string messageLine in messageLines.AsSpan(1))
 			{
-				normalized = normalized[..500] + "…";
+				AddLine(messageLine);
 			}
-			AddLine($"[{prefix}] {normalized}");
 		}
 
 		public void BlankLine(int numLines)

@@ -309,6 +309,18 @@ pre {
 	letter-spacing: 0.08em;
 }
 
+.status-dock__actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: .4rem;
+}
+
+.status-dock__actions .btn {
+	font-size: .62rem;
+}
+
 .status-dock__output {
 	margin: 0.4rem 0 0;
 	padding: 0.45rem 0.6rem;
@@ -341,6 +353,11 @@ pre {
 	border-radius: 50%;
 	background: currentColor;
 	box-shadow: 0 0 12px currentColor;
+}
+
+@media (max-width: 640px) {
+	.status-dock__header { align-items: flex-start; flex-direction: column; }
+	.status-dock__actions { justify-content: flex-start; }
 }
 
 footer {
@@ -1032,6 +1049,8 @@ header::before {
 .asset-browser-chip:hover, .asset-browser-chip.is-active { border-color: #9be15d; background: rgba(155, 225, 93, .08); color: #9be15d; }
 .asset-browser-table-wrap { border-color: rgba(244, 240, 230, .14); border-radius: 2px; background: rgba(20, 23, 20, .82); }
 .asset-browser-table thead th { border-bottom-color: rgba(155, 225, 93, .28); background: #1b211c; color: #9aa397; font-family: "Cascadia Mono", Consolas, monospace; }
+.asset-browser-pager { display: flex; align-items: center; justify-content: space-between; gap: .65rem; margin-top: .7rem; padding: .65rem .05rem 0; border-top: 1px solid rgba(244, 240, 230, .11); }
+.asset-browser-pager-summary { color: #aab1a5; font-family: "Cascadia Mono", Consolas, monospace; font-size: .67rem; text-align: center; }
 .asset-browser-row:hover td, .asset-browser-row-selected td { background: rgba(155, 225, 93, .075) !important; }
 .asset-browser-row-selected td { box-shadow: inset 3px 0 #9be15d; }
 .asset-browser-category, .asset-browser-row-selected .asset-browser-name a { color: #9be15d; }

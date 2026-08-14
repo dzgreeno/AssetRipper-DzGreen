@@ -77,3 +77,16 @@
 - [ ] Build a new local Windows test package and obtain user confirmation before any push.
 
 > 2026-08-14 local download and workspace validation findings: the user log confirmed that the original ZIP was created under `Ripped\AssetWorkspace`, but the browser-triggered Blob download did not surface reliably. The action now uses a direct user-initiated GET download with a visible `Direct download` link and an `Open export folder` fallback that opens the exact character directory in the operating-system file manager. The direct `hero20053` GET was verified to return `application/zip`, a browser `Content-Disposition` attachment filename, the `binary-fbx+glb` format header, and a ZIP with no integrity errors. The refreshed Asset Atlas workspace was rendered locally with character selection, hierarchy, preview, export actions, and direct controls for framing, perspective/orthographic projection, auto rotation, PNG capture, camera distance, lighting, backdrop, animation playback, and speed. All 510 .NET tests passed.
+
+## Android Archive Recovery and Copyable Diagnostics Follow-up
+
+- [x] Inspect the uploaded Android archive safely and inventory supported, missing, encrypted, or malformed inputs without bypassing any protection.
+- [x] Reproduce the reported Unity 2020.1.0a0 Material, Mesh, and SkinnedMeshRenderer failures with the supplied data.
+- [x] Add a complete, user-initiated terminal-log copy action that preserves every visible diagnostic line and records the exact source file used.
+- [x] Improve safe best-effort handling so corrupt or unsupported objects are quarantined with actionable diagnostics while readable assets continue processing.
+- [x] Verify the repaired behavior on the supplied Android archive and run the full test suite.
+- [ ] Create a local Windows test package with the Android recovery, full diagnostics, and scalable Workspace changes; obtain user confirmation before any push.
+
+> 2026-08-14 Android recovery findings: the supplied 453 MB RAR was successfully integrity-tested and extracted into an isolated test directory. It contained 1,859 Android files and no encrypted entries; no contents were executed. Its UnityFS bundles advertise stripped `5.x.x` / `0.0.0` bundle metadata while the serialized object metadata reports `2020.1.0a0`. Changing the default Unity version does not alter those embedded metadata values. The initial reader failed for generated schemas; the safe embedded Type Tree fallback restored 25,338 readable objects across the full archive with 0 retained generated-reader errors and 0 Type Tree fallback failures. Recovered objects remain available for raw inspection and dependency analysis. The full diagnostic endpoint delivered 28,256 untruncated lines (7,091,438 bytes) with a browser download attachment name.
+
+> Workspace performance findings: the full archive contains 275,920 indexed assets. The initial Workspace response is now 372,422 bytes in 3.43 seconds with 200 initial rows; all assets remain searchable through `/Assets/WorkspaceRows` pages of up to 500 rows. A paged Mesh query reports 49,352 matching assets and returns 200 rows. Automatic character assembly is deliberately deferred above 8,000 assets to avoid a slow all-component traversal; users can still narrow to assets through filters and the advanced search. The full .NET suite passed: 510 succeeded, 0 failed.

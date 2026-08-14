@@ -25,6 +25,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using SwaggerThemes;
 using System.Diagnostics;
+using System.Text;
 
 namespace AssetRipper.GUI.Web;
 
@@ -169,9 +170,12 @@ app.MapStaticFile("/js/commands_page.js", "text/javascript");
 			.WithSummary("The home page")
 			.ProducesHtmlPage();
 		app.MapGet("/Commands", CommandsPage.Instance.ToResult).ProducesHtmlPage();
-		app.MapGet("/Status/Recent", () => Results.Json(StatusLog.Snapshot(), AppJsonSerializerContext.Default.StringArray))
-			.WithSummary("Recent import, export, and Auto-Fix status lines.")
-			.Produces<string[]>();
+			app.MapGet("/Status/Recent", () => Results.Json(StatusLog.Snapshot(), AppJsonSerializerContext.Default.StringArray))
+				.WithSummary("Recent import, export, and Auto-Fix status lines.")
+				.Produces<string[]>();
+			app.MapGet("/Status/Full", () => Results.File(Encoding.UTF8.GetBytes(StatusLog.GetCompleteText()), "text/plain; charset=utf-8", "AssetRipper-DzGreen-diagnostics.log"))
+				.WithSummary("Complete diagnostics captured since startup, including multiline exception details.")
+				.Produces<byte[]>(contentType: "text/plain");
 		app.MapGet("/Privacy", PrivacyPage.Instance.ToResult).ProducesHtmlPage();
 		app.MapGet("/Licenses", LicensesPage.Instance.ToResult).ProducesHtmlPage();
 		app.MapGet("/PremiumFeatures", PremiumFeaturesPage.Instance.ToResult).ProducesHtmlPage();
@@ -206,6 +210,8 @@ app.MapStaticFile("/js/commands_page.js", "text/javascript");
 			app.MapGet(AssetAPI.Urls.Model, AssetAPI.GetModelData)
 				.Produces<byte[]>(contentType: "application/octet-stream")
 				.WithAssetPathParameter();
+			app.MapGet(AssetAPI.Urls.WorkspaceRows, AssetBrowserPanel.GetWorkspaceRows)
+				.Produces<string>(contentType: "text/html");
 			app.MapGet(AssetAPI.Urls.CharacterModel, AssetAPI.GetCharacterModelData)
 				.Produces<byte[]>(contentType: "model/gltf-binary")
 				.WithAssetPathParameter();

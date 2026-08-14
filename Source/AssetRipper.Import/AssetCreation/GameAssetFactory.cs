@@ -62,7 +62,7 @@ public sealed class GameAssetFactory : AssetFactoryBase
 		}
 		else
 		{
-			return ReadNormalObject(assetInfo, assetData);
+			return ReadNormalObject(assetInfo, assetData, assetType);
 		}
 	}
 
@@ -102,12 +102,18 @@ public sealed class GameAssetFactory : AssetFactoryBase
 		return monoBehaviour;
 	}
 
-	private static IUnityObjectBase ReadNormalObject(AssetInfo assetInfo, ReadOnlyArraySegment<byte> assetData)
+	private static IUnityObjectBase ReadNormalObject(AssetInfo assetInfo, ReadOnlyArraySegment<byte> assetData, SerializedType? assetType)
 	{
 		IUnityObjectBase asset = TryReadNormalObject(assetInfo, assetData, assetInfo.Collection.Version, out string? error);
+		string? typeTreeError = null;
 		if (error is null)
 		{
 			return asset;
+		}
+		else if (TryReadWithEmbeddedTypeTree(assetInfo, assetData, assetType, out IUnityObjectBase? typeTreeAsset, out typeTreeError))
+		{
+			Logger.Warning(LogCategory.Import, $"Recovered asset type {(ClassIDType)assetInfo.ClassID} from embedded serialized Type Tree after the generated reader failed. V: {assetInfo.Collection.Version} N: {assetInfo.Collection.Name} PathID: {assetInfo.PathID}. The asset remains available for raw inspection and dependency analysis.");
+			return typeTreeAsset;
 		}
 		else if (SpecialFileNames.IsDefaultResourceOrBuiltinExtra(assetInfo.Collection.Name))
 		{
@@ -132,6 +138,10 @@ public sealed class GameAssetFactory : AssetFactoryBase
 			}
 		}
 
+		if (typeTreeError is not null)
+		{
+			Logger.Warning(LogCategory.Import, $"Embedded Type Tree fallback also failed for asset type {(ClassIDType)assetInfo.ClassID}. {typeTreeError}");
+		}
 		Logger.Error(LogCategory.Import, error);
 		UnreadableObject unreadable = new UnreadableObject(asset.AssetInfo, assetData.ToArray());
 		unreadable.Name = (asset as INamed)?.Name;
@@ -146,6 +156,31 @@ public sealed class GameAssetFactory : AssetFactoryBase
 			error = null;
 			return new UnknownObject(assetInfo, assetData.ToArray());
 		}
+		TryReadObject(asset, assetData, out error);
+		return asset;
+	}
+
+	private static bool TryReadWithEmbeddedTypeTree(AssetInfo assetInfo, ReadOnlySpan<byte> assetData, SerializedType? assetType, [NotNullWhen(true)] out IUnityObjectBase? recoveredAsset, out string? error)
+	{
+		recoveredAsset = null;
+		error = null;
+		if (assetType is null || !TypeTreeNodeStruct.TryMakeFromTypeTree(assetType.OldType, out TypeTreeNodeStruct rootNode))
+		{
+			return false;
+		}
+
+		TypeTreeObject typeTreeObject = TypeTreeObject.Create(assetInfo, rootNode);
+		if (!TryReadObject(typeTreeObject, assetData, out error))
+		{
+			return false;
+		}
+
+		recoveredAsset = typeTreeObject;
+		return true;
+	}
+
+	private static bool TryReadObject(IUnityObjectBase asset, ReadOnlySpan<byte> assetData, out string? error)
+	{
 		EndianSpanReader reader = new EndianSpanReader(assetData, asset.Collection.EndianType);
 		try
 		{
@@ -177,7 +212,7 @@ public sealed class GameAssetFactory : AssetFactoryBase
 		{
 			error = MakeError_ReadException(asset, ex);
 		}
-		return asset;
+		return error is null;
 
 		static bool IsAllZero(ReadOnlySpan<byte> span)
 		{

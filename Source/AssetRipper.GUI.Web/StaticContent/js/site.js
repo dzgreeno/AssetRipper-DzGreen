@@ -77,6 +77,45 @@ document.addEventListener('DOMContentLoaded', () => {
 	window.setInterval(refreshAssetRipperStatus, 1200);
 });
 
+// Copy the complete diagnostics stream exactly as captured by the local status logger.
+document.addEventListener('DOMContentLoaded', () => {
+	const copyButton = document.getElementById('assetRipperCopyFullLog');
+	if (!copyButton) return;
+
+	copyButton.addEventListener('click', async () => {
+		const originalLabel = copyButton.textContent;
+		copyButton.disabled = true;
+		copyButton.textContent = 'Copying…';
+		try {
+			const response = await fetch('/Status/Full', { cache: 'no-store' });
+			if (!response.ok) throw new Error(`Status response ${response.status}`);
+			const text = await response.text();
+			if (navigator.clipboard?.writeText) {
+				await navigator.clipboard.writeText(text);
+			} else {
+				const fallback = document.createElement('textarea');
+				fallback.value = text;
+				fallback.setAttribute('readonly', '');
+				fallback.style.position = 'fixed';
+				fallback.style.opacity = '0';
+				document.body.appendChild(fallback);
+				fallback.select();
+				if (!document.execCommand('copy')) throw new Error('Clipboard access was unavailable');
+				fallback.remove();
+			}
+			copyButton.textContent = 'Copied full log';
+		} catch (error) {
+			console.error('Could not copy the full diagnostic log:', error);
+			copyButton.textContent = 'Use Save log';
+		} finally {
+			window.setTimeout(() => {
+				copyButton.disabled = false;
+				copyButton.textContent = originalLabel || 'Copy full log';
+			}, 1800);
+		}
+	});
+});
+
 // Fixed top-bar navigation controls.
 document.addEventListener('DOMContentLoaded', () => {
 	const back = document.getElementById('assetRipperNavigateBack');

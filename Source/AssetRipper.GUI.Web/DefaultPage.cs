@@ -273,11 +273,16 @@ public abstract class DefaultPage : HtmlPage
 	{
 		using (new Div(writer).WithClass("status-dock").WithCustomAttribute("data-status-dock", "true").End())
 		{
-			using (new Div(writer).WithClass("status-dock__header").End())
-			{
-				new P(writer).WithClass("status-pill mb-0").Close("Live status");
-				new P(writer).WithClass("mb-0").Close("Auto-Fix · Import · Export");
-			}
+				using (new Div(writer).WithClass("status-dock__header").End())
+				{
+					new P(writer).WithClass("status-pill mb-0").Close("Live status");
+					using (new Div(writer).WithClass("status-dock__actions").End())
+					{
+						new P(writer).WithClass("mb-0").Close("Auto-Fix · Import · Export");
+						new Button(writer).WithId("assetRipperCopyFullLog").WithType("button").WithClass("btn btn-sm btn-outline-secondary").Close("Copy full log");
+						new A(writer).WithHref("/Status/Full").WithClass("btn btn-sm btn-outline-secondary").WithCustomAttribute("download", "AssetRipper-DzGreen-diagnostics.log").Close("Save log");
+					}
+				}
 			new Pre(writer).WithClass("status-dock__output").WithCustomAttribute("data-status-output", "true").Close("Ready.");
 		}
 	}

@@ -6,7 +6,7 @@ The official MCP specification revision inspected was 2026-07-28.
 
 MCP uses JSON-RPC 2.0 between a host, client, and server. A server that exposes tools must declare the tools capability. The official tools page documents `tools/list` for deterministic tool discovery and `tools/call` for invocation. Tool definitions must include a name, description, and a valid JSON Schema `inputSchema`; servers should return tools in deterministic order. Tool results use a `content` array and may also include structured content/output schemas.
 
-The specification emphasizes that tool execution is arbitrary code execution and that a human-in-the-loop consent/deny path should exist. For AssetRipper, the server should therefore keep file-system scope explicit, reject unsafe paths, avoid executing user-supplied programs, and report export operations clearly. The requested local integration is a stdio server; no remote MCP connector is currently configured in the DzGreen session, so this task will deliver a standalone MCP executable/configuration rather than changing DzGreen connector settings.
+The specification emphasizes that tool execution is arbitrary code execution and that a human-in-the-loop consent/deny path should exist. For AssetRipper, the server should therefore keep file-system scope explicit, reject unsafe paths, avoid executing user-supplied programs, and report export operations clearly. The requested local integration is a stdio server; this project delivers a standalone MCP executable and configuration without changing external connector settings.
 
 ## Sources
 

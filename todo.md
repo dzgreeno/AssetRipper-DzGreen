@@ -12,7 +12,7 @@
 - [x] Verify the current `main` tree, public branches, tags, documentation, Pages bundles, and release assets.
 - [x] Inventory all Dependabot pull requests, close them without merging, and delete their remote branches.
 - [x] Re-scan current public refs and document any GitHub-managed historical pull-request refs that remain outside public heads and tags.
-- [x] Verify whether the branch-protection notice is GitHub interface metadata or repository content, and document its current state.
+- [x] Verify whether the branch-protection notice is GitHub interface metadata or repository content, and document its current state: it is a GitHub UI advisory, not repository content; the current public page HTML contains no copy of the notice.
 - [x] Add a GitHub Pages badge/button beside the Build and Release, License, Support, and Upstream badges.
 - [x] Audit the public README and repository text after the edit for prohibited legacy identity terms and non-`dzgreeno` branding.
-- [ ] Push the README and checklist update to `main`, then verify the public repository and Pages links.
+- [x] Push the README and checklist update to `main`, then verify the public repository and Pages links.

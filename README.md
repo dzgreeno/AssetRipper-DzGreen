@@ -1,6 +1,6 @@
 # AssetRipper DzGreen
 
-[![Build and Release](https://github.com/dzgreen/AssetRipper-DzGreen/actions/workflows/build-and-release.yml/badge.svg)](https://github.com/dzgreen/AssetRipper-DzGreen/actions/workflows/build-and-release.yml)
+[![Build and Release](https://github.com/dzgreeno/AssetRipper-DzGreen/actions/workflows/build-and-release.yml/badge.svg)](https://github.com/dzgreeno/AssetRipper-DzGreen/actions/workflows/build-and-release.yml)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-9BE15D.svg)](LICENSE.md)
 [![Support on Ko-fi](https://img.shields.io/badge/support-Ko--fi-B66D47.svg)](https://ko-fi.com/dzgreen)
 [![Upstream](https://img.shields.io/badge/upstream-AssetRipper-343A35.svg)](https://github.com/AssetRipper/AssetRipper)
@@ -32,13 +32,13 @@ The latest prepared Windows package contains the GUI, CLI, MCP server, and suppo
 | Field | Value |
 | --- | --- |
 | Base line | AssetRipper `1.3.14` / commit `545f345` |
-| Package | `AssetRipper-Workspace-Collapse-Final-win-x64.zip` |
+| Package | `AssetRipper-DzGreen-v1.3.14-win-x64.zip` |
 | Platform | Windows x64, self-contained |
-| Size | Approximately 247 MB |
-| Files | 1,373 |
-| SHA256 | `d5b6f979c4580480d2886bb2c8756957ac5b3aee0e4f622f3c0ac2697abcb2c6` |
+| Size | Approximately 248 MB |
+| Files | 1,335 |
+| SHA256 | `a3b8772b8a1c53c9517040f734142391d265e2a27dfab77e46d30682f6155ac0` |
 
-The source tree also contains a GitHub Actions release workflow for Windows x64/ARM64, Linux x64/ARM64, and macOS x64/Apple Silicon. Release links become active once this fork is published at [`dzgreen/AssetRipper-DzGreen`](https://github.com/dzgreen/AssetRipper-DzGreen).
+The source tree also contains a GitHub Actions release workflow for Windows x64/ARM64, Linux x64/ARM64, and macOS x64/Apple Silicon. Release links become active at [`dzgreeno/AssetRipper-DzGreen`](https://github.com/dzgreeno/AssetRipper-DzGreen) after the first tag is published.
 
 ## Getting started
 

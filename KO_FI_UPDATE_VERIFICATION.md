@@ -11,3 +11,7 @@ The Ko-fi `Website` field was set to:
 `https://github.com/dzgreeno/AssetRipper-DzGreen`
 
 Ko-fi displayed a `Saved!` confirmation after both updates. The existing one-time and monthly support controls were left unchanged; no payment or donation was submitted.
+
+## Public recheck after GitHub publish
+
+The public page initially rendered the previous `dzgreeno/AssetRipper-DzGreen` link. The authenticated settings page was corrected again: both `About you` and `Website` now use `https://github.com/dzgreeno/AssetRipper-DzGreen`, and Ko-fi displayed `Saved!`. A public recheck now shows `github.com/dzgreeno/assetripper-dzgreen` and the corrected GitHub URL in the About text. No payment action was performed.

@@ -12,6 +12,7 @@ if (canvas && typeof BABYLON !== 'undefined') {
 	const defaults = { alpha: camera.alpha, beta: camera.beta, radius: camera.radius };
 	let lightingEnabled = true;
 	let animationEnabled = true;
+	let selectedAnimationTrack = '';
 	let loadToken = 0;
 	const status = document.getElementById('assetBrowserPreviewStatus');
 
@@ -38,6 +39,24 @@ if (canvas && typeof BABYLON !== 'undefined') {
 		defaults.radius = camera.radius;
 	}
 
+	function getAnimationTracks() {
+		return scene.animationGroups.map(group => group.name);
+	}
+
+	function playSelectedAnimation() {
+		const selected = scene.animationGroups.find(group => group.name === selectedAnimationTrack) || scene.animationGroups[0];
+		if (!selected) return false;
+		selectedAnimationTrack = selected.name;
+		scene.animationGroups.forEach(group => group === selected ? group.stop() : group.stop());
+		if (animationEnabled) selected.start(true); else selected.pause();
+		return true;
+	}
+
+	function selectAnimationTrack(track) {
+		selectedAnimationTrack = track || '';
+		return playSelectedAnimation();
+	}
+
 	function loadModel(path) {
 		if (!path) return;
 		const token = ++loadToken;
@@ -45,7 +64,7 @@ if (canvas && typeof BABYLON !== 'undefined') {
 		clearSceneContent();
 		BABYLON.SceneLoader.Append('', path, scene, loadedScene => {
 			if (token !== loadToken) return;
-			loadedScene.animationGroups.forEach(group => animationEnabled ? group.start(true) : group.pause());
+			playSelectedAnimation();
 			fitCameraToScene();
 			if (status) status.textContent = `Preview ready · ${scene.meshes.filter(mesh => mesh.getTotalVertices() > 0).length} render mesh(es)`;
 		}, null, (_scene, message) => {
@@ -53,7 +72,7 @@ if (canvas && typeof BABYLON !== 'undefined') {
 		});
 	}
 
-	window.assetRipperModelPreview = { load: loadModel };
+	window.assetRipperModelPreview = { load: loadModel, getAnimationTracks, selectAnimationTrack };
 
 	document.getElementById('toggleModelLighting')?.addEventListener('click', event => {
 		lightingEnabled = !lightingEnabled;
@@ -69,7 +88,8 @@ if (canvas && typeof BABYLON !== 'undefined') {
 	});
 	document.getElementById('toggleModelAnimation')?.addEventListener('click', event => {
 		animationEnabled = !animationEnabled;
-		scene.animationGroups.forEach(group => animationEnabled ? group.play(true) : group.pause());
+		if (animationEnabled) playSelectedAnimation();
+		else scene.animationGroups.find(group => group.name === selectedAnimationTrack)?.pause();
 		event.currentTarget.textContent = `Animation: ${animationEnabled ? 'on' : 'off'}`;
 	});
 

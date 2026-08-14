@@ -10,6 +10,8 @@ GLB export includes skinned meshes, cached joint nodes, corrected submesh/materi
 
 The assembled-character Workspace now exports the selected root directly from its `Export FBX` button. The action no longer redirects to the general project-export page: it writes the FBX and texture sidecars to `<ExportRootPath>/AssetWorkspace`, includes associated animation clips, and reports the resulting local path in the preview status area.
 
+Workspace FBX export now also starts a browser download of a ZIP bundle containing the exported FBX and its texture sidecars, while retaining the local export under `<ExportRootPath>/AssetWorkspace`. The preview toolbar includes an Animation Clip selector populated from the resolved character clips, so users can choose a named GLB animation track instead of relying solely on automatic playback.
+
 The CLI exposes strict processing diagnostics and returns a non-zero status when recoverable issues remain. The MCP stdio server documents the supported lifecycle versions, exposes processing issues as a read-only tool, validates the declared output contract, and propagates strict mode to controlled loads and exports. CI now follows the repository's `main` branch and performs restore, build, and test as separate steps.
 
 Serialized-file parsing now derives a generation-appropriate Unity version for legacy formats and malformed signatures instead of using a fixed modern fallback. MCP input and output paths are normalized and can be confined with `ASSETRIPPER_MCP_ALLOWED_ROOTS`.

@@ -5,6 +5,7 @@ using AssetRipper.GUI.Web.Paths;
 using AssetRipper.GUI.Web.Pages.Assets;
 using AssetRipper.SourceGenerated.Classes.ClassID_1;
 using AssetRipper.SourceGenerated.Classes.ClassID_43;
+using AssetRipper.SourceGenerated.Classes.ClassID_74;
 using AssetRipper.SourceGenerated.Extensions;
 
 namespace AssetRipper.GUI.Web.Pages;
@@ -243,6 +244,7 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 							new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("toggleModelLighting").Close("Lighting: on");
 							new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("resetModelCamera").Close("Reset camera");
 							new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("toggleModelAnimation").Close("Animation: on");
+							WriteAnimationClipSelector(writer, assembly);
 							Button exportFbxButton = new Button(writer).WithId("assetBrowserCharacterFbxExport").WithType("button").WithClass("btn btn-sm btn-success");
 							if (assembly is not null)
 							{
@@ -331,7 +333,7 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 				{
 					foreach (CharacterAssemblyIndex.CharacterAssembly assembly in assemblies)
 					{
-						using (new Button(writer).WithType("button").WithClass("asset-browser-character-choice").WithCustomAttribute("data-character-preview-url", AssetAPI.GetCharacterModelUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-fbx-export-url", AssetAPI.GetCharacterFbxExportUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-name", assembly.RootName).WithCustomAttribute("data-character-asset-url", AssetAPI.GetViewUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-yaml-url", AssetAPI.GetYamlUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-json-url", AssetAPI.GetJsonUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-collection", assembly.Root.Collection.Name).WithCustomAttribute("data-character-path-id", assembly.Root.PathID.ToString()).WithCustomAttribute("data-character-components", "GameObject · Transform · Animator hierarchy").End())
+						using (new Button(writer).WithType("button").WithClass("asset-browser-character-choice").WithCustomAttribute("data-character-preview-url", AssetAPI.GetCharacterModelUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-fbx-export-url", AssetAPI.GetCharacterFbxExportUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-animation-tracks", EncodeAnimationTracks(assembly.AnimationClips)).WithCustomAttribute("data-character-name", assembly.RootName).WithCustomAttribute("data-character-asset-url", AssetAPI.GetViewUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-yaml-url", AssetAPI.GetYamlUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-json-url", AssetAPI.GetJsonUrl(assembly.Root.GetPath())).WithCustomAttribute("data-character-collection", assembly.Root.Collection.Name).WithCustomAttribute("data-character-path-id", assembly.Root.PathID.ToString()).WithCustomAttribute("data-character-components", "GameObject · Transform · Animator hierarchy").End())
 						{
 							new Strong(writer).Close(assembly.RootName);
 							new Span(writer).Close($"{assembly.Meshes.Count} meshes · {assembly.Textures.Count} textures · {assembly.AnimationClips.Count} clips");
@@ -359,18 +361,43 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 		}
 	}
 
-	private static void WriteWorkspaceContextTabs(TextWriter writer, IUnityObjectBase? asset)
-	{
+		private static void WriteWorkspaceContextTabs(TextWriter writer, IUnityObjectBase? asset)
+		{
 		using (new Nav(writer).WithClass("asset-browser-context-tabs").End())
 		{
 			new A(writer).WithId("assetBrowserContextAsset").WithHref(asset is null ? "#" : AssetAPI.GetViewUrl(asset.GetPath())).WithClass("asset-browser-context-tab active").Close("Information");
 			new A(writer).WithId("assetBrowserContextYaml").WithHref(asset is null ? "#" : AssetAPI.GetYamlUrl(asset.GetPath())).WithClass("asset-browser-context-tab").Close("Yaml");
 			new A(writer).WithId("assetBrowserContextJson").WithHref(asset is null ? "#" : AssetAPI.GetJsonUrl(asset.GetPath())).WithClass("asset-browser-context-tab").Close("Json");
 			new A(writer).WithId("assetBrowserContextDependencies").WithHref(asset is null ? "#" : AssetAPI.GetViewUrl(asset.GetPath())).WithClass("asset-browser-context-tab").Close("Dependencies");
+			}
 		}
-	}
 
-	private static void WriteWorkspaceActionLink(TextWriter writer, string id, string href, string text, string className)
+		private static void WriteAnimationClipSelector(TextWriter writer, CharacterAssemblyIndex.CharacterAssembly? assembly)
+		{
+			if (assembly is not { AnimationClips.Count: > 0 })
+			{
+				new Button(writer).WithType("button").WithClass("btn btn-sm btn-outline-secondary").WithDisabled().Close("No animation clips");
+				return;
+			}
+
+			using (new Select(writer).WithId("assetBrowserAnimationClip").WithClass("form-select form-select-sm asset-browser-animation-select").WithCustomAttribute("aria-label", "Animation clip").End())
+			{
+				foreach (IAnimationClip clip in assembly.AnimationClips.OrderBy(clip => clip.GetBestName(), StringComparer.OrdinalIgnoreCase).ThenBy(clip => clip.PathID))
+				{
+					string track = GetAnimationTrackName(clip);
+					new Option(writer).WithValue(track).Close(clip.GetBestName());
+				}
+			}
+		}
+
+		private static string EncodeAnimationTracks(IEnumerable<IAnimationClip> clips)
+		{
+			return string.Join(",", clips.OrderBy(clip => clip.GetBestName(), StringComparer.OrdinalIgnoreCase).ThenBy(clip => clip.PathID).Select(clip => Uri.EscapeDataString(GetAnimationTrackName(clip))));
+		}
+
+		private static string GetAnimationTrackName(IAnimationClip clip) => $"{clip.GetBestName()}::{clip.PathID}";
+
+		private static void WriteWorkspaceActionLink(TextWriter writer, string id, string href, string text, string className)
 	{
 		new A(writer).WithId(id).WithHref(href).WithClass(className).Close(text);
 	}

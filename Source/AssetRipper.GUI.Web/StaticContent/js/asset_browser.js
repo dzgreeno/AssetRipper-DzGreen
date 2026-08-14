@@ -31,6 +31,7 @@
 		const workbenchTitle = root.querySelector('#assetBrowserWorkbenchTitle');
 		const previewDownload = root.querySelector('#assetBrowserPreviewDownload');
 		const characterFbxExport = root.querySelector('#assetBrowserCharacterFbxExport');
+		const animationClipSelect = root.querySelector('#assetBrowserAnimationClip');
 		const contextLinks = {
 		asset: root.querySelector('#assetBrowserContextAsset'),
 		yaml: root.querySelector('#assetBrowserContextYaml'),
@@ -96,6 +97,25 @@
 			characterFbxExport.disabled = !url;
 		}
 
+		function decodeAnimationTracks(value) {
+			return String(value || '').split(',').filter(Boolean).map(track => {
+				try { return decodeURIComponent(track); } catch (_) { return ''; }
+			}).filter(Boolean);
+		}
+
+		function updateAnimationClipSelector(tracks) {
+			if (!animationClipSelect) return;
+			animationClipSelect.replaceChildren();
+			for (const track of tracks) {
+				const option = document.createElement('option');
+				option.value = track;
+				option.textContent = track.split('::')[0] || track;
+				animationClipSelect.appendChild(option);
+			}
+			animationClipSelect.disabled = tracks.length === 0;
+			if (tracks.length) window.assetRipperModelPreview?.selectAnimationTrack(animationClipSelect.value);
+		}
+
 	function setPanelCollapsed(panel, button, collapsed, key, labels) {
 		if (!panel || !button) return;
 		panel.classList.toggle('is-collapsed', collapsed);
@@ -138,6 +158,7 @@
 			const name = choice.dataset.characterName || 'assembled character';
 			const previewUrl = choice.dataset.characterPreviewUrl || '';
 			const fbxExportUrl = choice.dataset.characterFbxExportUrl || '';
+			const animationTracks = decodeAnimationTracks(choice.dataset.characterAnimationTracks);
 		const characterData = {
 			name,
 			className: 'GameObject',
@@ -156,6 +177,7 @@
 				previewDownload.hidden = !previewUrl;
 			}
 			setCharacterFbxExportUrl(fbxExportUrl);
+			updateAnimationClipSelector(animationTracks);
 			updateInspector(characterData);
 		updateAssetLinks(characterData);
 		if (loadPreview && previewUrl && window.assetRipperModelPreview?.load) {
@@ -212,10 +234,19 @@
 			characterFbxExport.textContent = 'Exporting FBX…';
 			if (previewStatus) previewStatus.textContent = 'Exporting selected character FBX with animations…';
 			try {
-				const response = await fetch(exportUrl, { method: 'POST', headers: { Accept: 'text/plain' } });
-				const message = await response.text();
-				if (!response.ok) throw new Error(message || `Export failed (${response.status})`);
-				if (previewStatus) previewStatus.textContent = `FBX export complete · ${message}`;
+				const response = await fetch(exportUrl, { method: 'POST', headers: { Accept: 'application/zip' } });
+				if (!response.ok) throw new Error((await response.text()) || `Export failed (${response.status})`);
+				const blob = await response.blob();
+				const exportPath = response.headers.get('X-AssetRipper-Export-Path') || 'Ripped/AssetWorkspace';
+				const fallbackName = `${activeCharacter?.dataset.characterName || 'character'}_fbx_bundle.zip`;
+				const download = document.createElement('a');
+				download.href = URL.createObjectURL(blob);
+				download.download = fallbackName;
+				document.body.appendChild(download);
+				download.click();
+				download.remove();
+				setTimeout(() => URL.revokeObjectURL(download.href), 0);
+				if (previewStatus) previewStatus.textContent = `FBX saved locally and download started · ${exportPath}`;
 			} catch (error) {
 				const message = error instanceof Error ? error.message : 'FBX export failed.';
 				if (previewStatus) previewStatus.textContent = message;
@@ -281,6 +312,11 @@
 		root.querySelectorAll('.asset-browser-chip[data-category]').forEach(chip => chip.addEventListener('click', () => setQuickCategory(chip.dataset.category || '')));
 		root.querySelectorAll('.asset-browser-character-choice').forEach(choice => choice.addEventListener('click', () => selectCharacter(choice)));
 		characterFbxExport?.addEventListener('click', exportSelectedCharacterFbx);
+		animationClipSelect?.addEventListener('change', () => {
+			const track = animationClipSelect.value;
+			window.assetRipperModelPreview?.selectAnimationTrack(track);
+			if (previewStatus) previewStatus.textContent = `Playing animation clip · ${animationClipSelect.options[animationClipSelect.selectedIndex]?.textContent || track}`;
+		});
 
 	bindPanelToggle(filesPanel, filesToggle, 'assetripper.assetBrowser.filesCollapsed', { hide: 'Hide asset list', show: 'Show asset list' });
 	bindPanelToggle(hierarchyPanel, hierarchyToggle, 'assetripper.assetBrowser.hierarchyCollapsed', { hide: 'Hierarchy', show: 'Show hierarchy' });

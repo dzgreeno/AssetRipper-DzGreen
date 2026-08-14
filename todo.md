@@ -46,4 +46,13 @@
 - [x] Add a direct, explicit FBX character-export action that uses the selected assembled root and includes associated animation clips.
 - [x] Surface a clear completion or error notification with the saved output location in the Workspace.
 - [x] Build and test the GUI action against `hero20053`: the direct endpoint produced an Assimp-readable FBX with 6 meshes, 113 bones, 94 animations, and texture sidecars.
-- [ ] Regenerate the Windows portable test package with the direct Workspace FBX export fix and request a final user check.
+- [x] Regenerate the Windows portable test package with the direct Workspace FBX export fix; ZIP integrity and SHA-256 were verified.
+- [ ] Receive the user's direct-FBX package result before requesting approval to push.
+
+## Workspace Download and Animation Clip Follow-up
+
+- [x] Replace the direct-FBX text response with a downloadable ZIP containing the FBX and its texture sidecars, while preserving the local `Ripped/AssetWorkspace` export.
+- [x] Add a clear post-export browser download action and an explicit status message that distinguishes local save from download.
+- [x] Add an Animation Clip selector for the assembled character, with clip name/count and disabled state when none can be resolved.
+- [x] Connect the selected clip to the GLB preview animation track instead of relying only on automatic playback.
+- [ ] Build, test, and package the updated Windows GUI against the supplied character bundles.

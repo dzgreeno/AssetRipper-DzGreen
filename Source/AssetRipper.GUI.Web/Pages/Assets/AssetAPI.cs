@@ -35,6 +35,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using SharpGLTF.Scenes;
 using System.Globalization;
+using System.IO.Compression;
 using System.Runtime.InteropServices;
 
 namespace AssetRipper.GUI.Web.Pages.Assets;
@@ -319,7 +320,13 @@ internal static class AssetAPI
 				string directory = System.IO.Path.Combine(GameFileLoader.Settings.ExportRootPath, "AssetWorkspace");
 				Directory.CreateDirectory(directory);
 				string safeName = CreateSafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
-				string outputPath = System.IO.Path.Combine(directory, safeName + ".fbx");
+				string characterDirectory = System.IO.Path.Combine(directory, safeName);
+				if (Directory.Exists(characterDirectory))
+				{
+					Directory.Delete(characterDirectory, recursive: true);
+				}
+				Directory.CreateDirectory(characterDirectory);
+				string outputPath = System.IO.Path.Combine(characterDirectory, safeName + ".fbx");
 				FbxAsciiExporter exporter = new() { IncludeAnimations = true };
 				bool success = exporter.Export(exporter.GetCharacterAssets(root, GameFileLoader.GameBundle.FetchAssets()), outputPath, LocalFileSystem.Instance);
 				if (!success || !File.Exists(outputPath))
@@ -328,8 +335,15 @@ internal static class AssetAPI
 					return Results.InternalServerError("FBX export failed. See the local status log for details.").ExecuteAsync(context);
 				}
 
-				Logger.Info(LogCategory.Export, $"Workspace FBX export completed: {outputPath}");
-				return Results.Text(outputPath, "text/plain").ExecuteAsync(context);
+				string archivePath = System.IO.Path.Combine(directory, safeName + "_fbx_bundle.zip");
+				if (File.Exists(archivePath))
+				{
+					File.Delete(archivePath);
+				}
+				ZipFile.CreateFromDirectory(characterDirectory, archivePath, CompressionLevel.Fastest, includeBaseDirectory: true);
+				context.Response.Headers.Append("X-AssetRipper-Export-Path", outputPath);
+				Logger.Info(LogCategory.Export, $"Workspace FBX export completed: {outputPath}; download bundle: {archivePath}");
+				return Results.File(archivePath, "application/zip", System.IO.Path.GetFileName(archivePath)).ExecuteAsync(context);
 			}
 			catch (Exception ex)
 			{

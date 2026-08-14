@@ -1,4 +1,5 @@
 ﻿using AssetRipper.IO.Endian;
+using AssetRipper.IO.Files.BundleFiles;
 using AssetRipper.IO.Files.SerializedFiles.IO;
 using AssetRipper.IO.Files.Streams.Smart;
 
@@ -77,10 +78,12 @@ public sealed class SerializedFileMetadata
 		if (HasSignature(reader.Generation))
 		{
 			string signature = reader.ReadStringZeroTerm();
-			if (!UnityVersion.TryParse(signature, out UnityVersion version, out _))
+			if (!UnityVersion.TryParse(signature, out UnityVersion version, out _) || version.Equals(0, 0, 0))
 			{
-				// Assume version is stripped if it can't be parsed.
-				version = default;
+				// Keep malformed or obfuscated metadata readable. The LTS baseline is
+				// only used when parsing the source string failed completely.
+				version = new UnityVersion(2021, 3, 0, UnityVersionType.Final, 1);
+					BundleHeaderNormalizer.ReportAutoFix($"[Auto-Fix] Missing or invalid Unity version '{signature}' in serialized metadata; using fallback {version}");
 			}
 			UnityVersion = version;
 			reader.Version = version;

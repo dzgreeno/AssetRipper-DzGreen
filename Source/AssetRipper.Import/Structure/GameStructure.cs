@@ -19,8 +19,11 @@ public sealed class GameStructure : IDisposable
 	public IAssemblyManager AssemblyManager { get; set; }
 	public FileSystem FileSystem { get; }
 
+	private readonly List<string> sourcePaths;
+
 	private GameStructure(List<string> paths, FileSystem fileSystem, CoreConfiguration configuration)
 	{
+		sourcePaths = paths;
 		Logger.SendStatusChange("loading_step_detect_platform");
 		FileSystem = fileSystem;
 		PlatformChecker.CheckPlatform(paths, fileSystem, out PlatformGameStructure? platformStructure, out MixedGameStructure? mixedStructure);
@@ -68,7 +71,14 @@ public sealed class GameStructure : IDisposable
 		GameAssetFactory assetFactory = new GameAssetFactory(AssemblyManager);
 
 		IEnumerable<string> filePaths;
-		if (PlatformStructure is null || MixedStructure is null)
+		if (PlatformStructure is null && MixedStructure is null)
+		{
+			// Keep raw files readable when platform detection cannot classify the game.
+			// This is a format fallback, not a protection bypass.
+			filePaths = sourcePaths.Where(FileSystem.File.Exists).Distinct(StringComparer.OrdinalIgnoreCase);
+			Logger.Warning(LogCategory.Import, "No platform structure was detected; attempting raw file fallback.");
+		}
+		else if (PlatformStructure is null || MixedStructure is null)
 		{
 			filePaths = (PlatformStructure ?? MixedStructure)?.Files.Values() ?? [];
 		}

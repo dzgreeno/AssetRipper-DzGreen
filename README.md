@@ -1,43 +1,81 @@
-# AssetRipper
+# AssetRipper DzGreen
 
-[![](https://img.shields.io/github/downloads/AssetRipper/AssetRipper/total.svg)](https://github.com/AssetRipper/AssetRipper/releases)
-[![](https://img.shields.io/github/downloads/AssetRipper/AssetRipper/latest/total.svg)](https://github.com/AssetRipper/AssetRipper/releases/latest)
-[![](https://img.shields.io/github/v/release/AssetRipper/AssetRipper)](https://github.com/AssetRipper/AssetRipper/releases/latest)
-[![](https://weblate.samboy.dev/widgets/assetripper/-/gui/svg-badge.svg)](http://weblate.samboy.dev/engage/assetripper/)
+[![Build and Release](https://github.com/dzgreen/AssetRipper-DzGreen/actions/workflows/build-and-release.yml/badge.svg)](https://github.com/dzgreen/AssetRipper-DzGreen/actions/workflows/build-and-release.yml)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-9BE15D.svg)](LICENSE.md)
+[![Support on Ko-fi](https://img.shields.io/badge/support-Ko--fi-B66D47.svg)](https://ko-fi.com/dzgreen)
+[![Upstream](https://img.shields.io/badge/upstream-AssetRipper-343A35.svg)](https://github.com/AssetRipper/AssetRipper)
 
-AssetRipper is a powerful tool for analyzing Unity game files. For example, it enables game developers to:
+**AssetRipper DzGreen** is an independently maintained, advanced fork of the official [AssetRipper](https://github.com/AssetRipper/AssetRipper) project. It is maintained by **dzgreen** and continues the upstream `1.3.14` / `545f345` line with a focused workflow for Unity asset analysis, character assembly, FBX export, CLI automation, and MCP integration.
 
-* Find dependency assets that were accidentally included in their game
-* Convert their assets into the native Unity engine format
-* Identify code that could not be inlined or trimmed from their build
-* Find broken asset references that would cause issues in their game
+> This repository preserves upstream attribution and the GNU GPL-3.0 license. It is not sponsored by, affiliated with, or endorsed by Unity Technologies.
 
-AssetRipper supports Unity versions from `3.5.0` to `6000.5.X`. However, support quality may vary slightly for different Unity versions.
+## Why this fork exists
 
-[Downloads](https://assetripper.github.io/AssetRipper/articles/Downloads.html)
+AssetRipper is already a powerful tool for analyzing Unity game files. DzGreen extends the post-extraction workflow so that users can move from a large asset set to a useful, inspectable result without losing context between the file list, hierarchy, preview, dependencies, and export actions.
 
-## Premium Edition
+## Feature map
 
-There is a premium edition of AssetRipper. This edition includes additional [features and improvements](https://assetripper.github.io/AssetRipper/articles/PremiumFeatures.html).
+| Capability | AssetRipper upstream | AssetRipper DzGreen |
+| --- | --- | --- |
+| Unity asset analysis | Core import and inspection | Core import plus a unified Asset Workspace |
+| Asset navigation | Asset and detail pages | Search, global filters, hierarchy, inspector, context tabs, and collapse controls |
+| Character workflow | Asset-level export path | Grouped prefab assembly with meshes, bones, textures, Animator data, BlendShapes, and sibling clips |
+| FBX output | Upstream export capabilities | Extended hierarchy, UV channels through UV7, texture transforms, bind matrices, skin clusters, BlendShapes, and animation curves |
+| Automation | GUI-first workflow | `AssetRipper.CLI.exe` with JSON output and an MCP stdio server |
+| Tool integration | Project-specific APIs | `list_assets`, `inspect_prefab`, `export_fbx_with_anim`, and `batch_process` MCP tools |
+| Distribution | Upstream release channels | Fork-specific Windows package plus reproducible multi-platform GitHub Actions workflow |
 
-## Tips
+## Current prepared package
 
-Your support helps maintain and improve AssetRipper. If you find this tool useful, please consider tipping:
+The latest prepared Windows package contains the GUI, CLI, MCP server, and supporting documentation.
 
-* [Ko-fi](https://ko-fi.com/assetripper)
-* [Buy Me a Coffee](https://buymeacoffee.com/assetripper)
-* [GitHub Sponsors](https://github.com/sponsors/ds5678)
-* [PayPal](https://paypal.me/ds5678)
+| Field | Value |
+| --- | --- |
+| Base line | AssetRipper `1.3.14` / commit `545f345` |
+| Package | `AssetRipper-Workspace-Collapse-Final-win-x64.zip` |
+| Platform | Windows x64, self-contained |
+| Size | Approximately 247 MB |
+| Files | 1,373 |
+| SHA256 | `d5b6f979c4580480d2886bb2c8756957ac5b3aee0e4f622f3c0ac2697abcb2c6` |
 
-Users can access AssetRipper Premium with an active $10 subscription on any of those 4 platforms.
+The source tree also contains a GitHub Actions release workflow for Windows x64/ARM64, Linux x64/ARM64, and macOS x64/Apple Silicon. Release links become active once this fork is published at [`dzgreen/AssetRipper-DzGreen`](https://github.com/dzgreen/AssetRipper-DzGreen).
 
-## Discord [![](https://img.shields.io/discord/867514400701153281?color=blue&label=AssetRipper)](https://discord.gg/XqXa53W2Yh)
+## Getting started
 
-The development of this project has a dedicated [Discord server](https://discord.gg/XqXa53W2Yh).
+For the prepared Windows build, extract the ZIP and launch `AssetRipper.GUI.Free.exe`. The GUI terminal is intentionally visible so that diagnostics can be inspected and the process can be stopped cleanly. The Asset Workspace appears on the home page after data is loaded; its asset list, hierarchy, actions panel, and preview focus can be collapsed independently.
 
-## Legal Disclaimers
+The CLI is available at `tools/CLI/AssetRipper.CLI.exe`. A minimal invocation is:
 
-* AssetRipper is licensed under the [GNU General Public License v3.0](LICENSE.md).
-* AssetRipper is not sponsored by or affiliated with Unity Technologies or its affiliates.
-* "Unity" is a registered trademark of Unity Technologies or its affiliates in the U.S. and elsewhere.
-* The [Credits](https://assetripper.github.io/AssetRipper/articles/Credits.html) page contains a list of attributions.
+```powershell
+tools\CLI\AssetRipper.CLI.exe --input "C:\path\to\unity-data" --output "C:\path\to\export" --fbx --include-anim
+```
+
+Useful options include `--filter`, `--raw`, `--inspect-prefab`, and `--batch-process`. Run `--help` for the full parser and JSON output examples.
+
+The MCP stdio server is available at `tools/MCP/AssetRipper.MCP.exe`. Copy [`assetripper-mcp-config.example.json`](assetripper-mcp-config.example.json) into the configuration directory of the MCP client you use, then point its command to the extracted executable. Protocol responses are written to stdout; diagnostics are written to stderr.
+
+## Building from source
+
+The fork uses .NET 10 and the solution file `AssetRipper.slnx`.
+
+```bash
+dotnet restore AssetRipper.slnx
+dotnet build Source/AssetRipper.GUI.Free/AssetRipper.GUI.Free.csproj -c Release -p:PublishAot=false
+dotnet publish Source/AssetRipper.GUI.Free/AssetRipper.GUI.Free.csproj -c Release -r win-x64 --self-contained true -p:PublishAot=false
+dotnet publish Source/AssetRipper.Tools.CLI/AssetRipper.Tools.CLI.csproj -c Release -r win-x64 --self-contained true -p:PublishAot=false
+dotnet publish Source/AssetRipper.Tools.MCP/AssetRipper.Tools.MCP.csproj -c Release -r win-x64 --self-contained true -p:PublishAot=false
+```
+
+For cross-platform packages, use the checked-in workflow [`build-and-release.yml`](.github/workflows/build-and-release.yml). It builds the GUI, CLI, and MCP server for the six supported runtime targets, creates archives, writes SHA256 manifests, and publishes tagged releases.
+
+## GitHub Pages downloads site
+
+The prepared static site lives in [`docs-site`](docs-site). It contains the branded downloads and documentation landing page, while the source design project is maintained separately in the AssetRipper DzGreen web project. [`pages.yml`](.github/workflows/pages.yml) deploys the `docs-site` directory through GitHub Pages.
+
+## Legal and attribution
+
+The complete GPL-3.0 license text remains in [`LICENSE.md`](LICENSE.md). The short [`LICENSE`](LICENSE) pointer and [`NOTICE.md`](NOTICE.md) identify the fork maintainer and preserve upstream attribution without replacing the authoritative license text. Unity is a registered trademark of Unity Technologies or its affiliates; this project is not affiliated with Unity.
+
+## Support and contributions
+
+If this fork saves you time, you can support independent maintenance through [Ko-fi](https://ko-fi.com/dzgreen). Issues and pull requests are welcome once the fork repository is public. Please include the operating system, runtime target, input type, command or GUI action, and relevant log excerpt when reporting a problem.

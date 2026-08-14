@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputPath>..\0Bins\Other\AssetRipper.Tools.Common\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\0Bins\obj\AssetRipper.Tools.Common\$(Configuration)\</IntermediateOutputPath>
+    <IsAotCompatible>false</IsAotCompatible>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AssetRipper.GUI.Web\AssetRipper.GUI.Web.csproj" />
+  </ItemGroup>
+</Project>

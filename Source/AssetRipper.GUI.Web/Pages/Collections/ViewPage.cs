@@ -28,9 +28,11 @@ public sealed class ViewPage : DefaultPage
 
 		if (Collection.Count > 0)
 		{
-			new H2(writer).Close(Localization.Assets);
-			
-			var availableClasses = Collection.Select(a => a.ClassName).Distinct().Order(StringComparer.Ordinal).ToList();
+							new H2(writer).Close(Localization.Assets);
+				new Label(writer).WithFor("collectionAssetSearch").WithClass("visually-hidden").Close("Filter assets");
+				new Input(writer).WithId("collectionAssetSearch").WithType("search").WithClass("form-control mb-2").WithPlaceholder("Filter name, class, or Path ID…").WithCustomAttribute("autocomplete", "off").Close();
+
+				var availableClasses = Collection.Select(a => a.ClassName).Distinct().Order(StringComparer.Ordinal).ToList();
 			if (availableClasses.Count > 1)
 			{
 				new Label(writer).WithFor("classFilter").WithClass("me-2").Close(Localization.Class);
@@ -70,7 +72,10 @@ public sealed class ViewPage : DefaultPage
 				{
 					foreach (IUnityObjectBase asset in Collection)
 					{
-						using (new Tr(writer).WithCustomAttribute("data-class", asset.ClassName).End())
+							using (new Tr(writer)
+								.WithCustomAttribute("data-class", asset.ClassName.ToHtml())
+								.WithCustomAttribute("data-search", $"{asset.GetBestName()} {asset.ClassName} {asset.PathID}".ToHtml())
+								.End())
 						{
 							new Td(writer).Close(asset.PathID.ToString());
 							new Td(writer).Close(asset.ClassName);
@@ -123,9 +128,10 @@ public sealed class ViewPage : DefaultPage
 
 	protected override void WriteScriptReferences(TextWriter writer)
 	{
-		base.WriteScriptReferences(writer);
-		
-		// Add client-side filtering script
+			base.WriteScriptReferences(writer);
+			new Script(writer).WithSrc("/js/collection_view.js").Close();
+
+			// Add client-side filtering script
 		using (new Script(writer).End())
 		{
 			writer.Write("""

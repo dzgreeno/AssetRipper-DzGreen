@@ -22,7 +22,9 @@
 		<EmbeddedResource Include="StaticContent/favicon.ico" />
 		<EmbeddedResource Include="StaticContent/js/site.js" />
 		<EmbeddedResource Include="StaticContent/js/commands_page.js" />
-		<EmbeddedResource Include="StaticContent/js/mesh_preview.js" />
+			<EmbeddedResource Include="StaticContent/js/mesh_preview.js" />
+			<EmbeddedResource Include="StaticContent/js/asset_browser.js" />
+			<EmbeddedResource Include="StaticContent/js/collection_view.js" />
 	</ItemGroup>
 
 	<ItemGroup>

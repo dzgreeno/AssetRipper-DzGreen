@@ -77,9 +77,13 @@ public enum FormatVersion
 	/// </summary>
 	StoresTypeDependencies = 21,
 	/// <summary>
-	/// 2020.1 to x
+	/// 2020.1 to 6000.5.0a4
 	/// </summary>
 	LargeFilesSupport = 22,
+	/// <summary>
+	/// 6000.5.0a5 and greater. Unity stores a hash and size for extracted TypeTrees.
+	/// </summary>
+	ExtractedTypeTreeSupport = 23,
 }
 internal static class FormatVersionExtensions
 {

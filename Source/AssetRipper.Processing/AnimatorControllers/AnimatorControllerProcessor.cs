@@ -119,7 +119,7 @@ public sealed class AnimatorControllerProcessor : IAssetProcessor
 
 		animatorControllerLayer.StateMachine.SetAsset(controller.Collection, stateMachine);
 
-#warning TODO: animator
+	// TODO: Preserve the animator layer mask when the generated model exposes it.
 		// animatorControllerLayer.Mask = new();
 
 		animatorControllerLayer.BlendingMode = layer.LayerBlendingMode;

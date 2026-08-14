@@ -15,14 +15,19 @@ public abstract class DefaultPage : HtmlPage
 			using (new Head(writer).End())
 			{
 				new Meta(writer).WithCharset("utf-8").Close();
-				new Meta(writer).WithName("viewport").WithContent("width=device-width, initial-scale=1.0").Close();
-				new Title(writer).Close(GetTitle());
-				OnlineDependencies.Bootstrap.WriteStyleSheetReference(writer);
+					new Meta(writer).WithName("viewport").WithContent("width=device-width, initial-scale=1.0").Close();
+					new Meta(writer).WithName("description").WithContent("AssetRipper DzGreen — advanced Unity asset analysis and export fork maintained by dzgreen.").Close();
+						string pageTitle = GetTitle() ?? AssetRipperBrand.ProductName;
+						new Title(writer).Close(pageTitle == AssetRipperBrand.ProductName ? pageTitle : $"{AssetRipperBrand.ProductName} · {pageTitle}");
+					new Link(writer).WithRel("icon").WithType("image/x-icon").WithHref("/favicon.ico").Close();
+					new Link(writer).WithRel("shortcut icon").WithType("image/x-icon").WithHref("/favicon.ico").Close();
+					new Link(writer).WithRel("apple-touch-icon").WithHref("/favicon.ico").Close();
+					OnlineDependencies.Bootstrap.WriteStyleSheetReference(writer);
 				new Link(writer).WithRel("stylesheet").WithHref("/css/site.css").Close();
 			}
-			using (new Body(writer).WithCustomAttribute("data-bs-theme", "dark").End())
-			{
-				WriteHeader(writer);
+				using (new Body(writer).WithCustomAttribute("data-bs-theme", "dark").End())
+				{
+					WriteHeader(writer);
 
 				using (new Div(writer).WithClass("container").End())
 				{
@@ -32,9 +37,10 @@ public abstract class DefaultPage : HtmlPage
 					}
 				}
 
-				WriteFooter(writer);
+					WriteFooter(writer);
+					WriteStatusDock(writer);
 
-				WriteScriptReferences(writer);
+					WriteScriptReferences(writer);
 			}
 		}
 	}
@@ -43,19 +49,35 @@ public abstract class DefaultPage : HtmlPage
 
 	public abstract void WriteInnerContent(TextWriter writer);
 
-	private static void WriteHeader(TextWriter writer)
-	{
-		using (new Header(writer).End())
+		private static void WriteHeader(TextWriter writer)
 		{
-			using (new Div(writer).WithClass("btn-group").End())
-			{
-				WriteFileMenu(writer);
+				using (new Header(writer).End())
+				{
+					using (new Div(writer).WithClass("dzgreen-brand").End())
+					{
+						new A(writer).WithHref("/").WithClass("dzgreen-brand__name").Close(AssetRipperBrand.ProductName);
+						new Div(writer).WithClass("dzgreen-brand__status").Close(AssetRipperBrand.VersionLine);
+					}
+					using (new Div(writer).WithClass("top-navigation-controls").End())
+				{
+					new Button(writer).WithId("assetRipperNavigateBack").WithType("button").WithClass("btn btn-dark navigation-button").WithCustomAttribute("title", "Back").WithCustomAttribute("aria-label", "Back").Close("‹");
+					new Button(writer).WithId("assetRipperNavigateForward").WithType("button").WithClass("btn btn-dark navigation-button").WithCustomAttribute("title", "Forward").WithCustomAttribute("aria-label", "Forward").Close("›");
+				}
+				using (new Div(writer).WithClass("btn-group").End())
+				{
+					WriteFileMenu(writer);
 				WriteViewMenu(writer);
-				WriteExportMenu(writer);
-				WriteLanguageMenu(writer);
-				WriteDevelopmentMenu(writer);
+					WriteExportMenu(writer);
+					WriteLanguageMenu(writer);
+					WriteDevelopmentMenu(writer);
+				}
+					using (new Div(writer).WithClass("dzgreen-header-links").End())
+					{
+						new A(writer).WithHref(AssetRipperBrand.UpstreamUrl).WithNewTabAttributes().WithClass("dzgreen-header-link").Close("Upstream");
+						new A(writer).WithHref(AssetRipperBrand.ForkUrl).WithNewTabAttributes().WithClass("dzgreen-header-link").Close("GitHub");
+						new A(writer).WithHref(AssetRipperBrand.SponsorUrl).WithNewTabAttributes().WithClass("dzgreen-header-link dzgreen-header-link--support").Close("Support dzgreen");
+					}
 			}
-		}
 	}
 
 	private static void WriteFileMenu(TextWriter writer)
@@ -237,11 +259,26 @@ public abstract class DefaultPage : HtmlPage
 		{
 			using (new Div(writer).WithClass("container text-center").End())
 			{
-				writer.Write("&copy; 2026 - AssetRipper - ");
-				new A(writer).WithHref("/Privacy").Close(Localization.Privacy);
-				writer.Write(" - ");
-				new A(writer).WithHref("/Licenses").Close(Localization.Licenses);
+					writer.Write("&copy; 2026 - AssetRipper DzGreen · maintained by dzgreen - ");
+					new A(writer).WithHref("/Privacy").Close(Localization.Privacy);
+					writer.Write(" - ");
+					new A(writer).WithHref("/Licenses").Close(Localization.Licenses);
+					writer.Write(" - ");
+					new A(writer).WithHref(AssetRipperBrand.UpstreamUrl).WithNewTabAttributes().Close("Upstream");
 			}
+		}
+	}
+
+	private static void WriteStatusDock(TextWriter writer)
+	{
+		using (new Div(writer).WithClass("status-dock").WithCustomAttribute("data-status-dock", "true").End())
+		{
+			using (new Div(writer).WithClass("status-dock__header").End())
+			{
+				new P(writer).WithClass("status-pill mb-0").Close("Live status");
+				new P(writer).WithClass("mb-0").Close("Auto-Fix · Import · Export");
+			}
+			new Pre(writer).WithClass("status-dock__output").WithCustomAttribute("data-status-output", "true").Close("Ready.");
 		}
 	}
 

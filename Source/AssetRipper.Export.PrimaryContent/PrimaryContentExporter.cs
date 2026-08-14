@@ -96,13 +96,24 @@ public sealed class PrimaryContentExporter
 		RegisterEmptyHandler<ISceneAsset>();
 		RegisterEmptyHandler<SpriteInformationObject>();
 
-		GlbModelExporter modelExporter = new();
-		RegisterHandler<GameObjectHierarchyObject>(modelExporter);
-		RegisterHandler<IGameObject>(modelExporter);
-		RegisterHandler<IComponent>(modelExporter);
-		RegisterHandler<ILevelGameManager>(modelExporter);
-
-		RegisterHandler<IMesh>(new GlbMeshExporter());
+		if (settings.ExportSettings.ModelExportFormat == ModelExportFormat.Fbx)
+		{
+			FbxAsciiExporter modelExporter = new();
+			RegisterHandler<GameObjectHierarchyObject>(modelExporter);
+			RegisterHandler<IGameObject>(modelExporter);
+			RegisterHandler<IComponent>(modelExporter);
+			RegisterHandler<ILevelGameManager>(modelExporter);
+			RegisterHandler<IMesh>(modelExporter);
+		}
+		else
+		{
+			GlbModelExporter modelExporter = new();
+			RegisterHandler<GameObjectHierarchyObject>(modelExporter);
+			RegisterHandler<IGameObject>(modelExporter);
+			RegisterHandler<IComponent>(modelExporter);
+			RegisterHandler<ILevelGameManager>(modelExporter);
+			RegisterHandler<IMesh>(new GlbMeshExporter());
+		}
 
 		RegisterHandler<INavMeshData>(new GlbNavMeshExporter());
 		RegisterHandler<ITerrainData>(new GlbTerrainExporter());

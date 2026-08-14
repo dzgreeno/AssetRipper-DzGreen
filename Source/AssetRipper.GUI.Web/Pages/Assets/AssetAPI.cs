@@ -14,6 +14,7 @@ using AssetRipper.Import.Logging;
 using AssetRipper.Import.Structure.Assembly;
 using AssetRipper.Import.Structure.Assembly.Managers;
 using AssetRipper.Processing.Textures;
+using AssetRipper.SourceGenerated.Classes.ClassID_1;
 using AssetRipper.SourceGenerated.Classes.ClassID_115;
 using AssetRipper.SourceGenerated.Classes.ClassID_128;
 using AssetRipper.SourceGenerated.Classes.ClassID_156;
@@ -44,8 +45,9 @@ internal static class AssetAPI
 		public const string View = Base + "/View";
 		public const string Image = Base + "/Image";
 		public const string Audio = Base + "/Audio";
-		public const string Model = Base + "/Model.glb";
-		public const string Font = Base + "/Font";
+			public const string Model = Base + "/Model.glb";
+			public const string CharacterModel = Base + "/Character.glb";
+			public const string Font = Base + "/Font";
 		public const string Video = Base + "/Video";
 		public const string Json = Base + "/Json";
 		public const string Yaml = Base + "/Yaml";
@@ -251,11 +253,46 @@ internal static class AssetAPI
 		}
 	}
 
-	public static bool HasModelData(IUnityObjectBase asset)
-	{
-		return asset is IMesh;
-	}
-	#endregion
+		public static bool HasModelData(IUnityObjectBase asset)
+		{
+			return asset is IMesh;
+		}
+
+		public static string GetCharacterModelUrl(AssetPath path)
+		{
+			return $"{Urls.CharacterModel}?{GetPathQuery(path)}";
+		}
+
+		public static Task GetCharacterModelData(HttpContext context)
+		{
+			context.Response.DisableCaching();
+			if (!TryGetAssetFromQuery(context, out IUnityObjectBase? asset, out Task? failureTask))
+			{
+				return failureTask;
+			}
+			if (asset is not IGameObject root)
+			{
+				return context.Response.NotFound("Character preview requires a GameObject root.");
+			}
+
+			MemoryStream stream = new();
+			try
+			{
+				SceneBuilder sceneBuilder = GlbLevelBuilder.Build(root.FetchHierarchy().OfType<IUnityObjectBase>(), false);
+				if (GlbWriter.TryWrite(sceneBuilder, stream, out string? errorMessage))
+				{
+					return Results.Bytes(stream.ToArray(), "model/gltf-binary", "character.glb").ExecuteAsync(context);
+				}
+				Logger.Error(errorMessage);
+				return context.Response.NotFound("Character model could not be decoded.");
+			}
+			catch (Exception ex)
+			{
+				Logger.Error(ex);
+				return context.Response.NotFound("Character model could not be decoded.");
+			}
+		}
+		#endregion
 
 	#region Font
 	public static string GetFontUrl(AssetPath path)
@@ -466,7 +503,7 @@ internal static class AssetAPI
 	private static string DumpShaderDataAsText(IShader shader)
 	{
 		InvariantStringWriter writer = new();
-		DummyShaderTextExporter.ExportShader(shader, writer);
+		ShaderExportHandler.ExportShader(shader, writer);
 		return writer.ToString();
 	}
 

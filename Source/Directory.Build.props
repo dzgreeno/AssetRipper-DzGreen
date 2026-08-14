@@ -7,9 +7,12 @@
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 
-		<VersionPrefix>1.3.14</VersionPrefix>
-		<Copyright>Copyright © ds5678</Copyright>
-		<Authors>ds5678</Authors>
+			<VersionPrefix>1.3.14</VersionPrefix>
+			<Product>AssetRipper DzGreen</Product>
+			<Company>dzgreen</Company>
+			<Authors>dzgreen</Authors>
+			<Description>Advanced AssetRipper fork for Unity asset analysis, character assembly, FBX export, CLI automation, and MCP workflows.</Description>
+			<Copyright>Copyright © 2026 dzgreen; upstream AssetRipper contributors</Copyright>
 	</PropertyGroup>
 
 	<ItemGroup>

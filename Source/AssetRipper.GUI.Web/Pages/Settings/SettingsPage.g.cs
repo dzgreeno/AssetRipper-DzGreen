@@ -30,7 +30,10 @@ partial class SettingsPage
 			case nameof(ProcessingSettings.BundledAssetsExportMode):
 				Configuration.ProcessingSettings.BundledAssetsExportMode = TryParseEnum<BundledAssetsExportMode>(value);
 				break;
-			case nameof(ExportSettings.AudioExportFormat):
+			case nameof(ExportSettings.ModelExportFormat):
+					Configuration.ExportSettings.ModelExportFormat = TryParseEnum<ModelExportFormat>(value);
+					break;
+				case nameof(ExportSettings.AudioExportFormat):
 				Configuration.ExportSettings.AudioExportFormat = TryParseEnum<AudioExportFormat>(value);
 				break;
 			case nameof(ExportSettings.ImageExportFormat):
@@ -119,7 +122,12 @@ partial class SettingsPage
 		WriteDropDown(writer, BundledAssetsExportModeDropDownSetting.Instance, Configuration.ProcessingSettings.BundledAssetsExportMode, nameof(ProcessingSettings.BundledAssetsExportMode));
 	}
 
-	private static void WriteDropDownForAudioExportFormat(TextWriter writer)
+	private static void WriteDropDownForModelExportFormat(TextWriter writer)
+		{
+			WriteDropDown(writer, ModelExportFormatDropDownSetting.Instance, Configuration.ExportSettings.ModelExportFormat, nameof(ExportSettings.ModelExportFormat));
+		}
+
+		private static void WriteDropDownForAudioExportFormat(TextWriter writer)
 	{
 		WriteDropDown(writer, AudioExportFormatDropDownSetting.Instance, Configuration.ExportSettings.AudioExportFormat, nameof(ExportSettings.AudioExportFormat));
 	}

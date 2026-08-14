@@ -16,8 +16,18 @@ internal sealed partial record class GameInitializer
 	{
 		public FileBase? FindDependency(FileIdentifier identifier)
 		{
-			string? systemFilePath = RequestDependency(identifier.PathName);
-			return systemFilePath is null ? null : SchemeReader.LoadFile(systemFilePath, FileSystem);
+			string? requestedName = identifier.PathNameOrigin;
+			string normalizedName = identifier.PathName;
+			string? systemFilePath = RequestDependency(normalizedName);
+			if (systemFilePath is not null)
+			{
+				Logger.Info(LogCategory.Import, $"Resolved dependency '{requestedName}' as '{normalizedName}' from '{systemFilePath}'.");
+				return SchemeReader.LoadFile(systemFilePath, FileSystem);
+			}
+
+			string searched = string.Join("; ", new[] { PlatformStructure?.RootPath, PlatformStructure?.GameDataPath, MixedStructure?.RootPath, MixedStructure?.DataPaths.FirstOrDefault() }.Where(path => !string.IsNullOrWhiteSpace(path)));
+			Logger.Warning(LogCategory.Import, $"Dependency '{requestedName}' was normalized to '{normalizedName}' but no matching file was found. Searched: {searched}. If this is a split/cab companion, select the complete containing folder or place the unmodified companion beside the selected Unity files.");
+			return null;
 		}
 
 		/// <summary>
@@ -30,7 +40,7 @@ internal sealed partial record class GameInitializer
 
 		public void ReportMissingDependency(FileIdentifier identifier)
 		{
-			Logger.Log(LogType.Warning, LogCategory.Import, $"Dependency '{identifier}' wasn't found");
+			Logger.Log(LogType.Warning, LogCategory.Import, $"Dependency '{identifier.PathNameOrigin}' wasn't found after normalization to '{identifier.PathName}'. No file was fabricated and no protected content was bypassed.");
 		}
 	}
 }

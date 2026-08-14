@@ -7,6 +7,7 @@ using AssetRipper.IO.Files.BundleFiles;
 using AssetRipper.IO.Files.BundleFiles.FileStream;
 using AssetRipper.IO.Files.SerializedFiles;
 using AssetRipper.IO.Files.Streams;
+using AssetRipper.IO.Files.Streams.Smart;
 using System.Text.RegularExpressions;
 
 namespace AssetRipper.Import.Structure.Platforms;
@@ -359,10 +360,33 @@ public abstract partial class PlatformGameStructure
 
 	protected UnityVersion GetUnityVersionFromBundleFile(string filePath)
 	{
-		using Stream stream = FileSystem.File.OpenRead(filePath);
+		using SmartStream stream = BundleHeaderNormalizer.Normalize(SmartStream.OpenRead(filePath, FileSystem), Path.GetFileName(filePath));
 		FileStreamBundleHeader header = new();
 		header.Read(stream);
-		return UnityVersion.Parse(header.UnityWebMinimumRevision);
+		string revision = header.UnityWebMinimumRevision.ToString();
+		if (UnityVersion.TryParse(revision, out UnityVersion version, out _) && !version.Equals(0, 0, 0))
+		{
+			return version;
+		}
+
+		version = GetFallbackUnityVersion(revision);
+		Logger.Warning(LogCategory.Import, $"[Auto-Fix] Invalid Unity version '{revision}' in bundle '{Path.GetFileName(filePath)}'; using fallback {version}");
+		return version;
+	}
+
+	private static UnityVersion GetFallbackUnityVersion(string? versionText)
+	{
+		MatchCollection numericParts = Regex.Matches(versionText ?? string.Empty, @"\d+");
+		if (numericParts.Count >= 2
+			&& int.TryParse(numericParts[0].Value, out int major)
+			&& int.TryParse(numericParts[1].Value, out int minor)
+			&& major >= 1
+			&& major <= 9999
+			&& minor <= 999)
+		{
+			return new UnityVersion((ushort)major, (ushort)minor, 0, UnityVersionType.Final, 1);
+		}
+		return new UnityVersion(2021, 3, 0, UnityVersionType.Final, 1);
 	}
 
 	protected UnityVersion? GetUnityVersionFromDataDirectory(string dataDirectoryPath)

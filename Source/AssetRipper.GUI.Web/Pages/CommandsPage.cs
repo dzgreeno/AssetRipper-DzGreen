@@ -10,9 +10,13 @@ public sealed class CommandsPage : VuePage
 
 	public override void WriteInnerContent(TextWriter writer)
 	{
-		if (!GameFileLoader.IsLoaded)
-		{
-			using (new P(writer).End())
+			if (!GameFileLoader.IsLoaded)
+			{
+				using (new Div(writer).WithCustomAttribute("v-if", "dialog_busy").WithClass("alert alert-info").End())
+				{
+					new P(writer).Close("Opening the native dialog...");
+				}
+				using (new P(writer).End())
 			{
 				using (new Form(writer).WithAction("/LoadFolder").WithMethod("post").End())
 				{
@@ -25,8 +29,8 @@ public sealed class CommandsPage : VuePage
 
 				if (Dialogs.Supported)
 				{
-					new Button(writer).WithCustomAttribute("@click", "handleSelectLoadFile").WithClass("btn btn-success").Close(Localization.SelectFile);
-					new Button(writer).WithCustomAttribute("@click", "handleSelectLoadFolder").WithClass("btn btn-success").Close(Localization.SelectFolder);
+					new Button(writer).WithCustomAttribute("@click", "handleSelectLoadFile").WithCustomAttribute(":disabled", "dialog_busy").WithClass("btn btn-success").Close(Localization.SelectFile);
+					new Button(writer).WithCustomAttribute("@click", "handleSelectLoadFolder").WithCustomAttribute(":disabled", "dialog_busy").WithClass("btn btn-success").Close(Localization.SelectFolder);
 				}
 			}
 		}
@@ -82,7 +86,7 @@ public sealed class CommandsPage : VuePage
 
 				if (Dialogs.Supported)
 				{
-					new Button(writer).WithCustomAttribute("@click", "handleSelectExportFolder").WithClass("btn btn-success").Close(Localization.SelectFolder);
+					new Button(writer).WithCustomAttribute("@click", "handleSelectExportFolder").WithCustomAttribute(":disabled", "dialog_busy").WithClass("btn btn-success").Close(Localization.SelectFolder);
 				}
 
 				using (new Div(writer).WithCustomAttribute("v-if", "export_path_has_files").End())

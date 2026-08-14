@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "assetripper": {
+      "command": "C:\\Tools\\AssetRipper\\tools\\MCP\\AssetRipper.MCP.exe",
+      "args": []
+    }
+  }
+}

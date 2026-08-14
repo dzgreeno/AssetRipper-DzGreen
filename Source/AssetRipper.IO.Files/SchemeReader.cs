@@ -1,4 +1,5 @@
-﻿using AssetRipper.IO.Files.BundleFiles.Archive;
+﻿using AssetRipper.IO.Files.BundleFiles;
+using AssetRipper.IO.Files.BundleFiles.Archive;
 using AssetRipper.IO.Files.BundleFiles.FileStream;
 using AssetRipper.IO.Files.BundleFiles.RawWeb.Raw;
 using AssetRipper.IO.Files.BundleFiles.RawWeb.Web;
@@ -40,6 +41,7 @@ public static class SchemeReader
 
 	public static FileBase ReadFile(SmartStream stream, string filePath, string fileName)
 	{
+		stream = FilePreProcessor.NormalizeUnityBundle(stream, fileName);
 		foreach (IScheme scheme in schemes)
 		{
 			if (scheme.CanRead(stream))
@@ -58,7 +60,7 @@ public static class SchemeReader
 
 	public static bool IsReadableFile(string filePath, FileSystem fileSystem)
 	{
-		using SmartStream stream = SmartStream.OpenReadMulti(filePath, fileSystem);
+		using SmartStream stream = FilePreProcessor.NormalizeUnityBundle(SmartStream.OpenReadMulti(filePath, fileSystem), MultiFileStream.GetFileName(filePath));
 		foreach (IScheme scheme in schemes)
 		{
 			if (scheme.CanRead(stream))

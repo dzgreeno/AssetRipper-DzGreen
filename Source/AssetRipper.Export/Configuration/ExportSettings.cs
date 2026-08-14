@@ -5,6 +5,11 @@ namespace AssetRipper.Export.Configuration;
 public sealed record class ExportSettings
 {
 	/// <summary>
+	/// The primary model format used for scene and prefab exports.
+	/// </summary>
+	public ModelExportFormat ModelExportFormat { get; set; } = ModelExportFormat.Fbx;
+
+	/// <summary>
 	/// The file format that audio clips get exported in. Recommended: Ogg
 	/// </summary>
 	public AudioExportFormat AudioExportFormat { get; set; } = AudioExportFormat.Default;
@@ -62,7 +67,8 @@ public sealed record class ExportSettings
 
 	public void Log()
 	{
-		Logger.Info(LogCategory.General, $"{nameof(AudioExportFormat)}: {AudioExportFormat}");
+		Logger.Info(LogCategory.General, $"{nameof(ModelExportFormat)}: {ModelExportFormat}");
+			Logger.Info(LogCategory.General, $"{nameof(AudioExportFormat)}: {AudioExportFormat}");
 		Logger.Info(LogCategory.General, $"{nameof(ImageExportFormat)}: {ImageExportFormat}");
 		Logger.Info(LogCategory.General, $"{nameof(LightmapTextureExportFormat)}: {LightmapTextureExportFormat}");
 		Logger.Info(LogCategory.General, $"{nameof(ScriptExportMode)}: {ScriptExportMode}");

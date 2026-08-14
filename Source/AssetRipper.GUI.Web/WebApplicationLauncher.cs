@@ -11,6 +11,7 @@ using AssetRipper.GUI.Web.Pages.Settings;
 using AssetRipper.GUI.Web.Paths;
 using AssetRipper.Import.Logging;
 using AssetRipper.IO.Files;
+using AssetRipper.IO.Files.BundleFiles;
 using AssetRipper.Web.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -68,8 +69,11 @@ public static class WebApplicationLauncher
 		Launch(arguments.Port, arguments.Headless, arguments.Log, arguments.LogPath);
 	}
 
+	private static void OnBundleAutoFixMessage(string message) => Logger.Info(LogCategory.Import, message);
+
 	public static void Launch(int port = Defaults.Port, bool headless = Defaults.Headless, bool log = Defaults.Log, string? logPath = Defaults.LogPath)
 	{
+		StatusLog.Initialize();
 		GameFileLoader.Headless = headless;
 
 		WelcomeMessage.Print();
@@ -85,6 +89,8 @@ public static class WebApplicationLauncher
 		}
 		Logger.LogSystemInformation("AssetRipper");
 		Logger.Add(new ConsoleLogger());
+		BundleHeaderNormalizer.AutoFixMessage -= OnBundleAutoFixMessage;
+		BundleHeaderNormalizer.AutoFixMessage += OnBundleAutoFixMessage;
 
 		Localization.LoadLanguage(GameFileLoader.Settings.LanguageCode);
 
@@ -148,8 +154,10 @@ public static class WebApplicationLauncher
 		app.MapStaticFile("/favicon.ico", "image/x-icon");
 		app.MapStaticFile("/css/site.css", "text/css");
 		app.MapStaticFile("/js/site.js", "text/javascript");
-		app.MapStaticFile("/js/commands_page.js", "text/javascript");
-		app.MapStaticFile("/js/mesh_preview.js", "text/javascript");
+app.MapStaticFile("/js/commands_page.js", "text/javascript");
+			app.MapStaticFile("/js/mesh_preview.js", "text/javascript");
+			app.MapStaticFile("/js/asset_browser.js", "text/javascript");
+			app.MapStaticFile("/js/collection_view.js", "text/javascript");
 		OnlineDependencies.MapDependencies(app);
 
 		//Normal Pages
@@ -161,6 +169,9 @@ public static class WebApplicationLauncher
 			.WithSummary("The home page")
 			.ProducesHtmlPage();
 		app.MapGet("/Commands", CommandsPage.Instance.ToResult).ProducesHtmlPage();
+		app.MapGet("/Status/Recent", () => Results.Json(StatusLog.Snapshot(), AppJsonSerializerContext.Default.StringArray))
+			.WithSummary("Recent import, export, and Auto-Fix status lines.")
+			.Produces<string[]>();
 		app.MapGet("/Privacy", PrivacyPage.Instance.ToResult).ProducesHtmlPage();
 		app.MapGet("/Licenses", LicensesPage.Instance.ToResult).ProducesHtmlPage();
 		app.MapGet("/PremiumFeatures", PremiumFeaturesPage.Instance.ToResult).ProducesHtmlPage();
@@ -192,9 +203,12 @@ public static class WebApplicationLauncher
 		app.MapGet(AssetAPI.Urls.Audio, AssetAPI.GetAudioData)
 			.Produces<byte[]>(contentType: "application/octet-stream")
 			.WithAssetPathParameter();
-		app.MapGet(AssetAPI.Urls.Model, AssetAPI.GetModelData)
-			.Produces<byte[]>(contentType: "application/octet-stream")
-			.WithAssetPathParameter();
+			app.MapGet(AssetAPI.Urls.Model, AssetAPI.GetModelData)
+				.Produces<byte[]>(contentType: "application/octet-stream")
+				.WithAssetPathParameter();
+			app.MapGet(AssetAPI.Urls.CharacterModel, AssetAPI.GetCharacterModelData)
+				.Produces<byte[]>(contentType: "model/gltf-binary")
+				.WithAssetPathParameter();
 		app.MapGet(AssetAPI.Urls.Font, AssetAPI.GetFontData)
 			.Produces<byte[]>(contentType: "application/octet-stream")
 			.WithAssetPathParameter();

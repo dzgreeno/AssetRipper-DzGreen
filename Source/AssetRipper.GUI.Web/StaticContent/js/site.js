@@ -49,3 +49,48 @@ document.addEventListener("DOMContentLoaded", async () => {
 		}
 	});
 });
+
+// Lightweight live status dock for import, export, and Auto-Fix messages.
+async function refreshAssetRipperStatus() {
+	const output = document.querySelector('[data-status-output]');
+	if (!output) {
+		return;
+	}
+
+	try {
+		const response = await fetch('/Status/Recent', { cache: 'no-store' });
+		if (!response.ok) {
+			return;
+		}
+		const lines = await response.json();
+		if (Array.isArray(lines) && lines.length > 0) {
+			output.textContent = lines.slice(-24).join('\n');
+			output.dataset.state = lines.some(line => line.includes('[Error]')) ? 'error' : lines.some(line => line.includes('[Warning]')) ? 'warning' : 'ready';
+		}
+	} catch (error) {
+		console.debug('AssetRipper status is temporarily unavailable.', error);
+	}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+	refreshAssetRipperStatus();
+	window.setInterval(refreshAssetRipperStatus, 1200);
+});
+
+// Fixed top-bar navigation controls.
+document.addEventListener('DOMContentLoaded', () => {
+	const back = document.getElementById('assetRipperNavigateBack');
+	const forward = document.getElementById('assetRipperNavigateForward');
+	if (!back || !forward) return;
+
+	const updateNavigationState = () => {
+		back.disabled = window.history.length <= 1;
+		back.classList.toggle('navigation-button-disabled', back.disabled);
+	};
+
+	back.addEventListener('click', () => window.history.back());
+	forward.addEventListener('click', () => window.history.forward());
+	window.addEventListener('popstate', updateNavigationState);
+	window.addEventListener('pageshow', updateNavigationState);
+	updateNavigationState();
+});

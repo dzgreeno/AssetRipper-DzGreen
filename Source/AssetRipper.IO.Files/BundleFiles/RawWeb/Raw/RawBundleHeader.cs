@@ -5,6 +5,7 @@ namespace AssetRipper.IO.Files.BundleFiles.RawWeb.Raw;
 public sealed record class RawBundleHeader : RawWebBundleHeader
 {
 	private const string UnityRawMagic = "UnityRaw";
+	private const string RawWebMagic = "RawWeb";
 	protected override string MagicString => UnityRawMagic;
-	internal static bool IsBundleHeader(EndianReader reader) => IsBundleHeader(reader, UnityRawMagic);
+	internal static bool IsBundleHeader(EndianReader reader) => IsBundleHeader(reader, UnityRawMagic) || IsBundleHeader(reader, RawWebMagic);
 }

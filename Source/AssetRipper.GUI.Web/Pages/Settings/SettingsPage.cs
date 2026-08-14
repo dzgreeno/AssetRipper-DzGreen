@@ -115,11 +115,15 @@ public sealed partial class SettingsPage : DefaultPage
 
 						using (new Div(writer).End())
 						{
-							using (new Div(writer).WithClass("row").End())
-							{
-								using (new Div(writer).WithClass("col").End())
+using (new Div(writer).WithClass("row").End())
 								{
-									WriteDropDownForAudioExportFormat(writer);
+									using (new Div(writer).WithClass("col").End())
+									{
+										WriteDropDownForModelExportFormat(writer);
+									}
+									using (new Div(writer).WithClass("col").End())
+									{
+										WriteDropDownForAudioExportFormat(writer);
 								}
 								using (new Div(writer).WithClass("col").End())
 								{

@@ -6,36 +6,36 @@ public sealed class IndexPage : DefaultPage
 {
 	public static IndexPage Instance { get; } = new();
 
-	public override string? GetTitle() => GameFileLoader.Premium ? Localization.AssetRipperPremium : Localization.AssetRipperFree;
+	public override string? GetTitle() => AssetRipperBrand.ProductName;
 
-	public override void WriteInnerContent(TextWriter writer)
-	{
-		using (new Div(writer).WithClass("text-center container mt-5").End())
+			public override void WriteInnerContent(TextWriter writer)
 		{
-			new H1(writer).WithClass("display-4 mb-4").Close(Localization.Welcome);
 			if (GameFileLoader.IsLoaded)
 			{
-				PathLinking.WriteLink(writer, GameFileLoader.GameBundle, Localization.ViewLoadedFiles, "btn btn-success");
-			}
-			else
-			{
-				new Button(writer).WithType("button").WithClass("btn btn-secondary").WithDisabled().Close(Localization.NoFilesLoaded);
-			}
-			if (GameFileLoader.Premium)
-			{
-				new P(writer).WithClass("mt-4").Close(Localization.AppreciationMessage);
-			}
-			else
-			{
-				new P(writer).WithClass("mt-4").Close(Localization.TippingMessage);
-				using (new Div(writer).WithClass("d-flex justify-content-center mt-3").End())
+				AssetBrowserPanel.Write(writer, GameFileLoader.GameBundle);
+				using (new Div(writer).WithClass("asset-browser-footer-actions").End())
 				{
-					new A(writer).WithClass("btn btn-primary m-1").WithNewTabAttributes().WithHref("https://paypal.me/ds5678").Close("Paypal");
-					new A(writer).WithClass("btn btn-primary m-1").WithNewTabAttributes().WithHref("https://github.com/sponsors/ds5678").Close("GitHub Sponsors");
-					new A(writer).WithClass("btn btn-primary m-1").WithNewTabAttributes().WithHref("https://buymeacoffee.com/assetripper").Close("Buy Me a Coffee");
-					new A(writer).WithClass("btn btn-primary m-1").WithNewTabAttributes().WithHref("https://ko-fi.com/assetripper").Close("Ko-fi");
+					PathLinking.WriteLink(writer, GameFileLoader.GameBundle, "Open loaded file tree", "btn btn-outline-secondary");
+					new A(writer).WithHref("/Commands").WithClass("btn btn-primary").Close("Open / export");
+				}
+			}
+			else
+			{
+				using (new Div(writer).WithClass("text-center container mt-5").End())
+				{
+					new H1(writer).WithClass("display-4 mb-4").Close(Localization.Welcome);
+					new P(writer).WithClass("mt-4").Close("Use File → Open file or Open folder to load Unity data. The processed asset workspace will appear here.");
+					new Button(writer).WithType("button").WithClass("btn btn-secondary").WithDisabled().Close(Localization.NoFilesLoaded);
 				}
 			}
 		}
-	}
+
+		protected override void WriteScriptReferences(TextWriter writer)
+		{
+			base.WriteScriptReferences(writer);
+			OnlineDependencies.Babylon.WriteScriptReference(writer);
+			new Script(writer).WithSrc("/js/mesh_preview.js").Close();
+			new Script(writer).WithSrc("/js/asset_browser.js").Close();
+		}
+
 }

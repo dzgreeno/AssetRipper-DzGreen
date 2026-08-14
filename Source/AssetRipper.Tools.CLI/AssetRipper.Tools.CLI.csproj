@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>AssetRipper.CLI</AssemblyName>
+    <RootNamespace>AssetRipper.Tools.CLI</RootNamespace>
+    <OutputPath>..\0Bins\AssetRipper.CLI\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\0Bins\obj\AssetRipper.CLI\$(Configuration)\</IntermediateOutputPath>
+    <PublishAot>false</PublishAot>
+    <PublishTrimmed>false</PublishTrimmed>
+    <IsAotCompatible>false</IsAotCompatible>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AssetRipper.Tools.Common\AssetRipper.Tools.Common.csproj" />
+  </ItemGroup>
+</Project>

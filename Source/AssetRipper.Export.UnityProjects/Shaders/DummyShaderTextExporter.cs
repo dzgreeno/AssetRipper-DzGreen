@@ -9,30 +9,61 @@ namespace AssetRipper.Export.UnityProjects.Shaders;
 
 public sealed class DummyShaderTextExporter : ShaderExporterBase
 {
-	// This uses CGPROGRAM instead of HLSLPROGRAM because the latter was supposedly introduced in Unity 5.6.
-	// https://github.com/UnityCommunity/UnityReleaseNotes/blob/7b417b8ff64415e1e509d8c345b829c7cc11b650/5.6-Beta/5.6.0b1.txt#L143
+	// Use a portable vertex-fragment program instead of serialized platform-specific
+	// GPU disassembly. CGPROGRAM is accepted by the supported legacy Unity versions.
 	private static string FallbackDummyShader { get; } = """
 
-			SubShader{
-				Tags { "RenderType" = "Opaque" }
+			SubShader
+			{
+				Tags { "RenderType" = "Opaque" "Queue" = "Geometry" }
 				LOD 200
-				CGPROGRAM
-		#pragma surface surf Lambert
-		#pragma target 3.0
-				sampler2D _MainTex;
-				struct Input
+				Pass
 				{
-					float2 uv_MainTex;
-				};
-				void surf(Input IN, inout SurfaceOutput o)
-				{
-					float4 c = tex2D(_MainTex, IN.uv_MainTex);
-					o.Albedo = c.rgb;
+					CGPROGRAM
+	#pragma vertex vert
+	#pragma fragment frag
+	#pragma target 3.0
+	#include "UnityCG.cginc"
+
+					struct appdata
+					{
+						float4 vertex : POSITION;
+						float3 normal : NORMAL;
+						float2 uv : TEXCOORD0;
+					};
+
+					struct v2f
+					{
+						float4 vertex : SV_POSITION;
+						float2 uv : TEXCOORD0;
+					};
+
+					sampler2D _MainTex;
+					float4 _MainTex_ST;
+					fixed4 _Color;
+					sampler2D _BumpMap;
+					sampler2D _SpecGlossMap;
+					sampler2D _OcclusionMap;
+
+					v2f vert(appdata v)
+					{
+						v2f o;
+						o.vertex = UnityObjectToClipPos(v.vertex);
+						o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+						return o;
+					}
+
+					fixed4 frag(v2f i) : SV_Target
+					{
+						fixed4 albedo = tex2D(_MainTex, i.uv) * _Color;
+						fixed occlusion = tex2D(_OcclusionMap, i.uv).r;
+						return fixed4(albedo.rgb * max(occlusion, 0.25), albedo.a);
+					}
+					ENDCG
 				}
-				ENDCG
 			}
 
-		""".Replace("\r", "");
+""".Replace("\r", "");
 
 	public override bool Export(IExportContainer container, IUnityObjectBase asset, string path, FileSystem fileSystem)
 	{
@@ -54,17 +85,9 @@ public sealed class DummyShaderTextExporter : ShaderExporterBase
 			writer.Write($"Shader \"{shader.ParsedForm.Name}\" {{\n");
 			Export(shader.ParsedForm.PropInfo, writer);
 
-			TemplateShader templateShader = TemplateList.GetBestTemplate(shader);
 			writer.Write("\t//DummyShaderTextExporter\n");
-			if (templateShader != null)
-			{
-				writer.Write(templateShader.ShaderText);
-			}
-			else
-			{
-				writer.WriteIndent(1);
-				writer.Write(FallbackDummyShader);
-			}
+			writer.WriteIndent(1);
+			writer.Write(FallbackDummyShader);
 			writer.Write('\n');
 
 			if (shader.ParsedForm.FallbackName != string.Empty)
@@ -102,12 +125,29 @@ public sealed class DummyShaderTextExporter : ShaderExporterBase
 	{
 		writer.WriteIndent(1);
 		writer.Write("Properties {\n");
-		foreach (ISerializedProperty prop in _this.Props)
-		{
-			Export(prop, writer);
-		}
-		writer.WriteIndent(1);
+			HashSet<string> propertyNames = new(StringComparer.Ordinal);
+			foreach (ISerializedProperty prop in _this.Props)
+			{
+				propertyNames.Add(prop.Name.ToString());
+				Export(prop, writer);
+			}
+			WriteFallbackProperty(writer, propertyNames, "_MainTex", "Albedo (RGB) and Alpha", "2D", "\"white\" {}");
+			WriteFallbackProperty(writer, propertyNames, "_Color", "Tint", "Color", "(1,1,1,1)");
+			WriteFallbackProperty(writer, propertyNames, "_BumpMap", "Normal Map", "2D", "\"bump\" {}");
+			WriteFallbackProperty(writer, propertyNames, "_SpecGlossMap", "Specular / Smoothness", "2D", "\"white\" {}");
+			WriteFallbackProperty(writer, propertyNames, "_OcclusionMap", "Occlusion", "2D", "\"white\" {}");
+			writer.WriteIndent(1);
 		writer.Write("}\n");
+	}
+
+	private static void WriteFallbackProperty(TextWriter writer, HashSet<string> existingNames, string name, string description, string type, string defaultValue)
+	{
+		if (existingNames.Contains(name))
+		{
+			return;
+		}
+		writer.WriteIndent(2);
+		writer.Write($"{name} (\"{description}\", {type}) = {defaultValue}\\n");
 	}
 
 	private static void Export(ISerializedProperty _this, TextWriter writer)

@@ -7,7 +7,8 @@ const app = createApp({
 			load_path_exists: false,
 			export_path: '',
 			export_path_has_files: false,
-			create_subfolder: false
+				create_subfolder: false,
+				dialog_busy: false
 		}
 	},
 	methods: {
@@ -43,54 +44,36 @@ const app = createApp({
 				}
 			}, 300); // Adjust the debounce time as needed (300 milliseconds in this example)
 		},
-		async handleSelectLoadFile() {
-			// Add a debounce mechanism to avoid too many requests in a short time
-			if (this.debouncedInput) {
-				clearTimeout(this.debouncedInput);
-			}
-
-			this.debouncedInput = setTimeout(async () => {
-				try {
-					const response = await fetch(`/Dialogs/OpenFile`);
-					this.load_path = await response.json();
-				} catch (error) {
-					console.error('Error fetching data:', error);
+			async handleSelectLoadFile() {
+				await this.openNativeDialog('/Dialogs/OpenFile', 'load_path', this.handleLoadPathChange);
+			},
+			async handleSelectLoadFolder() {
+				await this.openNativeDialog('/Dialogs/OpenFolder', 'load_path', this.handleLoadPathChange);
+			},
+			async handleSelectExportFolder() {
+				await this.openNativeDialog('/Dialogs/OpenFolder', 'export_path', this.handleExportPathChange);
+			},
+			async openNativeDialog(endpoint, target, refresh) {
+				if (this.dialog_busy) {
+					return;
 				}
-				await this.handleLoadPathChange();
-			}, 300); // Adjust the debounce time as needed (300 milliseconds in this example)
-		},
-		async handleSelectLoadFolder() {
-			// Add a debounce mechanism to avoid too many requests in a short time
-			if (this.debouncedInput) {
-				clearTimeout(this.debouncedInput);
-			}
-
-			this.debouncedInput = setTimeout(async () => {
+				this.dialog_busy = true;
 				try {
-					const response = await fetch(`/Dialogs/OpenFolder`);
-					this.load_path = await response.json();
+					const response = await fetch(endpoint, { cache: 'no-store' });
+					if (!response.ok) {
+						throw new Error(`Native dialog request failed: ${response.status}`);
+					}
+					const selectedPath = await response.json();
+					if (typeof selectedPath === 'string' && selectedPath.length > 0) {
+						this[target] = selectedPath;
+						await refresh.call(this);
+					}
 				} catch (error) {
-					console.error('Error fetching data:', error);
+					console.error('Native dialog error:', error);
+				} finally {
+					this.dialog_busy = false;
 				}
-				await this.handleLoadPathChange();
-			}, 300); // Adjust the debounce time as needed (300 milliseconds in this example)
-		},
-		async handleSelectExportFolder() {
-			// Add a debounce mechanism to avoid too many requests in a short time
-			if (this.debouncedInput) {
-				clearTimeout(this.debouncedInput);
-			}
-
-			this.debouncedInput = setTimeout(async () => {
-				try {
-					const response = await fetch(`/Dialogs/OpenFolder`);
-					this.export_path = await response.json();
-				} catch (error) {
-					console.error('Error fetching data:', error);
-				}
-				await this.handleExportPathChange();
-			}, 300); // Adjust the debounce time as needed (300 milliseconds in this example)
-		},
+			},
 		async fetchFileExists(path) {
 			const response = await fetch(`/IO/File/Exists?Path=${encodeURIComponent(path)}`);
 			return await response.json();

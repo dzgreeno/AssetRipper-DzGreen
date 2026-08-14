@@ -8,9 +8,7 @@ internal sealed class ModelTab : AssetHtmlTab
 	public string Source { get; }
 
 	public override string DisplayName => Localization.AssetTabModel;
-
 	public override string HtmlName => "model";
-
 	public override bool Enabled => AssetAPI.HasModelData(Asset);
 
 	public ModelTab(IUnityObjectBase asset, AssetPath path) : base(asset)
@@ -20,22 +18,19 @@ internal sealed class ModelTab : AssetHtmlTab
 
 	public override void Write(TextWriter writer)
 	{
-		using (new Table(writer).WithCustomAttribute("width", "100%").WithCustomAttribute("height", "100%").End())
+		using (new Div(writer).WithClass("d-flex flex-wrap gap-2 mb-2").End())
 		{
-			using (new Tbody(writer).End())
-			{
-				using (new Tr(writer).End())
-				{
-					using (new Td(writer).WithAlign("center").WithCustomAttribute("valign", "middle").End())
-					{
-						new Canvas(writer)
-							.WithId("babylonRenderCanvas")
-							.WithStyle("width: 100%; height: 100vh;")
-							.WithCustomAttribute("glb-data-path", Source)
-							.Close();
-					}
-				}
-			}
+			SaveButton.Write(writer, Source, $"{Asset.GetBestName()}.glb", "Download GLB");
+			new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("toggleModelLighting").Close("Lighting: on");
+			new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("resetModelCamera").Close("Reset camera");
+			new Button(writer).WithType("button").WithClass("btn btn-sm btn-secondary").WithId("toggleModelAnimation").Close("Animation: on");
+		}
+		using (new Div(writer).WithClass("asset-viewport").End())
+		{
+			new Canvas(writer)
+				.WithId("babylonRenderCanvas")
+				.WithCustomAttribute("glb-data-path", Source)
+				.Close();
 		}
 	}
 }

@@ -42,4 +42,4 @@ The package was built on Linux, so the actual Windows PE launch, Windows native 
 
 ## First GitHub publish
 
-Create the intended private or public repository at `https://github.com/dzgreen/AssetRipper-DzGreen`, push the source tree, enable GitHub Pages with the workflow source, and create a tag such as `v1.3.14-dzgreen.1`. The release workflow will generate the six platform artifacts and SHA256 manifests. Before the first public release, replace any placeholder release metadata with the actual GitHub release URL and complete the Windows smoke test.
+The public repository is `https://github.com/dzgreeno/AssetRipper-DzGreen`. Push the source tree, enable GitHub Pages with the workflow source, and create a tag such as `v1.3.14-dzgreen.1`. The release workflow will generate the six platform artifacts and SHA256 manifests. Before the first public release, replace any placeholder release metadata with the actual GitHub release URL and complete the Windows smoke test.

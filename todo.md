@@ -16,3 +16,6 @@
 - [x] Add a GitHub Pages badge/button beside the Build and Release, License, Support, and Upstream badges.
 - [x] Audit the public README and repository text after the edit for prohibited legacy identity terms and non-`dzgreeno` branding.
 - [x] Push the README and checklist update to `main`, then verify the public repository and Pages links.
+- [ ] Shorten the support and downloads badge labels so each badge stays compact.
+- [ ] Verify all README badges remain on one visual line at the target viewport and keep the canonical links intact.
+- [ ] Push the badge-label correction and re-run the public identity/link audit.

@@ -37,6 +37,7 @@ using SharpGLTF.Scenes;
 using System.Globalization;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace AssetRipper.GUI.Web.Pages.Assets;
 
@@ -325,34 +326,97 @@ internal static class AssetAPI
 				{
 					Directory.Delete(characterDirectory, recursive: true);
 				}
-				Directory.CreateDirectory(characterDirectory);
-				string outputPath = System.IO.Path.Combine(characterDirectory, safeName + ".fbx");
-				FbxAsciiExporter exporter = new() { IncludeAnimations = true };
-				bool success = exporter.Export(exporter.GetCharacterAssets(root, GameFileLoader.GameBundle.FetchAssets()), outputPath, LocalFileSystem.Instance);
-				if (!success || !File.Exists(outputPath))
-				{
-					Logger.Error(LogCategory.Export, $"Workspace FBX export failed for '{root.GetBestName()}'.");
-					return Results.InternalServerError("FBX export failed. See the local status log for details.").ExecuteAsync(context);
-				}
+					Directory.CreateDirectory(characterDirectory);
+					string glbOutputPath = System.IO.Path.Combine(characterDirectory, safeName + ".glb");
+					if (!TryWriteCharacterGlb(root, glbOutputPath, out string? glbErrorMessage))
+					{
+						Logger.Error(LogCategory.Export, $"Workspace GLB export failed for '{root.GetBestName()}': {glbErrorMessage}");
+						return Results.InternalServerError("Blender-ready GLB export failed. See the local status log for details.").ExecuteAsync(context);
+					}
 
-				string archivePath = System.IO.Path.Combine(directory, safeName + "_fbx_bundle.zip");
-				if (File.Exists(archivePath))
-				{
-					File.Delete(archivePath);
-				}
-				ZipFile.CreateFromDirectory(characterDirectory, archivePath, CompressionLevel.Fastest, includeBaseDirectory: true);
-				context.Response.Headers.Append("X-AssetRipper-Export-Path", outputPath);
-				Logger.Info(LogCategory.Export, $"Workspace FBX export completed: {outputPath}; download bundle: {archivePath}");
-				return Results.File(archivePath, "application/zip", System.IO.Path.GetFileName(archivePath)).ExecuteAsync(context);
+					string outputPath = System.IO.Path.Combine(characterDirectory, safeName + ".fbx");
+					bool binaryFbxSuccess = FbxBinaryConverter.TryConvertGlbToBinaryFbx(glbOutputPath, outputPath, out string? binaryFbxErrorMessage);
+					if (!binaryFbxSuccess)
+					{
+						Logger.Warning(LogCategory.Export, $"Workspace binary FBX conversion was unavailable for '{root.GetBestName()}': {binaryFbxErrorMessage}");
+					}
+
+					string legacyAsciiOutputPath = System.IO.Path.Combine(characterDirectory, safeName + "_legacy_ascii.fbx");
+					FbxAsciiExporter exporter = new() { IncludeAnimations = true };
+					bool asciiFbxSuccess = exporter.Export(exporter.GetCharacterAssets(root, GameFileLoader.GameBundle.FetchAssets()), legacyAsciiOutputPath, LocalFileSystem.Instance);
+					if (!asciiFbxSuccess || !File.Exists(legacyAsciiOutputPath))
+					{
+						Logger.Warning(LogCategory.Export, $"Workspace legacy ASCII FBX export failed for '{root.GetBestName()}'.");
+					}
+
+					string manifestPath = System.IO.Path.Combine(characterDirectory, "README-Blender.txt");
+					File.WriteAllText(manifestPath, CreateCharacterExportReadme(safeName, binaryFbxSuccess, binaryFbxErrorMessage, asciiFbxSuccess), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
+					string archivePath = System.IO.Path.Combine(directory, safeName + "_blender_bundle.zip");
+					if (File.Exists(archivePath))
+					{
+						File.Delete(archivePath);
+					}
+					ZipFile.CreateFromDirectory(characterDirectory, archivePath, CompressionLevel.Fastest, includeBaseDirectory: true);
+					string primaryOutputPath = binaryFbxSuccess ? outputPath : glbOutputPath;
+					context.Response.Headers.Append("X-AssetRipper-Export-Path", primaryOutputPath);
+					context.Response.Headers.Append("X-AssetRipper-Export-Format", binaryFbxSuccess ? "binary-fbx+glb" : "glb+legacy-ascii-fbx");
+					Logger.Info(LogCategory.Export, $"Workspace Blender export completed: {primaryOutputPath}; download bundle: {archivePath}");
+					return Results.File(archivePath, "application/zip", System.IO.Path.GetFileName(archivePath)).ExecuteAsync(context);
 			}
 			catch (Exception ex)
 			{
 				Logger.Error(ex);
 				return Results.InternalServerError($"FBX export failed: {ex.Message}").ExecuteAsync(context);
+				}
 			}
-		}
 
-		private static string CreateSafeFileName(string value, string fallback)
+			private static bool TryWriteCharacterGlb(IGameObject root, string outputPath, [NotNullWhen(false)] out string? errorMessage)
+			{
+				try
+				{
+					SceneBuilder sceneBuilder = GlbLevelBuilder.Build(root.FetchHierarchy().OfType<IUnityObjectBase>(), false, GameFileLoader.GameBundle.FetchAssets());
+					using FileStream stream = File.Create(outputPath);
+					return GlbWriter.TryWrite(sceneBuilder, stream, out errorMessage);
+				}
+				catch (Exception ex)
+				{
+					errorMessage = ex.Message;
+					return false;
+				}
+			}
+
+			private static string CreateCharacterExportReadme(string safeName, bool hasBinaryFbx, string? binaryFbxErrorMessage, bool hasLegacyAsciiFbx)
+			{
+				StringBuilder builder = new();
+				builder.AppendLine("AssetRipper DzGreen character export");
+				builder.AppendLine();
+				builder.AppendLine($"{safeName}.glb");
+				builder.AppendLine("  Blender-ready glTF binary. Use this file in Blender for the most direct import of meshes, skinning, embedded textures, and animation clips.");
+				builder.AppendLine();
+				if (hasBinaryFbx)
+				{
+					builder.AppendLine($"{safeName}.fbx");
+					builder.AppendLine("  Binary FBX created from the verified GLB scene. Blender and standard FBX tools can import this file.");
+					builder.AppendLine();
+				}
+				else
+				{
+					builder.AppendLine("Binary FBX was not created on this platform.");
+					builder.AppendLine($"  Reason: {binaryFbxErrorMessage ?? "The converter was unavailable."}");
+					builder.AppendLine("  Import the included GLB instead.");
+					builder.AppendLine();
+				}
+
+				if (hasLegacyAsciiFbx)
+				{
+					builder.AppendLine($"{safeName}_legacy_ascii.fbx");
+					builder.AppendLine("  Legacy ASCII FBX with texture sidecars. Blender does not support ASCII FBX; use this only with tools that require it.");
+				}
+				return builder.ToString();
+			}
+
+			private static string CreateSafeFileName(string value, string fallback)
 		{
 			string candidate = string.IsNullOrWhiteSpace(value) ? fallback : value;
 			foreach (char invalid in System.IO.Path.GetInvalidFileNameChars())

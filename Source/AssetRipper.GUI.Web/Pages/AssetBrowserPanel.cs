@@ -254,7 +254,7 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 							{
 								exportFbxButton.WithDisabled();
 							}
-							exportFbxButton.Close("Export FBX");
+							exportFbxButton.Close("Export Blender bundle");
 					}
 						WriteWorkspaceContextTabs(writer, previewAsset);
 						if (previewUrl is not null)

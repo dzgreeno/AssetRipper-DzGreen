@@ -226,19 +226,19 @@
 			if (previewStatus) previewStatus.textContent = 'No asset matches the current filters.';
 		}
 
-		async function exportSelectedCharacterFbx() {
+			async function exportSelectedCharacterFbx() {
 			const exportUrl = characterFbxExport?.dataset.exportUrl;
 			if (!exportUrl || !characterFbxExport) return;
 			const originalLabel = characterFbxExport.textContent;
 			characterFbxExport.disabled = true;
-			characterFbxExport.textContent = 'Exporting FBX…';
-			if (previewStatus) previewStatus.textContent = 'Exporting selected character FBX with animations…';
+				characterFbxExport.textContent = 'Exporting Blender bundle…';
+				if (previewStatus) previewStatus.textContent = 'Exporting binary FBX and Blender-ready GLB with animations…';
 			try {
 				const response = await fetch(exportUrl, { method: 'POST', headers: { Accept: 'application/zip' } });
 				if (!response.ok) throw new Error((await response.text()) || `Export failed (${response.status})`);
 				const blob = await response.blob();
 				const exportPath = response.headers.get('X-AssetRipper-Export-Path') || 'Ripped/AssetWorkspace';
-				const fallbackName = `${activeCharacter?.dataset.characterName || 'character'}_fbx_bundle.zip`;
+					const fallbackName = `${activeCharacter?.dataset.characterName || 'character'}_blender_bundle.zip`;
 				const download = document.createElement('a');
 				download.href = URL.createObjectURL(blob);
 				download.download = fallbackName;
@@ -246,13 +246,14 @@
 				download.click();
 				download.remove();
 				setTimeout(() => URL.revokeObjectURL(download.href), 0);
-				if (previewStatus) previewStatus.textContent = `FBX saved locally and download started · ${exportPath}`;
-			} catch (error) {
-				const message = error instanceof Error ? error.message : 'FBX export failed.';
+					const exportFormat = response.headers.get('X-AssetRipper-Export-Format') || 'binary-fbx+glb';
+					if (previewStatus) previewStatus.textContent = `Blender bundle (${exportFormat}) saved locally and download started · ${exportPath}`;
+				} catch (error) {
+					const message = error instanceof Error ? error.message : 'Blender bundle export failed.';
 				if (previewStatus) previewStatus.textContent = message;
 			} finally {
 				characterFbxExport.disabled = false;
-				characterFbxExport.textContent = originalLabel || 'Export FBX';
+					characterFbxExport.textContent = originalLabel || 'Export Blender bundle';
 			}
 		}
 

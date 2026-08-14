@@ -2,7 +2,7 @@ name: Deploy AssetRipper DzGreen Pages
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - "docs-site/**"
       - ".github/workflows/pages.yml"

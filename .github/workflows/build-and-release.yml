@@ -65,8 +65,8 @@ jobs:
           rm -rf package release-assets
           mkdir -p package/GUI package/tools/CLI package/tools/MCP release-assets
           cp -R "Source/0Bins/AssetRipper.GUI.Free/Release/${{ matrix.runtime }}/publish/." package/GUI/
-          cp -R "Source/0Bins/AssetRipper.Tools.CLI/Release/${{ matrix.runtime }}/publish/." package/tools/CLI/
-          cp -R "Source/0Bins/AssetRipper.Tools.MCP/Release/${{ matrix.runtime }}/publish/." package/tools/MCP/
+          cp -R "Source/0Bins/AssetRipper.CLI/Release/${{ matrix.runtime }}/publish/." package/tools/CLI/
+          cp -R "Source/0Bins/AssetRipper.MCP/Release/${{ matrix.runtime }}/publish/." package/tools/MCP/
           printf 'AssetRipper DzGreen\nRuntime: ${{ matrix.runtime }}\nCommit: %s\n' "$GITHUB_SHA" > package/BUILD_INFO.txt
           if [[ "${{ matrix.archive }}" == "zip" ]]; then
             7z a -tzip "release-assets/AssetRipper-DzGreen-${{ matrix.name }}.zip" ./package/* >/dev/null

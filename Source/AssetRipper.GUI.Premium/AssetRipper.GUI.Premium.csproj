@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<Product>AssetRipper DzGreen Premium Preview</Product>
+		<Description>Safe high-fidelity Unity asset processing for authorized plaintext inputs.</Description>
+		<ApplicationIcon>..\..\Assets\assetripper-cat.ico</ApplicationIcon>
+		<ServerGarbageCollection>true</ServerGarbageCollection>
+		<OptimizationPreference>Size</OptimizationPreference>
+		<PublishAot>true</PublishAot>
+		<CETCompat>false</CETCompat>
+		<TrimmerSingleWarn>false</TrimmerSingleWarn>
+		<OutputPath>..\0Bins\AssetRipper.GUI.Premium\$(Configuration)\</OutputPath>
+		<IntermediateOutputPath>..\0Bins\obj\AssetRipper.GUI.Premium\$(Configuration)\</IntermediateOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\AssetRipper.GUI.Web\AssetRipper.GUI.Web.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="..\AssetRipper.GUI.Web\NativeTools\win-x64\assimp.exe" Link="assimp.exe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+		<Content Include="..\AssetRipper.GUI.Web\NativeTools\win-x64\ASSIMP-LICENSE.txt" Link="ASSIMP-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
+</Project>

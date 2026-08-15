@@ -13,4 +13,5 @@ public static class AssetRipperBrand
 	public const string ForkUrl = "https://github.com/dzgreeno/AssetRipper-DzGreen";
 	public const string SponsorUrl = "https://ko-fi.com/dzgreen";
 	public const string VersionLine = "Advanced fork · v1.3.15-dzgreen.10";
+	public static bool IsPremiumEdition => string.Equals(Environment.GetEnvironmentVariable("ASSET_RIPPER_DZGREEN_EDITION"), "Premium", StringComparison.OrdinalIgnoreCase);
 }

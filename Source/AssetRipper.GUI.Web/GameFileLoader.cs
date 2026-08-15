@@ -6,6 +6,7 @@ using AssetRipper.Import.Logging;
 using AssetRipper.Import.Structure.Assembly.Managers;
 using AssetRipper.IO.Files;
 using AssetRipper.NativeDialogs;
+using AssetRipper.Premium;
 using AssetRipper.Processing;
 using AssetRipper.GUI.Web.Pages;
 
@@ -53,7 +54,7 @@ public static class GameFileLoader
 	/// <remarks>
 	/// This is purely for UI functionality and has no direct effect on the presense of features.
 	/// </remarks>
-	public static bool Premium => ExportHandler.GetType() != typeof(ExportHandler);
+	public static bool Premium => AssetRipperBrand.IsPremiumEdition;
 
 	public static void Reset()
 	{
@@ -70,11 +71,53 @@ public static class GameFileLoader
 
 	public static void LoadAndProcess(IReadOnlyList<string> paths)
 	{
+		EnsurePremiumInputPolicy(paths);
+		if (Premium)
+		{
+			PremiumRecoveryProfile.Apply(Settings);
+			Logger.Info(LogCategory.General, "Applied the Premium high-fidelity recovery profile for authorized plaintext input.");
+		}
 		Reset();
 		string[] expandedPaths = ExpandSiblingUnityFiles(paths);
 		LoadedPaths = expandedPaths.Select(GetFullPathOrOriginal).ToArray();
 		Settings.LogConfigurationValues();
 		GameData = ExportHandler.LoadAndProcess(expandedPaths, LocalFileSystem.Instance);
+	}
+
+	private static void EnsurePremiumInputPolicy(IReadOnlyList<string> paths)
+	{
+		if (!Premium)
+		{
+			return;
+		}
+
+		bool hasAuthorizationAttestation = string.Equals(Environment.GetEnvironmentVariable("ASSET_RIPPER_DZGREEN_AUTHORIZED_INPUT"), "1", StringComparison.Ordinal);
+		foreach (string path in paths)
+		{
+			PremiumInputDescriptor descriptor = CreatePremiumInputDescriptor(path, hasAuthorizationAttestation);
+			PremiumInputAssessment assessment = PremiumInputPolicy.Assess(descriptor);
+			if (!assessment.IsAccepted)
+			{
+				Logger.Error(LogCategory.Import, $"Premium input policy rejected '{path}' ({assessment.Code}): {assessment.Message}");
+				throw new InvalidOperationException($"Premium input policy rejected '{path}' ({assessment.Code}). {assessment.Message}");
+			}
+			Logger.Info(LogCategory.Import, $"Premium input policy accepted '{path}' ({assessment.Code}).");
+		}
+	}
+
+	private static PremiumInputDescriptor CreatePremiumInputDescriptor(string path, bool isUserAuthorized)
+	{
+		string extension = Path.GetExtension(path).ToLowerInvariant();
+		bool isDirectory = Directory.Exists(path);
+		bool isEncrypted = extension is ".enc" or ".encrypted" or ".crypt";
+		bool isRuntimeMemoryDump = extension is ".dmp" or ".core";
+		bool usesCustomVirtualContainer = extension is ".dat" or ".pkg" or ".pck";
+		PremiumInputKind kind = isDirectory || extension is ".bundle" or ".unity3d" or ".assets" or ".manifest"
+			? PremiumInputKind.UnityBundle
+			: extension is ".res" or ".resource" or ".ress"
+				? PremiumInputKind.ResourceStream
+				: PremiumInputKind.Unknown;
+		return new(Path.GetFileName(path), kind, isUserAuthorized, isEncrypted, IsRuntimeMemoryDump: isRuntimeMemoryDump, UsesCustomVirtualContainer: usesCustomVirtualContainer);
 	}
 
 	/// <summary>

@@ -80,6 +80,7 @@
   <Project Path="Source/AssetRipper.Export.UnityProjects/AssetRipper.Export.UnityProjects.csproj" />
   <Project Path="Source/AssetRipper.Export/AssetRipper.Export.csproj" />
   <Project Path="Source/AssetRipper.GUI.Free/AssetRipper.GUI.Free.csproj" />
+	<Project Path="Source/AssetRipper.GUI.Premium/AssetRipper.GUI.Premium.csproj" />
   <Project Path="Source/AssetRipper.GUI.Licensing.SourceGenerator/AssetRipper.GUI.Licensing.SourceGenerator.csproj" />
   <Project Path="Source/AssetRipper.GUI.Licensing/AssetRipper.GUI.Licensing.csproj" />
   <Project Path="Source/AssetRipper.GUI.Localizations.SourceGenerator/AssetRipper.GUI.Localizations.SourceGenerator.csproj" />
@@ -95,6 +96,8 @@
   <Project Path="Source/AssetRipper.Numerics/AssetRipper.Numerics.csproj" />
   <Project Path="Source/AssetRipper.Processing.SourceGenerator/AssetRipper.Processing.SourceGenerator.csproj" />
   <Project Path="Source/AssetRipper.Processing/AssetRipper.Processing.csproj" />
+	<Project Path="Source/AssetRipper.Premium.Tests/AssetRipper.Premium.Tests.csproj" />
+	<Project Path="Source/AssetRipper.Premium/AssetRipper.Premium.csproj" />
   <Project Path="Source/AssetRipper.SerializationLogic.Tests/AssetRipper.SerializationLogic.Tests.csproj" />
   <Project Path="Source/AssetRipper.SerializationLogic/AssetRipper.SerializationLogic.csproj" />
   <Project Path="Source/AssetRipper.SourceGenerated.Extensions.SourceGenerator/AssetRipper.SourceGenerated.Extensions.SourceGenerator.csproj" />

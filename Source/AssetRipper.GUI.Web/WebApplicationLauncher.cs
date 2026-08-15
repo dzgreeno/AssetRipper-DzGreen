@@ -1,6 +1,7 @@
 using AssetRipper.GUI.Web.Documentation;
 using AssetRipper.GUI.Web.Pages;
 using AssetRipper.GUI.Web.Pages.Assets;
+using AssetRipper.Premium;
 using AssetRipper.GUI.Web.Pages.Bundles;
 using AssetRipper.GUI.Web.Pages.Collections;
 using AssetRipper.GUI.Web.Pages.FailedFiles;
@@ -210,9 +211,11 @@ app.MapStaticFile("/js/commands_page.js", "text/javascript");
 			app.MapGet(AssetAPI.Urls.Model, AssetAPI.GetModelData)
 				.Produces<byte[]>(contentType: "application/octet-stream")
 				.WithAssetPathParameter();
-			app.MapGet(AssetAPI.Urls.WorkspaceRows, AssetBrowserPanel.GetWorkspaceRows)
-				.Produces<string>(contentType: "text/html");
-			app.MapGet(AssetAPI.Urls.CharacterModel, AssetAPI.GetCharacterModelData)
+				app.MapGet(AssetAPI.Urls.WorkspaceRows, AssetBrowserPanel.GetWorkspaceRows)
+					.Produces<string>(contentType: "text/html");
+				app.MapGet(AssetAPI.Urls.PremiumDiagnostics, PremiumDiagnosticsAPI.GetImportReport)
+					.Produces<PremiumImportDiagnosticReport>(contentType: "application/json");
+				app.MapGet(AssetAPI.Urls.CharacterModel, AssetAPI.GetCharacterModelData)
 				.Produces<byte[]>(contentType: "model/gltf-binary")
 				.WithAssetPathParameter();
 			app.MapGet(AssetAPI.Urls.CharacterFbxExport, AssetAPI.ExportCharacterFbx)

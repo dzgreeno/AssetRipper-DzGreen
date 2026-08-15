@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputPath>..\0Bins\Other\AssetRipper.Premium\$(Configuration)\</OutputPath>
+		<IntermediateOutputPath>..\0Bins\obj\AssetRipper.Premium\$(Configuration)\</IntermediateOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\AssetRipper.Assets\AssetRipper.Assets.csproj" />
+		<ProjectReference Include="..\AssetRipper.Export\AssetRipper.Export.csproj" />
+		<ProjectReference Include="..\AssetRipper.Processing\AssetRipper.Processing.csproj" />
+	</ItemGroup>
+
+</Project>

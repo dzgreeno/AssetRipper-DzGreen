@@ -55,6 +55,7 @@ internal static class AssetAPI
 			public const string CharacterFbxExport = Base + "/Character.fbx";
 			public const string CharacterExportFolder = Base + "/Character.ExportFolder";
 			public const string WorkspaceRows = Base + "/WorkspaceRows";
+			public const string PremiumDiagnostics = Base + "/PremiumDiagnostics";
 			public const string Font = Base + "/Font";
 		public const string Video = Base + "/Video";
 		public const string Json = Base + "/Json";

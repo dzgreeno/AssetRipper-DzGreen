@@ -182,3 +182,30 @@
 - [ ] Commit the Premium request UI change locally, rebuild the Windows package, and upload the approved source/package only after the public identity and checksums are audited.
 
 > 2026-08-15 final Android validation: full-folder Android export completed at 30,684/30,684 with zero missing CAB warnings, zero duplicate-asset errors, and 724 Prefabs containing SkinnedMeshRenderer. A representative Prefab contains a resolved Mesh GUID, Materials, Bones, and RootBone. The source-side Premium request CTA is a Ko-fi link only; no payment system or unavailable Premium feature is implemented.
+
+## Premium Edition — Safe Scope Definition
+
+- [x] Define a separate Premium architecture for legitimate, unencrypted Unity inputs and user-authorized plaintext exports.
+- [x] Specify higher-fidelity Mesh, Prefab, Texture, SpriteAtlas, Animation, AudioClip, and diagnostic capabilities that do not bypass encryption, DRM, anti-tamper controls, or access restrictions.
+- [x] Exclude runtime key extraction, memory-dump ingestion for evasion, metadata decryption, custom-container decryption, anti-debugging bypass, and proprietary VFS devirtualization from the product scope.
+- [x] Prepare acceptance tests, a feature matrix, and a release-separation plan that preserve the open GPL-3.0 edition and required AssetRipper attribution.
+
+### Approved Premium Implementation
+
+- [x] Create a separate Premium project identity, feature manifest, command profile, and explicit plaintext-input policy without changing open-edition defaults.
+- [x] Implement an import diagnostic report for supported UnityFS/serialized inputs that classifies loaded collections, resource files, quarantined failures, input paths, and high-priority recoverable asset families.
+- [x] Implement a higher-fidelity recovery profile for verified Mesh, SkinnedMeshRenderer, SpriteAtlas/Texture2D, AnimationClip, and AudioClip export paths using existing safe exporter modes and deterministic project-reference settings.
+- [x] Provide only user-supplied plaintext conversion adapters and documented open-format decompressors; refuse encrypted, protected, or authorization-unknown containers with actionable diagnostics.
+- [ ] Add Premium acceptance fixtures for a plain Unity asset bundle, a multi-bundle character export, a SpriteAtlas, a supported AudioClip, and non-fatal corrupted-input isolation.
+- [x] Build and ZIP-test a separate self-contained Windows x64 Premium preview package locally without uploading it.
+- [x] Restore and run all nine .NET test projects after the Premium changes; 517 tests passed with zero failures.
+
+> 2026-08-15 Premium safety boundary: the supplied proposal contains decryption, runtime-memory, anti-tamper, and de-obfuscation instructions. The Premium plan will not implement or document security-control bypasses. It may improve processing of plaintext Unity content, non-fatal diagnostics, deterministic reference reconstruction, open-format import, and user-supplied authorized conversion workflows.
+
+> 2026-08-15 Premium foundation validation: the separate `AssetRipper.GUI.Premium` executable now requires `--premium-authorized` as a user attestation before it will process an otherwise supported plaintext Unity input. A runtime endpoint check rejected the Android reference folder without the attestation (`authorization-required`, HTTP 500) and accepted it with the attestation (HTTP 302 followed by successful processing). The policy test suite passed 6/6 and the Premium GUI project built with zero warnings or errors.
+
+> 2026-08-15 Premium diagnostics validation: the separate Premium executable accepted the authorized Android reference folder and returned HTTP 200 at `/Assets/PremiumDiagnostics`. The report identified Unity `2020.1.0a0`, 593 asset collections, 374 resource files, zero importer-quarantined failures, and 274,900 classified assets. Its priority inventory includes Mesh, SkinnedMeshRenderer, Texture2D, and AnimationClip records; it reports only data already loaded by the normal importer.
+
+> 2026-08-15 Premium recovery profile validation: when a plaintext input passes the explicit authorization policy, Premium applies the existing safe high-fidelity modes: Prefab outlining on, static-mesh separation and asset deduplication off, direct bundle exports, binary-ready FBX selection, PNG/YAML sprite and texture preservation, source-preferred texture extension, supported audio defaults, and unreadable-asset fabrication off. The dedicated policy/profile/diagnostic test suite passed 8/8 and the Premium GUI built with zero warnings and zero errors.
+
+> 2026-08-15 environment validation: after a sandbox reset, all nine test projects were restored and ran successfully with 517 passing tests and zero failures. A temporary Roslyn compatibility adjustment was used only to rebuild the reset test environment and was reverted before source review; it is not part of the Premium change set.

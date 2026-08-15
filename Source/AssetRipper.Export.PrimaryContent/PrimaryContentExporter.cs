@@ -144,10 +144,17 @@ public sealed class PrimaryContentExporter
 			if (collection.Exportable)
 			{
 				Logger.Info(LogCategory.ExportProgress, $"({i + 1}/{collections.Count}) Exporting '{collection.Name}'");
-				bool exportedSuccessfully = collection.Export(settings.ExportRootPath, fileSystem);
-				if (!exportedSuccessfully)
+				try
 				{
-					Logger.Warning(LogCategory.ExportProgress, $"Failed to export '{collection.Name}'");
+					bool exportedSuccessfully = collection.Export(settings.ExportRootPath, fileSystem);
+					if (!exportedSuccessfully)
+					{
+						Logger.Warning(LogCategory.ExportProgress, $"Failed to export '{collection.Name}'");
+					}
+				}
+				catch (Exception ex)
+				{
+					Logger.Error(LogCategory.ExportProgress, $"Export failed for '{collection.Name}' ({collection.GetType().Name}): {ex.Message}");
 				}
 			}
 		}

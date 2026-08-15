@@ -10,6 +10,7 @@ using AssetRipper.SourceGenerated.Extensions;
 using AssetRipper.SourceGenerated.Enums;
 using AssetRipper.Export.UnityProjects.Textures;
 using AssetRipper.Export.UnityProjects.Project;
+using AssetRipper.Import.Logging;
 
 namespace AssetRipper.Export.UnityProjects.RawAssets;
 
@@ -36,10 +37,10 @@ internal sealed class TypeTreeObjectExporter : BinaryAssetExporter
 		}
 		else if (asset is TypeTreeObject { ClassID: (int)ClassIDType.Mesh } mesh)
 		{
-			// The embedded Type Tree is authoritative for serialized Mesh fields. A Mesh has no
-			// managed object graph, so it can be emitted as a regular Unity YAML asset while
-			// other recovered types remain quarantine records until their layouts are verified.
-			exportCollection = new AssetExportCollection<IUnityObjectBase>(new DefaultYamlExporter(), mesh);
+			// The embedded Type Tree is authoritative for serialized Mesh fields. Recover any
+			// external vertex stream into m_VertexData.m_Data and clear the stream reference for
+			// export, because Unity cannot resolve the original bundle resource from the project.
+			exportCollection = new TypeTreeMeshExportCollection(new DefaultYamlExporter(), mesh);
 			return true;
 		}
 		else if (asset is TypeTreeObject { IsPlayerSettings: false } inspectionAsset)
@@ -246,6 +247,58 @@ internal sealed class TypeTreeObjectExporter : BinaryAssetExporter
 				return "RecoveredAsset";
 			}
 			return result.Length > 96 ? result[..96] : result;
+		}
+	}
+
+	private sealed class TypeTreeMeshExportCollection : AssetExportCollection<IUnityObjectBase>
+	{
+		private readonly TypeTreeObject mesh;
+
+		public TypeTreeMeshExportCollection(IAssetExporter assetExporter, TypeTreeObject mesh) : base(assetExporter, mesh)
+		{
+			this.mesh = mesh;
+		}
+
+		protected override bool ExportInner(IExportContainer container, string filePath, string dirPath, FileSystem fileSystem)
+		{
+			SerializableStructure fields = mesh.ReleaseFields;
+			if (!TryReadStreamData(fields, out Utf8String streamPath, out ulong streamOffset, out uint streamSize)
+				|| !fields.TryGetField("m_VertexData", out SerializableValue vertexDataValue)
+				|| !vertexDataValue.AsStructure.TryGetField("m_Data", out SerializableValue vertexBytesValue))
+			{
+				return base.ExportInner(container, filePath, dirPath, fileSystem);
+			}
+
+			SerializableStructure vertexData = vertexDataValue.AsStructure;
+			byte[] originalVertexBytes = vertexBytesValue.AsByteArray;
+			byte[] vertexBytes = originalVertexBytes.Length > 0
+				? originalVertexBytes
+				: TryReadStreamContent(mesh, streamPath, streamOffset, streamSize);
+			if (vertexBytes.Length == 0)
+			{
+				Logger.Warning(LogCategory.Export, $"Recovered Mesh '{((IUnityObjectBase)mesh).GetBestName()}' could not resolve its vertex stream '{streamPath}'. No Unity YAML mesh was emitted.");
+				return false;
+			}
+
+			SerializableStructure streamData = fields["m_StreamData"].AsStructure;
+			SerializableValue originalPath = streamData["path"];
+			SerializableValue originalOffset = streamData["offset"];
+			SerializableValue originalSize = streamData["size"];
+			try
+			{
+				vertexData["m_Data"].AsByteArray = vertexBytes;
+				streamData["path"].AsString = string.Empty;
+				streamData["offset"].AsUInt64 = 0;
+				streamData["size"].AsUInt32 = 0;
+				return base.ExportInner(container, filePath, dirPath, fileSystem);
+			}
+			finally
+			{
+				vertexData["m_Data"] = vertexBytesValue;
+				streamData["path"] = originalPath;
+				streamData["offset"] = originalOffset;
+				streamData["size"] = originalSize;
+			}
 		}
 	}
 }

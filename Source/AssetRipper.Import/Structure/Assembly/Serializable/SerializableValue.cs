@@ -942,13 +942,60 @@ public record struct SerializableValue([property: DebuggerBrowsable(DebuggerBrow
 					case PrimitiveType.Pair:
 					default:
 						throw new NotSupportedException(etalon.Type.Type.ToString());
-				}
-				break;
-			case 2:
-				throw new NotImplementedException();
-			default:
-				throw new NotSupportedException(etalon.ArrayDepth.ToString());
-		}
+					}
+					break;
+				case 2:
+					switch (etalon.Type.Type)
+					{
+						case PrimitiveType.Bool:
+							VisitPrimitiveArrayArray(walker, AsBooleanArrayArray);
+							break;
+						case PrimitiveType.Char:
+							VisitPrimitiveArrayArray(walker, AsCharArrayArray);
+							break;
+						case PrimitiveType.SByte:
+							VisitPrimitiveArrayArray(walker, AsSByteArrayArray);
+							break;
+						case PrimitiveType.Byte:
+							VisitPrimitiveArrayArray(walker, AsByteArrayArray);
+							break;
+						case PrimitiveType.Short:
+							VisitPrimitiveArrayArray(walker, AsInt16ArrayArray);
+							break;
+						case PrimitiveType.UShort:
+							VisitPrimitiveArrayArray(walker, AsUInt16ArrayArray);
+							break;
+						case PrimitiveType.Int:
+							VisitPrimitiveArrayArray(walker, AsInt32ArrayArray);
+							break;
+						case PrimitiveType.UInt:
+							VisitPrimitiveArrayArray(walker, AsUInt32ArrayArray);
+							break;
+						case PrimitiveType.Long:
+							VisitPrimitiveArrayArray(walker, AsInt64ArrayArray);
+							break;
+						case PrimitiveType.ULong:
+							VisitPrimitiveArrayArray(walker, AsUInt64ArrayArray);
+							break;
+						case PrimitiveType.Single:
+							VisitPrimitiveArrayArray(walker, AsSingleArrayArray);
+							break;
+						case PrimitiveType.Double:
+							VisitPrimitiveArrayArray(walker, AsDoubleArrayArray);
+							break;
+						case PrimitiveType.String:
+							VisitPrimitiveArrayArray(walker, AsStringArrayArray);
+							break;
+						case PrimitiveType.Complex:
+							VisitComplexArrayArray(walker, AsAssetArrayArray);
+							break;
+						default:
+							throw new NotSupportedException(etalon.Type.Type.ToString());
+					}
+					break;
+				default:
+					throw new NotSupportedException(etalon.ArrayDepth.ToString());
+			}
 	}
 
 	private static void VisitPrimitiveArray<T>(AssetWalker walker, T[] array) where T : notnull
@@ -971,6 +1018,50 @@ public record struct SerializableValue([property: DebuggerBrowsable(DebuggerBrow
 				}
 			}
 			walker.ExitList(array);
+		}
+	}
+
+	private static void VisitPrimitiveArrayArray<T>(AssetWalker walker, T[][] arrays) where T : notnull
+	{
+		if (walker.EnterList(arrays))
+		{
+			for (int i = 0; i < arrays.Length; i++)
+			{
+				VisitPrimitiveArray(walker, arrays[i]);
+				if (i + 1 < arrays.Length)
+				{
+					walker.DivideList(arrays);
+				}
+			}
+			walker.ExitList(arrays);
+		}
+	}
+
+	private static void VisitComplexArrayArray(AssetWalker walker, IUnityAssetBase[][] arrays)
+	{
+		if (walker.EnterList(arrays))
+		{
+			for (int i = 0; i < arrays.Length; i++)
+			{
+				IUnityAssetBase[] structures = arrays[i];
+				if (walker.EnterList(structures))
+				{
+					for (int j = 0; j < structures.Length; j++)
+					{
+						structures[j].WalkEditor(walker);
+						if (j + 1 < structures.Length)
+						{
+							walker.DivideList(structures);
+						}
+					}
+					walker.ExitList(structures);
+				}
+				if (i + 1 < arrays.Length)
+				{
+					walker.DivideList(arrays);
+				}
+			}
+			walker.ExitList(arrays);
 		}
 	}
 

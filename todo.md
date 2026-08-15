@@ -109,3 +109,21 @@
 - [ ] Create and ZIP-test a new local Windows test package after the full .NET suite passes.
 
 > 2026-08-15 Unity re-import findings: the source data reports Unity 2020.1.0a0, which is not a normal Unity Hub editor target. The export now writes `2020.1.0f1` to ProjectVersion.txt for an importable upgrade path, while leaving source parsing metadata untouched. The Android export completed with zero collection failures. It produced 3,921 PNG images from valid embedded or `.resS` Texture2D data and 4,291 Unity Mesh YAML assets. The full .NET suite passed: 510 succeeded, 0 failed. The archive contains no AudioClip or VideoClip source classes; it does contain FMOD bank `.bytes` resources, which remain raw data and require the game's legitimate FMOD Unity integration to play in Unity.
+
+## Character Prefab Structure and Dependency Recovery Follow-up
+
+- [x] Identify why recovered GameObject, Transform, MeshRenderer, SkinnedMeshRenderer, Material, Animator, and MonoBehaviour objects are quarantined instead of emitted as linked Unity assets.
+- [x] Map dependencies for selected character roots in the supplied Android archive, including component ownership, parent-child transforms, mesh, material, animator-controller, avatar, and animation-clip PPtrs.
+- [x] Design a safe, class-specific recovery path that preserves verified Prefab and folder relationships without fabricating unresolved dependencies or bypassing protection.
+- [x] Implement Unity-compatible export for recoverable character hierarchy, renderer, material, animation, and controller records while retaining clear diagnostics for unsupported scripts or missing source dependencies.
+- [ ] Run the full .NET suite and create a local Windows package only after validation.
+
+### Windows Log Configuration Findings
+
+- [x] Correct the character-project export defaults exposed in the Windows log: enable Prefab outlining and disable static-mesh separation for hierarchy-preserving Unity Project exports.
+- [x] Confirm that bundled character FBX, materials, textures, and poses are grouped into deterministic character/bundle folders instead of generic type-only folders.
+- [ ] Correlate the unresolved `archive:/CAB-*` dependency warnings with the source bundle inventory and retain only resolvable references; never fabricate missing bundles or bypass protection.
+
+> 2026-08-15 character structure validation: with the new defaults, the five-character test archive exported without collection failures. `hero20053.prefab` was placed under `Assets/AssetBundles/character/hero20053.unity3d/pack/character/hero20053/`; it contains 141 GameObjects, 141 Transforms, 2 SkinnedMeshRenderers, one Animator, Mesh and Material references, and 19 distinct external GUIDs. All 19 GUIDs resolve to files in the generated project. Mesh, Material, Texture, controller, and animation files are grouped by source bundle, including a separate `hero20053_anim.unity3d` AnimationClip folder.
+
+> 2026-08-15 Android structural export validation: the full Android archive completed `Export All` and post-export with zero collection failures, zero StackOverflow events, and zero `NotImplementedException` events. The temporary generated project contained 3,921 PNG images, 6,977 serialized Mesh assets, 2,352 Prefabs, and 447 source-bundle directory roots. The temporary project was removed after validation to free disk space; the test log remains available locally.

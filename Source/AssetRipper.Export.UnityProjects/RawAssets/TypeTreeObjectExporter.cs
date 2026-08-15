@@ -29,9 +29,9 @@ internal sealed class TypeTreeObjectExporter : BinaryAssetExporter
 
 	public override bool TryCreateCollection(IUnityObjectBase asset, [NotNullWhen(true)] out IExportCollection? exportCollection)
 	{
-		if (asset is TypeTreeObject typeTreeObject && TryCreateTexture(typeTreeObject, out ITexture2D? texture))
+		if (asset is TypeTreeObject textureSource && TryCreateTexture(textureSource, out ITexture2D? texture))
 		{
-			exportCollection = new TextureExportCollection(textureExporter, texture, typeTreeObject);
+			exportCollection = new TextureExportCollection(textureExporter, texture, textureSource);
 			return true;
 		}
 		else if (asset is TypeTreeObject { ClassID: (int)ClassIDType.Mesh } mesh)

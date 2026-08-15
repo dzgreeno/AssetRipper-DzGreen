@@ -116,7 +116,7 @@
 - [x] Map dependencies for selected character roots in the supplied Android archive, including component ownership, parent-child transforms, mesh, material, animator-controller, avatar, and animation-clip PPtrs.
 - [x] Design a safe, class-specific recovery path that preserves verified Prefab and folder relationships without fabricating unresolved dependencies or bypassing protection.
 - [x] Implement Unity-compatible export for recoverable character hierarchy, renderer, material, animation, and controller records while retaining clear diagnostics for unsupported scripts or missing source dependencies.
-- [ ] Run the full .NET suite and create a local Windows package only after validation.
+- [x] Run the full .NET suite and create a local Windows package only after validation.
 
 ### Windows Log Configuration Findings
 
@@ -127,3 +127,5 @@
 > 2026-08-15 character structure validation: with the new defaults, the five-character test archive exported without collection failures. `hero20053.prefab` was placed under `Assets/AssetBundles/character/hero20053.unity3d/pack/character/hero20053/`; it contains 141 GameObjects, 141 Transforms, 2 SkinnedMeshRenderers, one Animator, Mesh and Material references, and 19 distinct external GUIDs. All 19 GUIDs resolve to files in the generated project. Mesh, Material, Texture, controller, and animation files are grouped by source bundle, including a separate `hero20053_anim.unity3d` AnimationClip folder.
 
 > 2026-08-15 Android structural export validation: the full Android archive completed `Export All` and post-export with zero collection failures, zero StackOverflow events, and zero `NotImplementedException` events. The temporary generated project contained 3,921 PNG images, 6,977 serialized Mesh assets, 2,352 Prefabs, and 447 source-bundle directory roots. The temporary project was removed after validation to free disk space; the test log remains available locally.
+
+> 2026-08-15 package validation: the full .NET suite passed with 510 succeeded and 0 failed. The local Windows package `AssetRipper-DzGreen-v1.3.15-dzgreen.6-dev-prefab-structure-Windows-x64.zip` was ZIP-tested, contains the self-contained GUI executable, Assimp converter, and license, and has SHA-256 `00478ce6275a2af01fb177cd602df260b8db707bf93e56f2a1335e886071d7d7`.

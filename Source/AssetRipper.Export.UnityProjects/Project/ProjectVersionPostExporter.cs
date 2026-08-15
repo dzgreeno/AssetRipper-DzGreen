@@ -17,7 +17,7 @@ public sealed class ProjectVersionPostExporter : IPostExporter
 		fileSystem.Directory.Create(projectSettingsDirectory);
 		using Stream fileStream = fileSystem.File.Create(fileSystem.Path.Join(projectSettingsDirectory, "ProjectVersion.txt"));
 		using StreamWriter writer = new InvariantStreamWriter(fileStream, new UTF8Encoding(false));
-		writer.Write($"m_EditorVersion: {version}\n");
+		writer.Write($"m_EditorVersion: {GetImportableEditorVersion(version)}\n");
 		if (version.Equals(5))
 		{
 			//Unity 5 has an extra line
@@ -37,5 +37,14 @@ public sealed class ProjectVersionPostExporter : IPostExporter
 		//For 2019.3.0a4 and earlier, versionInfo.ProductVersion is equal to versionInfo.FileVersion.
 		//versionInfo.FileVersion is the same format for all Unity versions: 2019.4.3.16285916
 		//The fourth number contains half of the revision and is a 24-bit big-endian integer.
+	}
+
+	private static UnityVersion GetImportableEditorVersion(UnityVersion sourceVersion)
+	{
+		// Unity Hub cannot ordinarily install historic alpha/beta editors such as 2020.1.0a0.
+		// Keep the same release line so the generated project can be opened and upgraded normally.
+		return sourceVersion.Type is UnityVersionType.Alpha or UnityVersionType.Beta
+			? new UnityVersion(sourceVersion.Major, sourceVersion.Minor, sourceVersion.Build, UnityVersionType.Final, 1)
+			: sourceVersion;
 	}
 }

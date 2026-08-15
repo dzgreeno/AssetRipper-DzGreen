@@ -65,7 +65,8 @@ partial class ProjectExporter
 		ManagerAssetExporter managerExporter = new();
 		OverrideExporter<IGlobalGameManager>(managerExporter, true);
 		OverrideExporter<TypeTreeObject>(managerExporter, true);
-		OverrideExporter<TypeTreeObject>(new TypeTreeObjectExporter(), true);
+		TextureAssetExporter textureExporter = new(settings);
+		OverrideExporter<TypeTreeObject>(new TypeTreeObjectExporter(textureExporter), true);
 
 		OverrideExporter<IMonoBehaviour>(new ScriptableObjectExporter(), true);
 
@@ -107,7 +108,6 @@ partial class ProjectExporter
 		OverrideExporter<IVideoClip>(new VideoClipExporter());
 
 		//Texture exporters
-		TextureAssetExporter textureExporter = new(settings);
 		OverrideExporter<ITexture2D>(textureExporter); //Texture2D and Cubemap
 		OverrideExporter<ISprite>(textureExporter);
 		OverrideExporter<SpriteInformationObject>(textureExporter);

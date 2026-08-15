@@ -33,13 +33,43 @@ public class TextureExportCollection : AssetsExportCollection<ITexture2D>
 		AddAsset(spriteInformationObject);
 	}
 
+	/// <summary>
+	/// Creates a Unity-importable image collection for a standalone Texture2D that has no
+	/// associated sprite information. This is common when a resilient Type Tree recovery
+	/// path reconstructs the texture but cannot rebuild its editor-only sprite grouping.
+	/// </summary>
+	public TextureExportCollection(TextureAssetExporter assetExporter, ITexture2D texture, IUnityObjectBase? sourceAsset = null)
+		: base(assetExporter, texture)
+	{
+		m_exportSprites = false;
+		m_sourceAsset = sourceAsset;
+	}
+
+	public override IEnumerable<IUnityObjectBase> Assets
+	{
+		get
+		{
+			if (m_sourceAsset is not null)
+			{
+				yield return m_sourceAsset;
+			}
+			else
+			{
+				foreach (IUnityObjectBase asset in base.Assets)
+				{
+					yield return asset;
+				}
+			}
+		}
+	}
+
 	protected override IUnityObjectBase CreateImporter(IExportContainer container)
 	{
 		ITexture2D texture = Asset;
 		if (m_convert)
 		{
 			ITextureImporter importer = ImporterFactory.GenerateTextureImporter(container, texture);
-			AddSprites(container, importer, ((SpriteInformationObject?)Asset.MainAsset)!.Sprites);
+			AddSprites(container, importer, (Asset.MainAsset as SpriteInformationObject)?.Sprites);
 			return importer;
 		}
 		else
@@ -205,6 +235,7 @@ public class TextureExportCollection : AssetsExportCollection<ITexture2D>
 	/// yet we still need the sprites to properly set other texture importer settings.
 	/// </summary>
 	private readonly bool m_exportSprites;
+	private readonly IUnityObjectBase? m_sourceAsset;
 	private readonly bool m_convert = true;
 	private uint m_nextExportID = 0;
 }

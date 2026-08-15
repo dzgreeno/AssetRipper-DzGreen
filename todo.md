@@ -95,7 +95,17 @@
 
 ## Android Export Failure Follow-up
 
-- [ ] Extract and classify every export failure in the user-provided full diagnostic log.
-- [ ] Reproduce the affected export mode on the supplied Android data without modifying source files or bypassing protection.
-- [ ] Repair safe export handling for recovered Type Tree objects and produce actionable diagnostics for assets that cannot become FBX or GLB.
-- [ ] Verify exported artifacts and the complete test suite, then create a local Windows test package only.
+- [x] Extract and classify every export failure in the user-provided full diagnostic log.
+- [x] Reproduce the affected export mode on the supplied Android data without modifying source files or bypassing protection.
+- [x] Repair safe export handling for recovered Type Tree objects and produce actionable diagnostics for assets that cannot become FBX or GLB.
+- [x] Verify exported artifacts and the complete test suite, then create a local Windows test package only.
+
+## Unity Re-import Compatibility Follow-up
+
+- [x] Classify Unity Editor import errors, missing media families, and invalid generated files from the user-supplied Windows export log.
+- [x] Verify the intended project-opening workflow and export mode against the current AssetRipper behavior and configuration.
+- [x] Repair Unity-project-compatible export paths for Texture2D and Mesh without creating misleading placeholder assets; retain diagnostic records only for resources that are genuinely unavailable.
+- [x] Re-run the supplied Android archive export and perform structural re-import validation: 3,921 non-empty PNG files with matching meta files, 4,291 Mesh YAML assets with matching meta files, a Final ProjectVersion, and no malformed Mesh YAML headers. No Unity Editor executable is available in the sandbox for an Editor launch.
+- [ ] Create and ZIP-test a new local Windows test package after the full .NET suite passes.
+
+> 2026-08-15 Unity re-import findings: the source data reports Unity 2020.1.0a0, which is not a normal Unity Hub editor target. The export now writes `2020.1.0f1` to ProjectVersion.txt for an importable upgrade path, while leaving source parsing metadata untouched. The Android export completed with zero collection failures. It produced 3,921 PNG images from valid embedded or `.resS` Texture2D data and 4,291 Unity Mesh YAML assets. The full .NET suite passed: 510 succeeded, 0 failed. The archive contains no AudioClip or VideoClip source classes; it does contain FMOD bank `.bytes` resources, which remain raw data and require the game's legitimate FMOD Unity integration to play in Unity.

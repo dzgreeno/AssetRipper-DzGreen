@@ -110,6 +110,11 @@ public sealed class GameAssetFactory : AssetFactoryBase
 		{
 			return asset;
 		}
+		else if (TryReadWithCompatibleReleaseVersion(assetInfo, assetData, out IUnityObjectBase? compatibleAsset, out string? compatibleVersion))
+		{
+			Logger.Info(LogCategory.Import, $"Read asset type {(ClassIDType)assetInfo.ClassID} with compatible release reader {compatibleVersion} after the prerelease reader failed. V: {assetInfo.Collection.Version} N: {assetInfo.Collection.Name} PathID: {assetInfo.PathID}.");
+			return compatibleAsset;
+		}
 		else if (TryReadWithEmbeddedTypeTree(assetInfo, assetData, assetType, out IUnityObjectBase? typeTreeAsset, out typeTreeError))
 		{
 			Logger.Warning(LogCategory.Import, $"Recovered asset type {(ClassIDType)assetInfo.ClassID} from embedded serialized Type Tree after the generated reader failed. V: {assetInfo.Collection.Version} N: {assetInfo.Collection.Name} PathID: {assetInfo.PathID}. The asset remains available for raw inspection and dependency analysis.");
@@ -176,6 +181,31 @@ public sealed class GameAssetFactory : AssetFactoryBase
 		}
 
 		recoveredAsset = typeTreeObject;
+		return true;
+	}
+
+	private static bool TryReadWithCompatibleReleaseVersion(AssetInfo assetInfo, ReadOnlySpan<byte> assetData, [NotNullWhen(true)] out IUnityObjectBase? compatibleAsset, out string? compatibleVersion)
+	{
+		compatibleAsset = null;
+		compatibleVersion = null;
+		UnityVersion sourceVersion = assetInfo.Collection.Version;
+		if (sourceVersion.Type is not (UnityVersionType.Alpha or UnityVersionType.Beta))
+		{
+			return false;
+		}
+
+		// Generated schemas target released editor layouts. For a stripped prerelease bundle,
+		// the matching final build is a safer first fallback than reducing normal assets to
+		// Type Tree inspection records.
+		UnityVersion releaseVersion = new UnityVersion(sourceVersion.Major, sourceVersion.Minor, sourceVersion.Build, UnityVersionType.Final, 1);
+		IUnityObjectBase candidate = TryReadNormalObject(assetInfo, assetData, releaseVersion, out string? error);
+		if (error is not null)
+		{
+			return false;
+		}
+
+		compatibleAsset = candidate;
+		compatibleVersion = releaseVersion.ToString();
 		return true;
 	}
 

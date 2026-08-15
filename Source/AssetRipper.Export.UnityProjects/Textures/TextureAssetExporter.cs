@@ -30,6 +30,14 @@ public class TextureAssetExporter : BinaryAssetExporter
 			exportCollection = new TextureExportCollection(this, spriteInformationObject, ExportSprites);
 			return true;
 		}
+		else if (asset is ITexture2D texture)
+		{
+			// Recovered Android Texture2D assets do not always have a SpriteInformationObject
+			// assigned as their main asset. They are still valid standalone images and must not
+			// fall through to the generic YAML streamed-asset exporter.
+			exportCollection = new TextureExportCollection(this, texture);
+			return true;
+		}
 		else
 		{
 			exportCollection = null;

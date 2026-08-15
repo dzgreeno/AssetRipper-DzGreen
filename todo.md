@@ -92,3 +92,10 @@
 > Workspace performance findings: the full archive contains 275,920 indexed assets. The initial Workspace response is now 372,422 bytes in 3.43 seconds with 200 initial rows; all assets remain searchable through `/Assets/WorkspaceRows` pages of up to 500 rows. A paged Mesh query reports 49,352 matching assets and returns 200 rows. Automatic character assembly is deliberately deferred above 8,000 assets to avoid a slow all-component traversal; users can still narrow to assets through filters and the advanced search. The full .NET suite passed: 510 succeeded, 0 failed.
 
 > Windows package: `AssetRipper-DzGreen-v1.3.15-dzgreen.3-dev-android-recovery-Windows-x64.zip` was ZIP-tested locally, includes the static Assimp converter and its license, and has SHA-256 `503db76b92f0f746cfb442dc163ccbd726f9210a59aed56b6343fb3f0c22030d`.
+
+## Android Export Failure Follow-up
+
+- [ ] Extract and classify every export failure in the user-provided full diagnostic log.
+- [ ] Reproduce the affected export mode on the supplied Android data without modifying source files or bypassing protection.
+- [ ] Repair safe export handling for recovered Type Tree objects and produce actionable diagnostics for assets that cannot become FBX or GLB.
+- [ ] Verify exported artifacts and the complete test suite, then create a local Windows test package only.

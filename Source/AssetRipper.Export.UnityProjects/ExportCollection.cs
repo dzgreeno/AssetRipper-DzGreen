@@ -83,7 +83,55 @@ public abstract class ExportCollection : IExportCollection
 		}
 
 		fileName = $"{fileName}.{GetExportExtension(asset)}";
+		int maximumFileNameLength = Math.Min(FileSystem.MaxFileNameLength - MetaExtension.Length, MaximumExportPathLength - dirPath.Length - 1 - MetaExtension.Length);
+		fileName = ShortenFileNameForPath(asset, fileName, maximumFileNameLength);
 		return GetUniqueFileName(dirPath, fileName, fileSystem);
+	}
+
+	private static string ShortenFileNameForPath(IUnityObjectBase asset, string fileName, int maximumFileNameLength)
+	{
+		if (maximumFileNameLength < MinimumExportFileNameLength)
+		{
+			maximumFileNameLength = MinimumExportFileNameLength;
+		}
+
+		if (Encoding.UTF8.GetByteCount(fileName) <= maximumFileNameLength)
+		{
+			return fileName;
+		}
+
+		string extension = Path.GetExtension(fileName);
+		string marker = $"_{asset.PathID}";
+		int prefixLength = maximumFileNameLength - Encoding.UTF8.GetByteCount(extension) - Encoding.UTF8.GetByteCount(marker);
+		if (prefixLength <= 0)
+		{
+			return $"{asset.PathID}{extension}";
+		}
+
+		string prefix = TruncateToUtf8ByteLength(Path.GetFileNameWithoutExtension(fileName), prefixLength);
+		return $"{prefix}{marker}{extension}";
+	}
+
+	private static string TruncateToUtf8ByteLength(string value, int maximumByteLength)
+	{
+		if (Encoding.UTF8.GetByteCount(value) <= maximumByteLength)
+		{
+			return value;
+		}
+
+		for (int length = value.Length - 1; length > 0; length--)
+		{
+			if (char.IsHighSurrogate(value[length - 1]))
+			{
+				length--;
+			}
+			if (Encoding.UTF8.GetByteCount(value.AsSpan(0, length)) <= maximumByteLength)
+			{
+				return value[..length];
+			}
+		}
+
+		return string.Empty;
 	}
 
 	protected static string GetUniqueFileName(string directoryPath, string fileName, FileSystem fileSystem)
@@ -132,4 +180,7 @@ public abstract class ExportCollection : IExportCollection
 	private const string MetaExtension = ".meta";
 	protected const string AssetExtension = "asset";
 	public const string AssetsKeyword = "Assets";
+	// Preserve margin for the .meta companion while keeping generated projects compatible with Windows MAX_PATH APIs.
+	private const int MaximumExportPathLength = 240;
+	private const int MinimumExportFileNameLength = 32;
 }

@@ -18,4 +18,10 @@ public abstract class ShaderExporterBase : BinaryAssetExporter
 			return false;
 		}
 	}
+
+	public override bool Export(IExportContainer container, IEnumerable<IUnityObjectBase> assets, string path, FileSystem fileSystem)
+	{
+		IShader? shader = assets.OfType<IShader>().FirstOrDefault();
+		return shader is not null && Export(container, shader, path, fileSystem);
+	}
 }

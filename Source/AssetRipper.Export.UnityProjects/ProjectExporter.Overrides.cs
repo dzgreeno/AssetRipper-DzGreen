@@ -65,6 +65,7 @@ partial class ProjectExporter
 		ManagerAssetExporter managerExporter = new();
 		OverrideExporter<IGlobalGameManager>(managerExporter, true);
 		OverrideExporter<TypeTreeObject>(managerExporter, true);
+		OverrideExporter<TypeTreeObject>(new TypeTreeObjectExporter(), true);
 
 		OverrideExporter<IMonoBehaviour>(new ScriptableObjectExporter(), true);
 
@@ -180,6 +181,10 @@ partial class ProjectExporter
 		ScriptableObjectGroupExporter scriptableObjectGroupExporter = new();
 		OverrideExporter<IMonoBehaviour>(scriptableObjectGroupExporter);
 		OverrideExporter<ScriptableObjectGroup>(scriptableObjectGroupExporter);
+
+		// Must be after the other texture overrides: malformed streamed paths become explicit
+		// inspection records instead of invalid image files or failed export collections.
+		OverrideExporter<ITexture2D>(new UnavailableTextureExporter(), true);
 	}
 
 	//These need to be absolutely last

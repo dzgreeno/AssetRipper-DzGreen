@@ -222,17 +222,19 @@ public sealed class DummyShaderTextExporter : ShaderExporterBase
 						writer.Write("CubeArray");
 						break;
 					default:
-						throw new NotSupportedException("Texture dimension isn't supported");
+						writer.Write("2D");
+						break;
 
 				}
 				break;
 
-			case SerializedPropertyType.Int:
-				writer.Write("Int");
-				break;
+				case SerializedPropertyType.Int:
+					writer.Write("Int");
+					break;
 
-			default:
-				throw new NotSupportedException($"Serialized property type {_this.Type} isn't supported");
+				default:
+					writer.Write("Float");
+					break;
 		}
 		writer.Write(") = ");
 
@@ -249,12 +251,13 @@ public sealed class DummyShaderTextExporter : ShaderExporterBase
 				writer.Write(_this.DefValue_0_.ToStringInvariant());
 				break;
 
-			case SerializedPropertyType.Texture:
-				writer.Write($"\"{_this.DefTexture.DefaultName}\" {{}}");
-				break;
+				case SerializedPropertyType.Texture:
+					writer.Write($"\"{_this.DefTexture.DefaultName}\" {{}}");
+					break;
 
-			default:
-				throw new NotSupportedException($"Serialized property type {_this.Type} isn't supported");
+				default:
+					writer.Write("0");
+					break;
 		}
 		writer.Write('\n');
 	}

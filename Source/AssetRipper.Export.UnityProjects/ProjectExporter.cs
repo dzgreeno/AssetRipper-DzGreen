@@ -91,7 +91,16 @@ public sealed partial class ProjectExporter
 			{
 				currentExportable++;
 				Logger.Info(LogCategory.ExportProgress, $"({currentExportable}/{exportableCount}) Exporting '{collection.Name}'");
-				bool exportedSuccessfully = collection.Export(container, options.ProjectRootPath, fileSystem);
+				bool exportedSuccessfully;
+				try
+				{
+					exportedSuccessfully = collection.Export(container, options.ProjectRootPath, fileSystem);
+				}
+				catch (Exception ex)
+				{
+					Logger.Error(LogCategory.ExportProgress, $"Export failed for '{collection.Name}' ({collection.GetType().Name}): {ex.Message}");
+					exportedSuccessfully = false;
+				}
 				if (!exportedSuccessfully)
 				{
 					Logger.Warning(LogCategory.ExportProgress, $"Failed to export '{collection.Name}' ({collection.GetType().Name})");

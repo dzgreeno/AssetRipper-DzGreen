@@ -42,7 +42,21 @@ public class TextureAssetExporter : BinaryAssetExporter
 		ITexture2D texture = (ITexture2D)asset;
 		if (!texture.CheckAssetIntegrity())
 		{
-			Logger.Log(LogType.Warning, LogCategory.Export, $"Can't export '{texture.Name}' because resources file '{texture.StreamData_C28?.Path}' hasn't been found");
+			string reportPath = path + ".unavailable-texture.txt";
+			string streamPath = texture.StreamData_C28?.Path.String ?? "<none>";
+			string content = $"""
+			AssetRipper DzGreen unavailable texture inspection record
+
+			Name: {((IUnityObjectBase)texture).GetBestName()}
+			Class: {texture.ClassName}
+			PathID: {texture.PathID}
+			Collection: {texture.Collection.Name}
+			Streamed resource path length: {streamPath.Length}
+
+			The texture payload could not be resolved or validated. No image was emitted because that would produce an invalid or misleading file. Inspect the original bundle and full diagnostics log for this asset.
+			""";
+			fileSystem.File.WriteAllText(reportPath, content);
+			Logger.Log(LogType.Warning, LogCategory.Export, $"Texture PathID {texture.PathID} in '{texture.Collection.Name}' was not converted; saved '{fileSystem.Path.GetFileName(reportPath)}'.");
 			return false;
 		}
 

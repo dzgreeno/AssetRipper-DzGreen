@@ -86,13 +86,6 @@ public static class GameFileLoader
 	private static string[] ExpandSiblingUnityFiles(IReadOnlyList<string> paths)
 	{
 		HashSet<string> expanded = new(paths.Select(GetFullPathOrOriginal), StringComparer.OrdinalIgnoreCase);
-		HashSet<string> familyPrefixes = paths
-			.Select(GetFullPathOrOriginal)
-			.Select(Path.GetFileName)
-			.Where(name => !string.IsNullOrWhiteSpace(name))
-			.Select(GetUnityFamilyPrefix)
-			.Where(prefix => !string.IsNullOrWhiteSpace(prefix))
-			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 		foreach (string inputPath in paths)
 		{
 			string fullPath = GetFullPathOrOriginal(inputPath);
@@ -111,7 +104,7 @@ public static class GameFileLoader
 			{
 					foreach (string sibling in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
 				{
-					if (IsUnityCompanionFile(Path.GetFileName(sibling), familyPrefixes))
+						if (IsUnityCompanionFile(Path.GetFileName(sibling)))
 					{
 						expanded.Add(Path.GetFullPath(sibling));
 					}
@@ -129,12 +122,12 @@ public static class GameFileLoader
 
 		if (expanded.Count > paths.Count)
 		{
-			Logger.Info(LogCategory.Import, $"Expanded selected Unity files from {paths.Count} to {expanded.Count} paths to include sibling bundles, manifests, and cab/resource companions.");
+			Logger.Info(LogCategory.Import, $"Expanded selected Unity files from {paths.Count} to {expanded.Count} paths by including compatible Unity data, bundles, manifests, and cab/resource companions from the containing folders.");
 		}
 		return expanded.ToArray();
 	}
 
-	private static bool IsUnityCompanionFile(string fileName, IReadOnlySet<string> familyPrefixes)
+	private static bool IsUnityCompanionFile(string fileName)
 	{
 		string lower = fileName.ToLowerInvariant();
 		if (lower.StartsWith("cab-", StringComparison.Ordinal) || lower.Contains(".split", StringComparison.Ordinal))
@@ -153,22 +146,7 @@ public static class GameFileLoader
 			|| lower.EndsWith(".ress", StringComparison.Ordinal)
 			|| lower.EndsWith(".manifest", StringComparison.Ordinal)
 			|| lower.Contains(".manifest_", StringComparison.Ordinal);
-		return recognizedExtension && familyPrefixes.Any(prefix => lower.StartsWith(prefix, StringComparison.Ordinal));
-	}
-
-	private static string GetUnityFamilyPrefix(string? fileName)
-	{
-		if (string.IsNullOrWhiteSpace(fileName))
-		{
-			return string.Empty;
-		}
-		string lower = fileName.ToLowerInvariant();
-		int marker = new[] { ".unity3d", ".bundle", ".assets" }
-			.Select(value => lower.IndexOf(value, StringComparison.Ordinal))
-			.Where(index => index >= 0)
-			.DefaultIfEmpty(-1)
-			.Min();
-		return marker > 0 ? lower[..marker] : lower;
+		return recognizedExtension;
 	}
 
 	public static async Task ExportUnityProject(string path)

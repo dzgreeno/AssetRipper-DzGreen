@@ -129,3 +129,15 @@
 > 2026-08-15 Android structural export validation: the full Android archive completed `Export All` and post-export with zero collection failures, zero StackOverflow events, and zero `NotImplementedException` events. The temporary generated project contained 3,921 PNG images, 6,977 serialized Mesh assets, 2,352 Prefabs, and 447 source-bundle directory roots. The temporary project was removed after validation to free disk space; the test log remains available locally.
 
 > 2026-08-15 package validation: the full .NET suite passed with 510 succeeded and 0 failed. The local Windows package `AssetRipper-DzGreen-v1.3.15-dzgreen.6-dev-prefab-structure-Windows-x64.zip` was ZIP-tested, contains the self-contained GUI executable, Assimp converter, and license, and has SHA-256 `00478ce6275a2af01fb177cd602df260b8db707bf93e56f2a1335e886071d7d7`.
+
+## User 58-Bundle Prefab Failure Reassessment
+
+- [x] Classify the user-reported Prefab failure from the v1.3.15-dzgreen.6 log, including the 58 selected bundles, unresolved CAB dependencies, generated-reader fallback classes, and the actual Unity Console symptoms.
+- [x] Compare the available local character test archive against the 58-bundle inventory and identify any absent model, materials, textures, poses, assemblies, or companion CAB files required by the user’s failing project.
+- [ ] Map only demonstrably recoverable original paths from bundle container entries and manifests; record unavailable source paths, folder GUIDs, and `.meta` data instead of fabricating a 1:1 source layout.
+- [ ] Verify ProjectSettings assets and serialized cross-asset GUID links that are present in the supplied input; retain clear diagnostics for scripts and dependencies that are absent from the selected data.
+- [x] Implement and test a proven input-completeness correction locally before creating another package or requesting a GitHub push.
+
+> 2026-08-15 input completeness finding: the user log shows exactly 58 selected game files and 62 unresolved `archive:/CAB-*` warnings across five CAB identities. The corresponding complete local Android directory contains 515 files and its full-folder export resolves zero CAB dependency warnings. The incomplete selection is therefore a verified blocking cause of missing cross-bundle Prefab references; missing bundle content will not be fabricated.
+
+> 2026-08-15 companion expansion validation: selecting the Armadillo FBX bundle alone expanded the input from 1 to 513 compatible Unity files in its containing folder. The resulting load had zero unresolved CAB dependencies, and Unity Project export completed with zero collection failures, 2,352 Prefabs, 3,921 PNG images, and 6,977 Mesh assets. This protects File → Open File from silently producing an incomplete cross-bundle export when a complete sibling directory is available.

@@ -9,7 +9,7 @@ public sealed record class ProcessingSettings
 	public bool EnableAssetDeduplication { get; set; } = false;
 	public bool RemoveNullableAttributes { get; set; } = false;
 	public bool PublicizeAssemblies { get; set; } = false;
-	public BundledAssetsExportMode BundledAssetsExportMode { get; set; } = BundledAssetsExportMode.GroupByBundleName;
+	public BundledAssetsExportMode BundledAssetsExportMode { get; set; } = BundledAssetsExportMode.DirectExport;
 
 	public void Log()
 	{

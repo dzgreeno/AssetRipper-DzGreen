@@ -43,6 +43,15 @@ internal sealed class TypeTreeObjectExporter : BinaryAssetExporter
 			exportCollection = new TypeTreeMeshExportCollection(new DefaultYamlExporter(), mesh);
 			return true;
 		}
+		else if (asset is TypeTreeObject { ClassID: (int)ClassIDType.SkinnedMeshRenderer })
+		{
+			// A recovered SkinnedMeshRenderer is a component, not a standalone Unity asset.
+			// PrefabHierarchyObject resolves it from its owning GameObject.m_Component PPtr and
+			// emits it in the same Prefab YAML document. Do not pre-empt that grouping with an
+			// inspection record, which would leave the Prefab without its renderer.
+			exportCollection = EmptyExportCollection.Instance;
+			return true;
+		}
 		else if (asset is TypeTreeObject { IsPlayerSettings: false } inspectionAsset)
 		{
 			exportCollection = new TypeTreeExportCollection(this, inspectionAsset);

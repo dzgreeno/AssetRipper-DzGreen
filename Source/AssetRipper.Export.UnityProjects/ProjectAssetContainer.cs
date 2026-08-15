@@ -41,7 +41,7 @@ public class ProjectAssetContainer : IExportContainer
 		{
 			if (container.m_assetCollections.TryGetValue(asset, out IExportCollection? previousCollection))
 			{
-				throw new ArgumentException($"Asset {asset} is already added by {previousCollection}");
+				throw new ArgumentException($"Asset {asset} is already added by {previousCollection} and cannot also be added by {currentCollection}.");
 			}
 		}
 	}

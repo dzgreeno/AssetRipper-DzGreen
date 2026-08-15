@@ -164,3 +164,11 @@
 > 2026-08-15 first character package revalidation: `character.rar` contains ten Unity 2018 character and animation bundles for hero20050 through hero20054, not a complete game installation. It has no AudioClip, VideoClip, MovieTexture, audio-bank, or video resource asset in the indexed output; Unity Project export therefore correctly contains zero audio and video files rather than silent fabricated placeholders. The one-file Android Armadillo Windows log is a different input: it contains only one bundle in its selected directory and reports five CAB-style dependency warnings plus `unity default resources`, so a complete character cannot be rebuilt from that isolated file.
 
 > 2026-08-15 first character Prefab revalidation: exporting the complete first character folder completed with zero collection failures and emitted five hero Prefabs, 40 serialized Mesh assets, and 22 PNG files. `hero20053.prefab` contains 344 YAML documents: 141 GameObjects, 141 Transforms, 2 SkinnedMeshRenderers, 8 MeshRenderers, one Animator, 10 Mesh pointers, 10 material lists, and 2 bone lists. All 19 external GUIDs in that Prefab resolve to generated `.meta` files. The package retains one missing CAB companion and `unity default resources` warning, but these did not leave unresolved GUIDs in the exported hero20053 Prefab.
+
+## Android Archive Reference Revalidation
+
+- [ ] Treat `/home/ubuntu/upload/android.rar` as the authoritative test archive; verify its archive integrity and compare it with the existing extracted Android corpus before modifying source.
+- [ ] Inventory AudioClip, VideoClip, MovieTexture, streaming-media resources, Mesh, SkinnedMeshRenderer, Animator, Prefab, Material, and Texture2D assets from the complete archive.
+- [ ] Reproduce character export from the complete archive and verify that CAB dependencies resolve before attributing Mesh or Prefab loss to the exporter.
+- [ ] Trace any remaining malformed Mesh through the exact source bundle, vertex stream, indices, submeshes, bone weights, bind poses, and renderer links.
+- [ ] Apply only fixes demonstrated by the complete Android input, then rerun export and tests before producing a new Windows package.

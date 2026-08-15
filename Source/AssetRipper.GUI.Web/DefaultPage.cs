@@ -76,6 +76,7 @@ public abstract class DefaultPage : HtmlPage
 						new A(writer).WithHref(AssetRipperBrand.UpstreamUrl).WithNewTabAttributes().WithClass("dzgreen-header-link").Close("Upstream");
 						new A(writer).WithHref(AssetRipperBrand.ForkUrl).WithNewTabAttributes().WithClass("dzgreen-header-link").Close("GitHub");
 						new A(writer).WithHref(AssetRipperBrand.SponsorUrl).WithNewTabAttributes().WithClass("dzgreen-header-link dzgreen-header-link--support").Close("Support dzgreen");
+							new A(writer).WithHref(AssetRipperBrand.SponsorUrl).WithNewTabAttributes().WithClass("dzgreen-header-link dzgreen-header-link--premium").Close("Request Premium");
 					}
 			}
 	}

@@ -499,6 +499,8 @@ a {
 	.dzgreen-header-link:hover { border-color: #9be15d; background: rgba(155, 225, 93, .08); color: #9be15d; }
 	.dzgreen-header-link--support { border-color: rgba(182, 109, 71, .54); color: #efb48f; }
 	.dzgreen-header-link--support:hover { border-color: #b66d47; background: rgba(182, 109, 71, .12); color: #ffd9c3; }
+.dzgreen-header-link--premium { border-color: rgba(215, 166, 74, .68); color: #f0c66b; }
+.dzgreen-header-link--premium:hover { border-color: #f0c66b; background: rgba(215, 166, 74, .13); color: #ffe5a4; }
 
 /* Fixed top-bar navigation */
 header {

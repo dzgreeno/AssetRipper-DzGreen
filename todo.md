@@ -172,3 +172,13 @@
 - [ ] Reproduce character export from the complete archive and verify that CAB dependencies resolve before attributing Mesh or Prefab loss to the exporter.
 - [ ] Trace any remaining malformed Mesh through the exact source bundle, vertex stream, indices, submeshes, bone weights, bind poses, and renderer links.
 - [ ] Apply only fixes demonstrated by the complete Android input, then rerun export and tests before producing a new Windows package.
+
+## Final Premium Request and Release
+
+- [x] Verify `/home/ubuntu/upload/android.rar` against the existing 515-file Android corpus and run the complete Unity Project export with zero CAB dependency warnings.
+- [x] Include recovered SkinnedMeshRenderer objects in Prefab YAML and resolve Type Tree Mesh, Material, and Component PPtrs to Unity GUIDs.
+- [x] Run the full .NET test suite and produce a ZIP-tested Windows package containing the Android Prefab/Mesh recovery.
+- [x] Add a clearly labeled Request Premium link in the AssetRipper GUI header pointing to `https://ko-fi.com/dzgreen`.
+- [ ] Commit the Premium request UI change locally, rebuild the Windows package, and upload the approved source/package only after the public identity and checksums are audited.
+
+> 2026-08-15 final Android validation: full-folder Android export completed at 30,684/30,684 with zero missing CAB warnings, zero duplicate-asset errors, and 724 Prefabs containing SkinnedMeshRenderer. A representative Prefab contains a resolved Mesh GUID, Materials, Bones, and RootBone. The source-side Premium request CTA is a Ko-fi link only; no payment system or unavailable Premium feature is implemented.

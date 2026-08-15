@@ -73,9 +73,9 @@ public abstract class DefaultPage : HtmlPage
 				}
 					using (new Div(writer).WithClass("dzgreen-header-links").End())
 					{
-						new A(writer).WithHref(AssetRipperBrand.UpstreamUrl).WithNewTabAttributes().WithClass("dzgreen-header-link").Close("Upstream");
-						new A(writer).WithHref(AssetRipperBrand.ForkUrl).WithNewTabAttributes().WithClass("dzgreen-header-link").Close("GitHub");
-						new A(writer).WithHref(AssetRipperBrand.SponsorUrl).WithNewTabAttributes().WithClass("dzgreen-header-link dzgreen-header-link--support").Close("Support dzgreen");
+							new A(writer).WithHref(AssetRipperBrand.UpstreamUrl).WithNewTabAttributes().WithClass("dzgreen-header-link").Close("Upstream");
+							new A(writer).WithHref(AssetRipperBrand.ForkUrl).WithNewTabAttributes().WithClass("dzgreen-header-link").Close("GitHub");
+							new A(writer).WithHref(AssetRipperBrand.SponsorUrl).WithNewTabAttributes().WithClass("dzgreen-header-link dzgreen-header-link--support").Close("Support on Ko-fi");
 							new A(writer).WithHref(AssetRipperBrand.SponsorUrl).WithNewTabAttributes().WithClass("dzgreen-header-link dzgreen-header-link--premium").Close("Request Premium");
 					}
 			}
@@ -260,7 +260,7 @@ public abstract class DefaultPage : HtmlPage
 		{
 			using (new Div(writer).WithClass("container text-center").End())
 			{
-					writer.Write("&copy; 2026 - AssetRipper DzGreen · maintained by dzgreen - ");
+						writer.Write("&copy; 2026 - AssetRipper DzGreen · maintained by dzgreeno - ");
 					new A(writer).WithHref("/Privacy").Close(Localization.Privacy);
 					writer.Write(" - ");
 					new A(writer).WithHref("/Licenses").Close(Localization.Licenses);

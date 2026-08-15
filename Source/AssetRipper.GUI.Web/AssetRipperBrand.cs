@@ -8,9 +8,9 @@ namespace AssetRipper.GUI.Web;
 public static class AssetRipperBrand
 {
 	public const string ProductName = "AssetRipper DzGreen";
-	public const string Maintainer = "dzgreen";
+	public const string Maintainer = "dzgreeno";
 	public const string UpstreamUrl = "https://github.com/AssetRipper/AssetRipper";
-	public const string ForkUrl = "https://github.com/dzgreen/AssetRipper-DzGreen";
+	public const string ForkUrl = "https://github.com/dzgreeno/AssetRipper-DzGreen";
 	public const string SponsorUrl = "https://ko-fi.com/dzgreen";
-	public const string VersionLine = "Advanced fork · upstream 1.3.14";
+	public const string VersionLine = "Advanced fork · v1.3.15-dzgreen.10";
 }

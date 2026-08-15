@@ -2,7 +2,7 @@
 
 [![Build](https://github.com/dzgreeno/AssetRipper-DzGreen/actions/workflows/build-and-release.yml/badge.svg)](https://github.com/dzgreeno/AssetRipper-DzGreen/actions/workflows/build-and-release.yml) [![GPL-3.0](https://img.shields.io/badge/GPL--3.0-9BE15D.svg)](LICENSE.md) [![Ko-fi](https://img.shields.io/badge/Ko--fi-B66D47.svg)](https://ko-fi.com/dzgreen) [![Upstream](https://img.shields.io/badge/upstream-AssetRipper-343A35.svg)](https://github.com/AssetRipper/AssetRipper) [![Pages](https://img.shields.io/badge/Pages-DzGreen-2E8B57.svg)](https://dzgreeno.github.io/AssetRipper-DzGreen/)
 
-**AssetRipper DzGreen** is an independently maintained, advanced fork of the official [AssetRipper](https://github.com/AssetRipper/AssetRipper) project. It is maintained by **dzgreen** and continues the upstream `1.3.14` / `545f345` line with a focused workflow for Unity asset analysis, character assembly, FBX export, CLI automation, and MCP integration.
+**AssetRipper DzGreen** is an independently maintained, advanced fork of the official [AssetRipper](https://github.com/AssetRipper/AssetRipper) project. It is maintained by **dzgreeno** and continues the upstream `1.3.15` line with a focused workflow for Unity asset analysis, character assembly, FBX export, CLI automation, and MCP integration.
 
 > This repository preserves upstream attribution and the GNU GPL-3.0 license. It is not sponsored by, affiliated with, or endorsed by Unity Technologies.
 
@@ -28,14 +28,14 @@ The latest prepared Windows package contains the GUI, CLI, MCP server, and suppo
 
 | Field | Value |
 | --- | --- |
-| Base line | AssetRipper `1.3.14` / commit `545f345` |
-| Package | `AssetRipper-DzGreen-v1.3.14-win-x64.zip` |
+| Base line | AssetRipper `1.3.15` |
+| Package | `AssetRipper-DzGreen-v1.3.15-dzgreen.10-dev-premium-request-Windows-x64.zip` |
 | Platform | Windows x64, self-contained |
-| Size | Approximately 248 MB |
-| Files | 1,335 |
-| SHA256 | `a3b8772b8a1c53c9517040f734142391d265e2a27dfab77e46d30682f6155ac0` |
+| Size | 91,533,238 bytes |
+| Files | 1,374 |
+| SHA256 | `57942ba38bfcdf3630f441f450ea94b037db3ba4ad5433e50f9fbc1bd0d04226` |
 
-The source tree also contains a GitHub Actions release workflow for Windows x64/ARM64, Linux x64/ARM64, and macOS x64/Apple Silicon. Release links become active at [`dzgreeno/AssetRipper-DzGreen`](https://github.com/dzgreeno/AssetRipper-DzGreen) after the first tag is published.
+The source tree also contains a GitHub Actions release workflow for Windows x64/ARM64, Linux x64/ARM64, and macOS x64/Apple Silicon. The **Request Premium** link in the GUI and site opens [dzgreeno's Ko-fi page](https://ko-fi.com/dzgreen) for interest in a future edition; it does not enable a payment feature or promise an unavailable Premium build.
 
 ## Getting started
 

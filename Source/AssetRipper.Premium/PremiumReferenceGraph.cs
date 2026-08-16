@@ -89,6 +89,7 @@ public static class PremiumReferenceGraphAnalyzer
 			targets.Sort(StringComparer.Ordinal);
 		}
 
+		PremiumReferenceCycleSummary cycles = AnalyzeCycles(nodes, adjacency);
 		return new PremiumReferenceGraphReport(
 			nodes.LongLength,
 			orderedLinks.LongLength,
@@ -96,7 +97,8 @@ public static class PremiumReferenceGraphAnalyzer
 			nullReferences,
 			missingCollections,
 			missingAssets,
-			CountBackEdges(nodes, adjacency),
+			cycles.CycleComponentCount,
+			cycles.CyclicNodeCount,
 			truncated);
 	}
 
@@ -122,10 +124,10 @@ public static class PremiumReferenceGraphAnalyzer
 		return new PremiumReferenceLink(sourceId, fieldName, GetNodeId(target), PremiumReferenceResolution.Resolved);
 	}
 
-	private static long CountBackEdges(IEnumerable<string> nodes, IReadOnlyDictionary<string, List<string>> adjacency)
+	private static PremiumReferenceCycleSummary AnalyzeCycles(IReadOnlyList<string> nodes, IReadOnlyDictionary<string, List<string>> adjacency)
 	{
 		Dictionary<string, byte> state = new(StringComparer.Ordinal);
-		long backEdges = 0;
+		List<string> finishOrder = new(nodes.Count);
 		foreach (string start in nodes)
 		{
 			if (state.ContainsKey(start))
@@ -142,23 +144,68 @@ public static class PremiumReferenceGraphAnalyzer
 				if (frame.nextIndex >= targets.Count)
 				{
 					state[frame.node] = 2;
+					finishOrder.Add(frame.node);
 					continue;
 				}
 
 				pending.Push((frame.node, frame.nextIndex + 1));
 				string target = targets[frame.nextIndex];
-				if (!state.TryGetValue(target, out byte targetState))
+				if (!state.ContainsKey(target))
 				{
 					state[target] = 1;
 					pending.Push((target, 0));
 				}
-				else if (targetState == 1)
-				{
-					backEdges++;
-				}
 			}
 		}
-		return backEdges;
+
+		Dictionary<string, List<string>> reverse = nodes.ToDictionary(static id => id, static _ => new List<string>(), StringComparer.Ordinal);
+		foreach ((string source, List<string> targets) in adjacency)
+		{
+			foreach (string target in targets)
+			{
+				reverse[target].Add(source);
+			}
+		}
+		foreach (List<string> sources in reverse.Values)
+		{
+			sources.Sort(StringComparer.Ordinal);
+		}
+
+		HashSet<string> assigned = new(StringComparer.Ordinal);
+		long cycleComponents = 0;
+		long cyclicNodes = 0;
+		for (int i = finishOrder.Count - 1; i >= 0; i--)
+		{
+			string start = finishOrder[i];
+			if (!assigned.Add(start))
+			{
+				continue;
+			}
+
+			List<string> component = new();
+			Stack<string> pending = new();
+			pending.Push(start);
+			while (pending.Count > 0)
+			{
+				string node = pending.Pop();
+				component.Add(node);
+				foreach (string source in reverse[node])
+				{
+					if (assigned.Add(source))
+					{
+						pending.Push(source);
+					}
+				}
+			}
+
+			bool isSelfCycle = component.Count == 1 && adjacency[component[0]].Contains(component[0], StringComparer.Ordinal);
+			if (component.Count > 1 || isSelfCycle)
+			{
+				cycleComponents++;
+				cyclicNodes += component.Count;
+			}
+		}
+		return new PremiumReferenceCycleSummary(cycleComponents, cyclicNodes);
 	}
 
 	private static string GetNodeId(IUnityObjectBase asset)
@@ -185,5 +232,8 @@ public sealed record PremiumReferenceGraphReport(
 	long NullReferenceCount,
 	long MissingCollectionCount,
 	long MissingAssetCount,
-	long BackEdgeCount,
+	long CycleComponentCount,
+	long CyclicNodeCount,
 	bool IsTruncated);
+
+internal readonly record struct PremiumReferenceCycleSummary(long CycleComponentCount, long CyclicNodeCount);

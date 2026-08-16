@@ -67,8 +67,63 @@ public sealed class PremiumInputPolicyTests
 			Assert.That(report.ResolvedEdgeCount, Is.EqualTo(2));
 			Assert.That(report.MissingAssetCount, Is.EqualTo(1));
 			Assert.That(report.NullReferenceCount, Is.EqualTo(1));
-			Assert.That(report.BackEdgeCount, Is.GreaterThanOrEqualTo(1));
+			Assert.That(report.CycleComponentCount, Is.EqualTo(1));
+			Assert.That(report.CyclicNodeCount, Is.EqualTo(2));
 			Assert.That(report.IsTruncated, Is.False);
+		});
+	}
+
+	[Test]
+	public void TypeTreeCoverageClassifiesOnlySupportedEvidence()
+	{
+		PremiumTypeTreeObservation[] observations =
+		[
+			new("A.assets", "A", 10, true, 3, 0, 0),
+			new("B.assets", "B", 10, true, 3, 1, 0),
+			new("C.assets", "C", 10, false, 0, 0, 0),
+			new("D.assets", "D", 0, false, 0, 0, 0),
+		];
+		PremiumTypeTreeCoverageReport report = PremiumTypeTreeCoverageAnalyzer.Analyze(observations);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(report.CollectionCount, Is.EqualTo(4));
+			Assert.That(report.EmbeddedCollectionCount, Is.EqualTo(1));
+			Assert.That(report.PartialCollectionCount, Is.EqualTo(1));
+			Assert.That(report.KnownEngineSchemaCollectionCount, Is.EqualTo(1));
+			Assert.That(report.UnavailableCollectionCount, Is.EqualTo(1));
+			Assert.That(report.Collections.Select(static coverage => coverage.State), Is.EqualTo(new[]
+			{
+				PremiumTypeTreeCoverageState.Embedded,
+				PremiumTypeTreeCoverageState.Partial,
+				PremiumTypeTreeCoverageState.KnownEngineSchema,
+				PremiumTypeTreeCoverageState.Unavailable,
+			}));
+		});
+	}
+
+	[Test]
+	public void MaterialBindingInventoryTotalsReadableProperties()
+	{
+		PremiumMaterialBinding[] materials =
+		[
+			new("sharedassets0.assets", 1, "Hero", [
+				new("_MainTex", 10, "Hero_Diffuse", 1, 1, 0, 0, PremiumTextureBindingStatus.Resolved),
+				new("_BumpMap", null, null, 1, 1, 0, 0, PremiumTextureBindingStatus.Null),
+			]),
+			new("sharedassets0.assets", 2, "Prop", [
+				new("_Mask", 20, "Texture3D", 1, 1, 0, 0, PremiumTextureBindingStatus.Unresolved),
+			]),
+		];
+		PremiumMaterialBindingReport report = PremiumMaterialBindingAnalyzer.Analyze(materials);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(report.MaterialCount, Is.EqualTo(2));
+			Assert.That(report.TextureBindingCount, Is.EqualTo(3));
+			Assert.That(report.ResolvedTextureBindingCount, Is.EqualTo(1));
+			Assert.That(report.UnresolvedTextureBindingCount, Is.EqualTo(1));
+			Assert.That(report.NullTextureBindingCount, Is.EqualTo(1));
 		});
 	}
 

@@ -198,7 +198,7 @@
 - [x] Provide only user-supplied plaintext conversion adapters and documented open-format decompressors; refuse encrypted, protected, or authorization-unknown containers with actionable diagnostics.
 - [ ] Add Premium acceptance fixtures for a plain Unity asset bundle, a multi-bundle character export, a SpriteAtlas, a supported AudioClip, and non-fatal corrupted-input isolation.
 - [x] Build and ZIP-test a separate self-contained Windows x64 Premium preview package locally without uploading it.
-- [x] Restore and run all nine .NET test projects after the Premium changes; 522 tests passed with zero failures.
+- [x] Restore and run all nine .NET test projects after the Premium changes; 524 tests passed with zero failures.
 
 > 2026-08-15 Premium safety boundary: the supplied proposal contains decryption, runtime-memory, anti-tamper, and de-obfuscation instructions. The Premium plan will not implement or document security-control bypasses. It may improve processing of plaintext Unity content, non-fatal diagnostics, deterministic reference reconstruction, open-format import, and user-supplied authorized conversion workflows.
 
@@ -221,3 +221,7 @@
 - [x] Add a bounded cross-file reference graph analyzer with unresolved-edge and cycle diagnostics based on loaded Unity PPtr relationships.
 - [x] Integrate numerical and reference-graph findings into the Premium diagnostic JSON endpoint and add unit tests for valid, edge, and malformed inputs.
 - [x] Build and verify an updated local Windows Premium preview package after the advanced diagnostics pass their tests.
+- [x] Implement TypeTree coverage classification from serialized-file metadata and expose its aggregate in Premium diagnostics.
+- [x] Upgrade PPtr graph cycle reporting from back-edge counts to strongly connected component summaries.
+- [x] Implement a read-only Material and Texture property inventory derived from imported Unity assets, without shader-bytecode decompilation.
+- [x] Add fixture-oriented tests for TypeTree coverage, Material binding, and diagnostic aggregation.

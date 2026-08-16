@@ -12,6 +12,14 @@ namespace AssetRipper.Assets.Collections;
 public sealed class SerializedAssetCollection : AssetCollection
 {
 	private FileIdentifier[]? DependencyIdentifiers { get; set; }
+	/// <summary>Whether the source serialized file declared an embedded TypeTree.</summary>
+	public bool HasEmbeddedTypeTree { get; private set; }
+	/// <summary>The number of serialized types declared by the source file.</summary>
+	public int SerializedTypeCount { get; private set; }
+	/// <summary>The number of serialized types explicitly marked as stripped.</summary>
+	public int StrippedSerializedTypeCount { get; private set; }
+	/// <summary>The number of assembly-qualified reference types declared by the source file.</summary>
+	public int ReferenceSerializedTypeCount { get; private set; }
 
 	private SerializedAssetCollection(Bundle bundle) : base(bundle)
 	{
@@ -62,6 +70,11 @@ public sealed class SerializedAssetCollection : AssetCollection
 			Flags = file.Flags,
 			EndianType = file.EndianType,
 		};
+		SerializedType[] serializedTypes = file.Types.ToArray();
+		collection.HasEmbeddedTypeTree = file.HasTypeTree;
+		collection.SerializedTypeCount = serializedTypes.Length;
+		collection.StrippedSerializedTypeCount = serializedTypes.Count(static type => type.IsStrippedType);
+		collection.ReferenceSerializedTypeCount = file.RefTypes.ToArray().Length;
 		ReadOnlySpan<FileIdentifier> fileDependencies = file.Dependencies;
 		if (fileDependencies.Length > 0)
 		{

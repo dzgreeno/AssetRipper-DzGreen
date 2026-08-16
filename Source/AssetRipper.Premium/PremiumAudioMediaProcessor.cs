@@ -41,7 +41,7 @@ public static class PremiumAudioMediaProcessor
 			video);
 	}
 
-	public static PremiumMediaExportResult TryExportAudio(IAudioClip clip, string outputDirectory)
+	public static PremiumMediaExportResult TryExportAudio(IAudioClip clip, string outputDirectory, PremiumAudioOutputFormat outputFormat = PremiumAudioOutputFormat.Original)
 	{
 		ArgumentNullException.ThrowIfNull(clip);
 		string directory = PrepareDirectory(outputDirectory);
@@ -49,9 +49,54 @@ public static class PremiumAudioMediaProcessor
 		{
 			return new PremiumMediaExportResult(false, null, message ?? "Audio data could not be decoded by the supported media pipeline.");
 		}
-		string path = Path.Combine(directory, MakeFileName(clip.GetBestName(), clip.PathID, extension));
-		File.WriteAllBytes(path, content);
+		PremiumAudioNormalizationResult normalized = TryNormalizeAudio(content, extension, outputFormat);
+		if (!normalized.IsSuccess)
+		{
+			return new PremiumMediaExportResult(false, null, normalized.Message);
+		}
+		string path = Path.Combine(directory, MakeFileName(clip.GetBestName(), clip.PathID, normalized.Extension!));
+		File.WriteAllBytes(path, normalized.Content!);
 		return new PremiumMediaExportResult(true, path, null);
+	}
+
+	/// <summary>
+	/// Normalizes bytes already decoded by the standard AudioClip decoder. WAV passthrough and OGG
+	/// passthrough are lossless; OGG-to-WAV uses the established AudioConverter. No other codec is
+	/// re-encoded or relabeled as WAV/OGG.
+	/// </summary>
+	public static PremiumAudioNormalizationResult TryNormalizeAudio(byte[]? content, string? extension, PremiumAudioOutputFormat outputFormat)
+	{
+		if (content is null || content.Length == 0 || string.IsNullOrWhiteSpace(extension))
+		{
+			return new PremiumAudioNormalizationResult(false, null, null, "The decoded audio payload or extension is unavailable.");
+		}
+		string sourceExtension = extension.Trim().TrimStart('.').ToLowerInvariant();
+		if (outputFormat == PremiumAudioOutputFormat.Original)
+		{
+			return new PremiumAudioNormalizationResult(true, content, sourceExtension, null);
+		}
+		if (outputFormat == PremiumAudioOutputFormat.Ogg)
+		{
+			return sourceExtension == "ogg"
+				? new PremiumAudioNormalizationResult(true, content, "ogg", null)
+				: new PremiumAudioNormalizationResult(false, null, null, "Only an already decoded OGG stream can be exported as OGG; no codec conversion is attempted.");
+		}
+		if (outputFormat == PremiumAudioOutputFormat.Wav)
+		{
+			if (sourceExtension == "wav")
+			{
+				return new PremiumAudioNormalizationResult(true, content, "wav", null);
+			}
+			if (sourceExtension == "ogg")
+			{
+				byte[] converted = AudioConverter.OggToWav(content);
+				return converted.Length > 0
+					? new PremiumAudioNormalizationResult(true, converted, "wav", null)
+					: new PremiumAudioNormalizationResult(false, null, null, "The established OGG-to-WAV converter rejected the readable OGG stream.");
+			}
+			return new PremiumAudioNormalizationResult(false, null, null, "The decoded audio stream is neither WAV nor OGG, so it is not relabeled or re-encoded.");
+		}
+		throw new ArgumentOutOfRangeException(nameof(outputFormat));
 	}
 
 	public static PremiumMediaExportResult TryExportVideo(IVideoClip clip, string outputDirectory)
@@ -150,7 +195,15 @@ public enum PremiumMediaStatus
 	Unsupported,
 }
 
+public enum PremiumAudioOutputFormat
+{
+	Original,
+	Wav,
+	Ogg,
+}
+
 public sealed record PremiumAudioMediaSummary(string Id, string? Extension, long ByteLength, PremiumMediaStatus Status, string? Message);
 public sealed record PremiumVideoMediaSummary(string Id, string? Extension, PremiumMediaStatus Status, string? Message);
 public sealed record PremiumMediaReport(long AudioClipCount, long ReadyAudioClipCount, long UnavailableAudioClipCount, long UnsupportedAudioClipCount, long VideoClipCount, long ReadyVideoClipCount, long UnavailableVideoClipCount, IReadOnlyList<PremiumAudioMediaSummary> Audio, IReadOnlyList<PremiumVideoMediaSummary> Video);
 public sealed record PremiumMediaExportResult(bool IsSuccess, string? Path, string? Message);
+public sealed record PremiumAudioNormalizationResult(bool IsSuccess, byte[]? Content, string? Extension, string? Message);

@@ -18,6 +18,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\AssetRipper.Assets\AssetRipper.Assets.csproj" />
+		<ProjectReference Include="..\AssetRipper.Export.Modules.Models\AssetRipper.Export.Modules.Models.csproj" />
 		<ProjectReference Include="..\AssetRipper.Premium\AssetRipper.Premium.csproj" />
 	</ItemGroup>
 

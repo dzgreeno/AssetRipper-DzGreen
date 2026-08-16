@@ -5,6 +5,7 @@
     <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\AssetRipper.Export.Modules.Models\AssetRipper.Export.Modules.Models.csproj" />
 		<ProjectReference Include="..\AssetRipper.GUI.Web\AssetRipper.GUI.Web.csproj" />
 		<ProjectReference Include="..\AssetRipper.Premium\AssetRipper.Premium.csproj" />
 	</ItemGroup>

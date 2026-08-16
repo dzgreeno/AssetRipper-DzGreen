@@ -1,4 +1,5 @@
 using AssetRipper.Export.Configuration;
+using AssetRipper.Export.Modules.Models;
 using AssetRipper.Processing.Configuration;
 using NUnit.Framework;
 
@@ -296,6 +297,76 @@ public sealed class PremiumInputPolicyTests
 			Assert.That(assignments.Single(static assignment => assignment.SourceProperty == "_MainTex").TargetProperty, Is.EqualTo("_BaseMap"));
 			Assert.That(assignments.Single(static assignment => assignment.SourceProperty == "_BumpMap").Status, Is.EqualTo(PremiumShaderAssignmentStatus.NeutralFallbackRequired));
 			Assert.That(assignments.Single(static assignment => assignment.SourceProperty == "_GameSpecificMap").Status, Is.EqualTo(PremiumShaderAssignmentStatus.NotMapped));
+		});
+	}
+
+	[Test]
+	public void GlbFallbackCatalogAcceptsValidImageOnlyAndPreservesCanonicalFirstEntry()
+	{
+		string directory = Path.Combine(Path.GetTempPath(), $"assetripper-premium-glb-fallback-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(directory);
+		try
+		{
+			string validPath = Path.Combine(directory, "valid.png");
+			string invalidPath = Path.Combine(directory, "invalid.png");
+			File.WriteAllBytes(validPath, Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLZZwAAAABJRU5ErkJggg=="));
+			File.WriteAllBytes(invalidPath, [1, 2, 3, 4]);
+
+			GlbFallbackTextureCatalog catalog = GlbFallbackTextureCatalog.Create(
+			[
+				new("MainTex", validPath),
+				new("_MainTex", invalidPath),
+				new("BumpMap", invalidPath),
+			],
+			out IReadOnlyList<GlbFallbackTextureRejection> rejections);
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(catalog.TryGetUnresolvedImage("_MainTex", out _), Is.True);
+				Assert.That(catalog.TryGetUnresolvedImage("_BumpMap", out _), Is.False);
+				Assert.That(rejections, Has.Count.EqualTo(2));
+				Assert.That(rejections.Select(static item => item.Key), Does.Contain("BumpMap"));
+				Assert.That(rejections.Select(static item => item.Key), Does.Contain("MainTex"));
+			});
+		}
+		finally
+		{
+			Directory.Delete(directory, recursive: true);
+		}
+	}
+
+	[Test]
+	public void TextureSchemaMetadataReportsExposedValuesOrUnknownWithoutGuessing()
+	{
+		PremiumTextureSchemaMetadata exposed = PremiumTextureTranscoder.FromExposedSchema(4, true);
+		PremiumTextureSchemaMetadata notExposed = PremiumTextureTranscoder.FromExposedSchema(null, null);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(exposed.MipStatus, Is.EqualTo(PremiumTextureMipStatus.Exposed));
+			Assert.That(exposed.ExposedMipCount, Is.EqualTo(4));
+			Assert.That(exposed.ColorSpace, Is.EqualTo(PremiumTextureColorSpace.Srgb));
+			Assert.That(notExposed.MipStatus, Is.EqualTo(PremiumTextureMipStatus.NotExposed));
+			Assert.That(notExposed.ExposedMipCount, Is.Null);
+			Assert.That(notExposed.ColorSpace, Is.EqualTo(PremiumTextureColorSpace.Unknown));
+		});
+	}
+
+	[Test]
+	public void AudioNormalizationPreservesWavAndRejectsUnsupportedRelabeling()
+	{
+		PremiumAudioNormalizationResult wav = PremiumAudioMediaProcessor.TryNormalizeAudio([1, 2, 3], "wav", PremiumAudioOutputFormat.Wav);
+		PremiumAudioNormalizationResult ogg = PremiumAudioMediaProcessor.TryNormalizeAudio([79, 103, 103, 83], "ogg", PremiumAudioOutputFormat.Ogg);
+		PremiumAudioNormalizationResult rejected = PremiumAudioMediaProcessor.TryNormalizeAudio([1, 2, 3], "mp3", PremiumAudioOutputFormat.Wav);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(wav.IsSuccess, Is.True);
+			Assert.That(wav.Extension, Is.EqualTo("wav"));
+			Assert.That(ogg.IsSuccess, Is.True);
+			Assert.That(ogg.Extension, Is.EqualTo("ogg"));
+			Assert.That(rejected.IsSuccess, Is.False);
+			Assert.That(rejected.Message, Does.Contain("neither WAV nor OGG"));
 		});
 	}
 

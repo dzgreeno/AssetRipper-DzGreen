@@ -1,6 +1,7 @@
 using AssetRipper.Assets;
 using AssetRipper.Assets.Bundles;
 using AssetRipper.Export.Configuration;
+using AssetRipper.Export.Modules.Models;
 using AssetRipper.Export.PrimaryContent;
 using AssetRipper.Export.PrimaryContent.Models;
 using AssetRipper.Export.UnityProjects;
@@ -251,6 +252,35 @@ public sealed class AssetRipperToolService
 		return new FbxExportResult(success, path, safeName, includeAnimations, File.Exists(path), CountFiles(directory), GameFileLoader.ProcessingIssues.ToArray());
 	}
 
+	public GlbExportResult ExportGlb(string? filter, string outputDirectory, PremiumFallbackTextureCatalog? fallbackTextures = null)
+	{
+		EnsureLoaded();
+		string directory = PrepareOutputDirectory(outputDirectory);
+		IGameObject root = ResolveRoot(filter);
+		IUnityObjectBase[] hierarchy = root.FetchHierarchy().OfType<IUnityObjectBase>().ToArray();
+		GlbFallbackTextureCatalog catalog;
+		IReadOnlyList<GlbFallbackTextureRejection> rejections;
+		if (fallbackTextures is null)
+		{
+			catalog = GlbFallbackTextureCatalog.Empty;
+			rejections = [];
+		}
+		else
+		{
+			catalog = GlbFallbackTextureCatalog.Create(
+				fallbackTextures.Textures.Select(static item => new GlbFallbackTextureSource(item.Key, item.Path)),
+				out rejections);
+		}
+		string safeName = SafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
+		string path = Path.Combine(directory, safeName + ".glb");
+		using FileStream stream = File.Create(path);
+		bool success = GlbWriter.TryWrite(
+			GlbLevelBuilder.Build(hierarchy, isScene: false, GameFileLoader.GameBundle.FetchAssets(), catalog),
+			stream,
+			out string? errorMessage);
+		return new GlbExportResult(success, path, safeName, File.Exists(path), rejections, errorMessage, GameFileLoader.ProcessingIssues.ToArray());
+	}
+
 	public BatchProcessResult BatchProcess(string outputDirectory, string? filter, bool raw, bool fbx, bool includeAnimations = true, bool verifiedOnly = false, PremiumFallbackTextureCatalog? fallbackTextures = null)
 	{
 		EnsureLoaded();
@@ -457,6 +487,7 @@ public sealed record AssetSummary(string Name, string ClassName, long PathId, st
 public sealed record MeshInspection(string Name, long PathId, string Collection, int VertexCount, int SubMeshCount, int UvChannelCount, bool HasSkin, int BindPoseCount, bool HasTangents, bool HasNormals, int BlendShapeCount, int BlendShapeFrameCount);
 public sealed record PrefabInspection(AssetSummary Root, IReadOnlyList<AssetSummary> Hierarchy, IReadOnlyList<AssetSummary> Components, IReadOnlyList<MeshInspection> Meshes, IReadOnlyList<AssetSummary> Materials, IReadOnlyList<AssetSummary> Textures, IReadOnlyList<AssetSummary> AnimationClips, int BoneCount, int WeightedMeshCount, int MissingWeightMeshCount, string UnityVersion, IReadOnlyList<ProcessingIssue> Issues);
 public sealed record FbxExportResult(bool Success, string Path, string RootName, bool IncludeAnimations, bool FileExists, int FilesWritten, IReadOnlyList<ProcessingIssue> Issues);
+public sealed record GlbExportResult(bool Success, string Path, string RootName, bool FileExists, IReadOnlyList<GlbFallbackTextureRejection> FallbackRejections, string? ErrorMessage, IReadOnlyList<ProcessingIssue> Issues);
 public enum PremiumDiagnosticsFormat
 {
 	Json,

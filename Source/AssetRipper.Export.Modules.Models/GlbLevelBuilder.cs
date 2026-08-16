@@ -43,12 +43,12 @@ namespace AssetRipper.Export.Modules.Models;
 
 public static class GlbLevelBuilder
 {
-	public static SceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool isScene, IEnumerable<IUnityObjectBase>? animationAssets = null)
+	public static SceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool isScene, IEnumerable<IUnityObjectBase>? animationAssets = null, GlbFallbackTextureCatalog? fallbackTextures = null)
 	{
 		IUnityObjectBase[] sourceAssets = assets.ToArray();
 		IUnityObjectBase[] animationCandidates = animationAssets?.ToArray() ?? sourceAssets;
 		SceneBuilder sceneBuilder = new();
-		BuildParameters parameters = new BuildParameters(isScene);
+		BuildParameters parameters = new BuildParameters(isScene, fallbackTextures ?? GlbFallbackTextureCatalog.Empty);
 
 		HashSet<IUnityObjectBase> exportedAssets = new();
 		HashSet<IGameObject> roots = new(ReferenceEqualityComparer.Instance);
@@ -335,15 +335,16 @@ public static class GlbLevelBuilder
 		}
 	}
 
-		private readonly record struct BuildParameters(
-			MaterialBuilder DefaultMaterial,
-			Dictionary<ITexture2D, MemoryImage> ImageCache,
-			Dictionary<IMaterial, MaterialBuilder> MaterialCache,
-			Dictionary<IMesh, MeshData> MeshCache,
-			Dictionary<ITransform, NodeBuilder> NodeCache,
-			bool IsScene)
-		{
-			public BuildParameters(bool isScene) : this(new MaterialBuilder("DefaultMaterial"), new(), new(), new(), new(ReferenceEqualityComparer.Instance), isScene) { }
+	private readonly record struct BuildParameters(
+		MaterialBuilder DefaultMaterial,
+		Dictionary<ITexture2D, MemoryImage> ImageCache,
+		Dictionary<IMaterial, MaterialBuilder> MaterialCache,
+		Dictionary<IMesh, MeshData> MeshCache,
+		Dictionary<ITransform, NodeBuilder> NodeCache,
+		bool IsScene,
+		GlbFallbackTextureCatalog FallbackTextures)
+	{
+		public BuildParameters(bool isScene, GlbFallbackTextureCatalog fallbackTextures) : this(new MaterialBuilder("DefaultMaterial"), new(), new(), new(), new(ReferenceEqualityComparer.Instance), isScene, fallbackTextures) { }
 		public bool TryGetOrMakeMeshData(IMesh mesh, out MeshData meshData)
 		{
 			if (MeshCache.TryGetValue(mesh, out meshData))
@@ -401,15 +402,30 @@ public static class GlbLevelBuilder
 				{
 					continue;
 				}
-				IUnityObjectBase? target = textureEnvironment.Texture.TryGetAsset(material.Collection);
-				if (target is ITexture2D texture && TryGetOrMakeImage(texture, out MemoryImage image))
-				{
-					BindTexture(materialBuilder, channel, image, textureEnvironment, texture);
-				}
-				else if (target is null || target is not ITexture2D)
-				{
-					BindTexture(materialBuilder, channel, GetNeutralFallback(channel), textureEnvironment, null);
-				}
+					IUnityObjectBase? target = textureEnvironment.Texture.TryGetAsset(material.Collection);
+					if (target is ITexture2D texture)
+					{
+						// A resolved source texture is authoritative. A catalog entry must never overwrite it,
+						// even if that source texture cannot be decoded for this export target.
+						if (TryGetOrMakeImage(texture, out MemoryImage image))
+						{
+							BindTexture(materialBuilder, channel, image, textureEnvironment, texture);
+						}
+					}
+					else if (target is null)
+					{
+						// An explicitly null source property gets only the neutral 1x1 fallback.
+						BindTexture(materialBuilder, channel, GetNeutralFallback(channel), textureEnvironment, null);
+					}
+					else if (FallbackTextures.TryGetUnresolvedImage(utf8Name.String, out MemoryImage fallbackImage))
+					{
+						// Only a non-texture resolved object is an Unresolved binding eligible for user fallback.
+						BindTexture(materialBuilder, channel, fallbackImage, textureEnvironment, null);
+					}
+					else
+					{
+						BindTexture(materialBuilder, channel, GetNeutralFallback(channel), textureEnvironment, null);
+					}
 			}
 			return materialBuilder;
 		}

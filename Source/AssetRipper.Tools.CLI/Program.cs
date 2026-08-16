@@ -43,6 +43,10 @@ internal static class Program
 			{
 				result = new { load, diagnosticsPath, fbx = service.ExportFbxWithAnimation(options.Filter, options.OutputDirectory, options.IncludeAnimations), fallbackTextures };
 			}
+			else if (options.Glb)
+			{
+				result = new { load, diagnosticsPath, glb = service.ExportGlb(options.Filter, options.OutputDirectory, fallbackTextures), fallbackTextures };
+			}
 			else if (options.InspectPrefab)
 			{
 				result = new { load, diagnosticsPath, prefab = service.InspectPrefab(options.Filter), fallbackTextures };
@@ -76,6 +80,7 @@ internal sealed class CliOptions
 	public bool IncludeAnimations { get; private set; } = true;
 	public bool Raw { get; private set; }
 	public bool Fbx { get; private set; }
+	public bool Glb { get; private set; }
 	public bool InspectPrefab { get; private set; }
 	public bool BatchProcess { get; private set; }
 	public bool StrictProcessing { get; private set; }
@@ -130,9 +135,12 @@ internal sealed class CliOptions
 				case "raw":
 					options.Raw = ParseBoolean(key, inlineValue, args, ref i, true);
 					break;
-				case "fbx":
-					options.Fbx = ParseBoolean(key, inlineValue, args, ref i, true);
-					break;
+					case "fbx":
+						options.Fbx = ParseBoolean(key, inlineValue, args, ref i, true);
+						break;
+					case "glb":
+						options.Glb = ParseBoolean(key, inlineValue, args, ref i, true);
+						break;
 				case "inspect-prefab":
 				case "inspect":
 					options.InspectPrefab = true;
@@ -220,7 +228,8 @@ Core options:
   --filter <query>         Filter by name, class, collection, or Path ID.
   --limit <n>              Maximum assets in list output (default: 2000).
   --inspect-prefab         Inspect the resolved prefab/character hierarchy.
-  --fbx                   Export the selected character/prefab as grouped FBX.
+	  --fbx                   Export the selected character/prefab as grouped FBX.
+	  --glb                   Export the selected character/prefab as GLB; applies catalog fallbacks only to Unresolved bindings.
   --include-anim[=bool]    Include AnimationClip TRS curves in FBX (default: true).
 	  --raw                   Write raw JSON assets under output/raw.
 	  --batch-process         Run batch mode; combine with --raw and/or --fbx.

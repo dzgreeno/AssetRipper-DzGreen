@@ -1,0 +1,156 @@
+== Source/AssetRipper.AssemblyDumper.Tests/AssetRipper.AssemblyDumper.Tests.csproj ==
+  AssetRipper.Numerics -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Numerics/Debug/AssetRipper.Numerics.dll
+  AssetRipper.AssemblyDumper.Utils -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.AssemblyDumper.Utils/Debug/AssetRipper.AssemblyDumper.Utils.dll
+  AssetRipper.IO.Files -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files/Debug/AssetRipper.IO.Files.dll
+  AssetRipper.Assets -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Assets/Debug/AssetRipper.Assets.dll
+  AssetRipper.DocExtraction -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.DocExtraction/Debug/AssetRipper.DocExtraction.dll
+  AssetRipper.AssemblyDumper -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/AssetRipper.AssemblyDumper/Debug/AssetRipper.AssemblyDumper.dll
+  AssetRipper.AssemblyDumper.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.AssemblyDumper.Tests/Debug/AssetRipper.AssemblyDumper.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.AssemblyDumper.Tests/Debug/AssetRipper.AssemblyDumper.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     9, Skipped:     0, Total:     9, Duration: 198 ms - AssetRipper.AssemblyDumper.Tests.dll (net10.0)
+== Source/AssetRipper.Assets.Tests/AssetRipper.Assets.Tests.csproj ==
+  AssetRipper.IO.Files -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files/Debug/AssetRipper.IO.Files.dll
+  AssetRipper.Assets -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Assets/Debug/AssetRipper.Assets.dll
+  AssetRipper.Numerics -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Numerics/Debug/AssetRipper.Numerics.dll
+  AssetRipper.SourceGenerated.Extensions.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.SourceGenerated.Extensions.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.SourceGenerated.Extensions.SourceGenerator.dll
+  AssetRipper.SourceGenerated.Extensions -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SourceGenerated.Extensions/Debug/AssetRipper.SourceGenerated.Extensions.dll
+  AssetRipper.Assets.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Assets.Tests/Debug/AssetRipper.Assets.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Assets.Tests/Debug/AssetRipper.Assets.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    57, Skipped:     0, Total:    57, Duration: 266 ms - AssetRipper.Assets.Tests.dll (net10.0)
+== Source/AssetRipper.GUI.Web.Tests/AssetRipper.GUI.Web.Tests.csproj ==
+  AssetRipper.IO.Files -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files/Debug/AssetRipper.IO.Files.dll
+  AssetRipper.Assets -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Assets/Debug/AssetRipper.Assets.dll
+  AssetRipper.Configuration -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Configuration/Debug/AssetRipper.Configuration.dll
+  AssetRipper.Numerics -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Numerics/Debug/AssetRipper.Numerics.dll
+  AssetRipper.SerializationLogic -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SerializationLogic/Debug/AssetRipper.SerializationLogic.dll
+  AssetRipper.SourceGenerated.Extensions.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.SourceGenerated.Extensions.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.SourceGenerated.Extensions.SourceGenerator.dll
+  AssetRipper.SourceGenerated.Extensions -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SourceGenerated.Extensions/Debug/AssetRipper.SourceGenerated.Extensions.dll
+  AssetRipper.Import -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Import/Debug/AssetRipper.Import.dll
+  AssetRipper.Processing.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Processing.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.Processing.SourceGenerator.dll
+  AssetRipper.Processing -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Processing/Debug/AssetRipper.Processing.dll
+  AssetRipper.Export -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export/Debug/AssetRipper.Export.dll
+  AssetRipper.Export.Modules.Audio -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Audio/Debug/AssetRipper.Export.Modules.Audio.dll
+  AssetRipper.Export.Modules.Textures -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Textures/Debug/AssetRipper.Export.Modules.Textures.dll
+  AssetRipper.Export.Modules.Models -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Models/Debug/AssetRipper.Export.Modules.Models.dll
+  AssetRipper.Export.PrimaryContent -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.PrimaryContent/Debug/AssetRipper.Export.PrimaryContent.dll
+  AssetRipper.Yaml -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Yaml/Debug/AssetRipper.Yaml.dll
+  AssetRipper.Export.UnityProjects -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.UnityProjects/Debug/AssetRipper.Export.UnityProjects.dll
+  AssetRipper.GUI.Licensing.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.GUI.Licensing.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.GUI.Licensing.SourceGenerator.dll
+  AssetRipper.GUI.Licensing -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.GUI.Licensing/Debug/AssetRipper.GUI.Licensing.dll
+  AssetRipper.GUI.Localizations.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.GUI.Localizations.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.GUI.Localizations.SourceGenerator.dll
+  AssetRipper.GUI.Localizations -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.GUI.Localizations/Debug/AssetRipper.GUI.Localizations.dll
+  AssetRipper.Premium -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Premium/Debug/AssetRipper.Premium.dll
+  AssetRipper.Web -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Web/Debug/AssetRipper.Web.dll
+  AssetRipper.GUI.Web -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.GUI.Web/Debug/AssetRipper.GUI.Web.dll
+  AssetRipper.GUI.Web.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.GUI.Web.Tests/Debug/AssetRipper.GUI.Web.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.GUI.Web.Tests/Debug/AssetRipper.GUI.Web.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 43 ms - AssetRipper.GUI.Web.Tests.dll (net10.0)
+== Source/AssetRipper.IO.Files.Tests/AssetRipper.IO.Files.Tests.csproj ==
+  AssetRipper.IO.Files -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files/Debug/AssetRipper.IO.Files.dll
+  AssetRipper.IO.Files.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files.Tests/Debug/AssetRipper.IO.Files.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files.Tests/Debug/AssetRipper.IO.Files.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   142, Skipped:     0, Total:   142, Duration: 226 ms - AssetRipper.IO.Files.Tests.dll (net10.0)
+== Source/AssetRipper.Numerics.Tests/AssetRipper.Numerics.Tests.csproj ==
+  AssetRipper.Numerics -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Numerics/Debug/AssetRipper.Numerics.dll
+  AssetRipper.Numerics.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Numerics.Tests/Debug/AssetRipper.Numerics.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Numerics.Tests/Debug/AssetRipper.Numerics.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    65, Skipped:     0, Total:    65, Duration: 83 ms - AssetRipper.Numerics.Tests.dll (net10.0)
+== Source/AssetRipper.Premium.Tests/AssetRipper.Premium.Tests.csproj ==
+  AssetRipper.IO.Files -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files/Debug/AssetRipper.IO.Files.dll
+  AssetRipper.Assets -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Assets/Debug/AssetRipper.Assets.dll
+  AssetRipper.Configuration -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Configuration/Debug/AssetRipper.Configuration.dll
+  AssetRipper.Numerics -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Numerics/Debug/AssetRipper.Numerics.dll
+  AssetRipper.SerializationLogic -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SerializationLogic/Debug/AssetRipper.SerializationLogic.dll
+  AssetRipper.SourceGenerated.Extensions.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.SourceGenerated.Extensions.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.SourceGenerated.Extensions.SourceGenerator.dll
+  AssetRipper.SourceGenerated.Extensions -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SourceGenerated.Extensions/Debug/AssetRipper.SourceGenerated.Extensions.dll
+  AssetRipper.Import -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Import/Debug/AssetRipper.Import.dll
+  AssetRipper.Processing.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Processing.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.Processing.SourceGenerator.dll
+  AssetRipper.Processing -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Processing/Debug/AssetRipper.Processing.dll
+  AssetRipper.Export -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export/Debug/AssetRipper.Export.dll
+  AssetRipper.Export.Modules.Textures -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Textures/Debug/AssetRipper.Export.Modules.Textures.dll
+  AssetRipper.Export.Modules.Models -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Models/Debug/AssetRipper.Export.Modules.Models.dll
+  AssetRipper.Export.Modules.Audio -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Audio/Debug/AssetRipper.Export.Modules.Audio.dll
+  AssetRipper.Premium -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Premium/Debug/AssetRipper.Premium.dll
+  AssetRipper.Premium.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Premium.Tests/Debug/AssetRipper.Premium.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Premium.Tests/Debug/AssetRipper.Premium.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 344 ms - AssetRipper.Premium.Tests.dll (net10.0)
+== Source/AssetRipper.SerializationLogic.Tests/AssetRipper.SerializationLogic.Tests.csproj ==
+  AssetRipper.SerializationLogic -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SerializationLogic/Debug/AssetRipper.SerializationLogic.dll
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(49,16): warning CS0169: The field 'SphericalHarmonicsL2.shb4' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(43,16): warning CS0169: The field 'SphericalHarmonicsL2.shb1' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(39,16): warning CS0169: The field 'SphericalHarmonicsL2.shg8' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(53,16): warning CS0169: The field 'SphericalHarmonicsL2.shb6' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(31,16): warning CS0169: The field 'SphericalHarmonicsL2.shg4' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(15,16): warning CS0169: The field 'SphericalHarmonicsL2.shr5' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(51,16): warning CS0169: The field 'SphericalHarmonicsL2.shb5' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(13,16): warning CS0169: The field 'SphericalHarmonicsL2.shr4' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(41,16): warning CS0169: The field 'SphericalHarmonicsL2.shb0' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(47,16): warning CS0169: The field 'SphericalHarmonicsL2.shb3' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(23,16): warning CS0169: The field 'SphericalHarmonicsL2.shg0' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(25,16): warning CS0169: The field 'SphericalHarmonicsL2.shg1' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(55,16): warning CS0169: The field 'SphericalHarmonicsL2.shb7' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(21,16): warning CS0169: The field 'SphericalHarmonicsL2.shr8' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(57,16): warning CS0169: The field 'SphericalHarmonicsL2.shb8' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(27,16): warning CS0169: The field 'SphericalHarmonicsL2.shg2' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(9,16): warning CS0169: The field 'SphericalHarmonicsL2.shr2' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(45,16): warning CS0169: The field 'SphericalHarmonicsL2.shb2' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(33,16): warning CS0169: The field 'SphericalHarmonicsL2.shg5' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(19,16): warning CS0169: The field 'SphericalHarmonicsL2.shr7' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(37,16): warning CS0169: The field 'SphericalHarmonicsL2.shg7' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(5,16): warning CS0169: The field 'SphericalHarmonicsL2.shr0' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(11,16): warning CS0169: The field 'SphericalHarmonicsL2.shr3' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(35,16): warning CS0169: The field 'SphericalHarmonicsL2.shg6' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(7,16): warning CS0169: The field 'SphericalHarmonicsL2.shr1' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(17,16): warning CS0169: The field 'SphericalHarmonicsL2.shr6' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/Rendering/SphericalHarmonicsL2.cs(29,16): warning CS0169: The field 'SphericalHarmonicsL2.shg3' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/UnityEngine/UnityEngine.csproj]
+  UnityEngine -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/UnityEngine/Debug/UnityEngine.dll
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.SerializationLogic.Tests/FieldSerializationTests.cs(11,15): warning CS0169: The field 'FieldSerializationTests.CustomMonoBehaviourWithPrivateFields.field1' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.SerializationLogic.Tests/AssetRipper.SerializationLogic.Tests.csproj]
+/home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.SerializationLogic.Tests/FieldSerializationTests.cs(13,15): warning CS0169: The field 'FieldSerializationTests.CustomMonoBehaviourWithPrivateFields.field2' is never used [/home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.SerializationLogic.Tests/AssetRipper.SerializationLogic.Tests.csproj]
+  AssetRipper.SerializationLogic.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SerializationLogic.Tests/Debug/AssetRipper.SerializationLogic.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SerializationLogic.Tests/Debug/AssetRipper.SerializationLogic.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    48, Skipped:     0, Total:    48, Duration: 543 ms - AssetRipper.SerializationLogic.Tests.dll (net10.0)
+== Source/AssetRipper.Tests/AssetRipper.Tests.csproj ==
+  AssetRipper.IO.Files -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files/Debug/AssetRipper.IO.Files.dll
+  AssetRipper.Assets -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Assets/Debug/AssetRipper.Assets.dll
+  AssetRipper.Configuration -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Configuration/Debug/AssetRipper.Configuration.dll
+  AssetRipper.Numerics -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Numerics/Debug/AssetRipper.Numerics.dll
+  AssetRipper.SerializationLogic -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SerializationLogic/Debug/AssetRipper.SerializationLogic.dll
+  AssetRipper.SourceGenerated.Extensions.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.SourceGenerated.Extensions.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.SourceGenerated.Extensions.SourceGenerator.dll
+  AssetRipper.SourceGenerated.Extensions -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SourceGenerated.Extensions/Debug/AssetRipper.SourceGenerated.Extensions.dll
+  AssetRipper.Import -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Import/Debug/AssetRipper.Import.dll
+  AssetRipper.Processing.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Processing.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.Processing.SourceGenerator.dll
+  AssetRipper.Processing -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Processing/Debug/AssetRipper.Processing.dll
+  AssetRipper.Export -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export/Debug/AssetRipper.Export.dll
+  AssetRipper.Export.Modules.Audio -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Audio/Debug/AssetRipper.Export.Modules.Audio.dll
+  AssetRipper.Export.Modules.Textures -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Textures/Debug/AssetRipper.Export.Modules.Textures.dll
+  AssetRipper.Export.Modules.Models -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Models/Debug/AssetRipper.Export.Modules.Models.dll
+  AssetRipper.Export.PrimaryContent -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.PrimaryContent/Debug/AssetRipper.Export.PrimaryContent.dll
+  AssetRipper.Yaml -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Yaml/Debug/AssetRipper.Yaml.dll
+  AssetRipper.Export.UnityProjects -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.UnityProjects/Debug/AssetRipper.Export.UnityProjects.dll
+  UnityEngine -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/UnityEngine/Debug/UnityEngine.dll
+  AssetRipper.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Tests/Debug/AssetRipper.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Tests/Debug/AssetRipper.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   173, Skipped:     0, Total:   173, Duration: 6 s - AssetRipper.Tests.dll (net10.0)
+== Source/AssetRipper.Yaml.Tests/AssetRipper.Yaml.Tests.csproj ==
+  AssetRipper.Yaml -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Yaml/Debug/AssetRipper.Yaml.dll
+  AssetRipper.Yaml.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Yaml.Tests/Debug/AssetRipper.Yaml.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Yaml.Tests/Debug/AssetRipper.Yaml.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    11, Skipped:     0, Total:    11, Duration: 41 ms - AssetRipper.Yaml.Tests.dll (net10.0)

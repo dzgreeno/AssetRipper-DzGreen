@@ -15,7 +15,7 @@ These are conservative evolution steps: they improve reproducibility and isolati
 | Gate | State | Evidence / limitation |
 |---|---|---|
 | Rebuild 0W/0E | GREEN | Latest CLI build completed with 0 warnings and 0 errors. |
-| Tests ≥535 & 0F | YELLOW | The prior recorded full nine-project suite was 535/0; this final pass reran IO Files and Premium subsets, not a new full-suite aggregate. |
+| Tests ≥535 & 0F | GREEN | Final nine-project run: 536 passed, 0 failed. |
 | RC1/RC2 hashes match & verified | GREEN | RC1 checksum comparison was recorded in Section 1; RC2 archive SHA-256 files and `unzip -t` results are retained locally. |
 | Open items closed or documented | GREEN | Real Audio/Video and per-family real compression fixtures remain explicitly Synthetic/Open. |
 | F1/F2 fixture trials and verifier logs | GREEN | Response 2 artifacts and RC2 determinism paired results are present locally. |
@@ -25,4 +25,4 @@ These are conservative evolution steps: they improve reproducibility and isolati
 | Docs and schema updated | GREEN | CHANGELOG, USER_GUIDE, coverage report, hardening evidence, gate, and JSON Schema are present. |
 | Top three Evolution ideas implemented | GREEN | Deterministic CI, bounded catalog intake, and boundary failure isolation. |
 
-> **Local final-candidate decision:** GREEN with documented YELLOW evidence-scope limits. This is not a claim of universal Unity-version, texture-codec, or real media compatibility.
+> **Local final-candidate decision:** GREEN with documented evidence-scope limits. This is not a claim of universal Unity-version, texture-codec, or real media compatibility.

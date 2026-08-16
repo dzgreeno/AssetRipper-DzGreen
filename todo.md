@@ -225,3 +225,10 @@
 - [x] Upgrade PPtr graph cycle reporting from back-edge counts to strongly connected component summaries.
 - [x] Implement a read-only Material and Texture property inventory derived from imported Unity assets, without shader-bytecode decompilation.
 - [x] Add fixture-oriented tests for TypeTree coverage, Material binding, and diagnostic aggregation.
+- [x] Publish a standalone report for the latest TypeTree, PPtr, Material/Texture, testing, and Windows preview package implementation.
+- [x] Inspect existing IMesh, AnimationClip, and GLB exporter APIs and define only schema-backed Phase 2 extension points.
+- [x] Implement a span-based Premium vertex stream processor for explicitly described readable channels and record unsupported layouts diagnostically.
+- [x] Implement a bounded Premium animation keyframe processor and sampler only for readable curves whose schema and timing are available.
+- [x] Extend GLB material mapping with resolved property-channel classifications, texture transform and wrap metadata, and neutral fallbacks only for Null or Unresolved textures.
+- [x] Add Phase 2 unit tests and run the complete nine-project regression suite with 527 passing tests and zero failures.
+- [ ] Build, ZIP-test, and checksum the Phase 2 local Windows Premium preview without uploading it.

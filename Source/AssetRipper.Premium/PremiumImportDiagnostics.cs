@@ -19,6 +19,7 @@ public static class PremiumImportDiagnostics
 		PremiumReferenceGraphReport referenceGraph = PremiumReferenceGraphAnalyzer.Create(gameBundle);
 		PremiumTypeTreeCoverageReport typeTreeCoverage = PremiumTypeTreeCoverageAnalyzer.Create(gameBundle);
 		PremiumMaterialBindingReport materialBindings = PremiumMaterialBindingAnalyzer.Create(gameBundle);
+		PremiumVertexStreamDiagnostics vertexStreams = PremiumVertexStreamProcessor.CreateDiagnostics(gameBundle);
 
 		PremiumAssetClassSummary[] classes = gameBundle.FetchAssets()
 			.GroupBy(static asset => asset.ClassName, StringComparer.Ordinal)
@@ -37,6 +38,7 @@ public static class PremiumImportDiagnostics
 			referenceGraph,
 			typeTreeCoverage,
 			materialBindings,
+			vertexStreams,
 			classes.Sum(static summary => summary.Count),
 			classes,
 			gameBundle.AnyFailed ? "Some files were quarantined by the normal importer. Review failed-file diagnostics before export." : "No importer-quarantined files were recorded.");
@@ -89,6 +91,7 @@ public sealed record PremiumImportDiagnosticReport(
 	PremiumReferenceGraphReport ReferenceGraph,
 	PremiumTypeTreeCoverageReport TypeTreeCoverage,
 	PremiumMaterialBindingReport MaterialBindings,
+	PremiumVertexStreamDiagnostics VertexStreams,
 	long ClassifiedAssetCount,
 	IReadOnlyList<PremiumAssetClassSummary> AssetClasses,
 	string ImportStatus);

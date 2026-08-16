@@ -27,12 +27,17 @@ using AssetRipper.SourceGenerated.Subclasses.UnityTexEnv;
 using AssetRipper.SourceGenerated.Subclasses.Vector3Curve;
 using AssetRipper.SourceGenerated.Subclasses.Keyframe_Quaternionf;
 using AssetRipper.SourceGenerated.Subclasses.Keyframe_Vector3f;
+using AssetRipper.TextureDecoder.Rgb.Formats;
 using SharpGLTF.Geometry;
 using SharpGLTF.Materials;
 using SharpGLTF.Memory;
 using SharpGLTF.Scenes;
+using SharpGLTF.Schema2;
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using System.Reflection;
+using UnityTextureWrapMode = AssetRipper.SourceGenerated.Enums.TextureWrapMode;
 
 namespace AssetRipper.Export.Modules.Models;
 
@@ -390,50 +395,98 @@ public static class GlbLevelBuilder
 		private MaterialBuilder MakeMaterialBuilder(IMaterial material)
 		{
 			MaterialBuilder materialBuilder = new MaterialBuilder(material.Name);
-			GetTextures(material, out ITexture2D? mainTexture, out ITexture2D? normalTexture);
-			if (mainTexture is not null && TryGetOrMakeImage(mainTexture, out MemoryImage mainImage))
+			foreach ((Utf8String utf8Name, IUnityTexEnv textureEnvironment) in material.GetTextureProperties())
 			{
-				materialBuilder.WithBaseColor(mainImage);
-			}
-			if (normalTexture is not null && TryGetOrMakeImage(normalTexture, out MemoryImage normalImage))
-			{
-				materialBuilder.WithNormal(normalImage);
+				if (!TryMapGlbChannel(utf8Name.String, out KnownChannel channel))
+				{
+					continue;
+				}
+				IUnityObjectBase? target = textureEnvironment.Texture.TryGetAsset(material.Collection);
+				if (target is ITexture2D texture && TryGetOrMakeImage(texture, out MemoryImage image))
+				{
+					BindTexture(materialBuilder, channel, image, textureEnvironment, texture);
+				}
+				else if (target is null || target is not ITexture2D)
+				{
+					BindTexture(materialBuilder, channel, GetNeutralFallback(channel), textureEnvironment, null);
+				}
 			}
 			return materialBuilder;
 		}
 
-		private static void GetTextures(IMaterial material, out ITexture2D? mainTexture, out ITexture2D? normalTexture)
+		private static void BindTexture(MaterialBuilder materialBuilder, KnownChannel channel, MemoryImage image, IUnityTexEnv textureEnvironment, ITexture2D? sourceTexture)
 		{
-			mainTexture = null;
-			normalTexture = null;
-			ITexture2D? mainReplacement = null;
-			foreach ((Utf8String utf8Name, IUnityTexEnv textureParameter) in material.GetTextureProperties())
+			TextureBuilder texture = materialBuilder.UseChannel(channel).UseTexture();
+			texture.WithPrimaryImage(image);
+			texture.WithTransform(ReadTextureVector2(textureEnvironment.Offset), ReadTextureVector2(textureEnvironment.Scale), 0f, null);
+			texture.WrapS = GetWrapMode(sourceTexture, useU: true);
+			texture.WrapT = GetWrapMode(sourceTexture, useU: false);
+		}
+
+		private static TextureWrapMode GetWrapMode(ITexture2D? texture, bool useU)
+		{
+			if (texture?.TextureSettings_C28 is not { } settings)
 			{
-				string name = utf8Name.String;
-				if (IsMainTexture(name))
-				{
-					mainTexture ??= textureParameter.Texture.TryGetAsset(material.Collection) as ITexture2D;
-				}
-				else if (IsNormalTexture(name))
-				{
-					normalTexture ??= textureParameter.Texture.TryGetAsset(material.Collection) as ITexture2D;
-				}
-				else
-				{
-					mainReplacement ??= textureParameter.Texture.TryGetAsset(material.Collection) as ITexture2D;
-				}
+				return TextureWrapMode.REPEAT;
 			}
-			mainTexture ??= mainReplacement;
+			int unityWrapMode = useU ? settings.WrapU : settings.WrapV;
+			return (UnityTextureWrapMode)unityWrapMode switch
+			{
+				UnityTextureWrapMode.Clamp => TextureWrapMode.CLAMP_TO_EDGE,
+				UnityTextureWrapMode.Mirror => TextureWrapMode.MIRRORED_REPEAT,
+				_ => TextureWrapMode.REPEAT,
+			};
 		}
 
-		private static bool IsMainTexture(string textureName)
+		[UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "UnityTexEnv vector representations expose stable public X/Y value members.")]
+		private static Vector2 ReadTextureVector2(object value)
 		{
-			return textureName is "_MainTex" or "texture" or "Texture" or "_Texture";
+			Type type = value.GetType();
+			return new Vector2(ReadTextureComponent(type, value, "X"), ReadTextureComponent(type, value, "Y"));
 		}
 
-		private static bool IsNormalTexture(string textureName)
+		[UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "UnityTexEnv vector representations expose stable public X/Y value members.")]
+		private static float ReadTextureComponent([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)] Type type, object value, string name)
 		{
-			return textureName is "_Normal" or "Normal" or "normal";
+			object? component = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance)?.GetValue(value)
+				?? type.GetField(name, BindingFlags.Public | BindingFlags.Instance)?.GetValue(value);
+			return component switch
+			{
+				float single => single,
+				double doubleValue => (float)doubleValue,
+				IConvertible convertible => convertible.ToSingle(System.Globalization.CultureInfo.InvariantCulture),
+				_ => 0.0f,
+			};
+		}
+
+		private static bool TryMapGlbChannel(string propertyName, out KnownChannel channel)
+		{
+			if (propertyName is "_MainTex" or "texture" or "Texture" or "_Texture" or "_BaseMap" or "_BaseColorMap")
+			{
+				channel = KnownChannel.BaseColor;
+				return true;
+			}
+			if (propertyName.Contains("normal", StringComparison.OrdinalIgnoreCase) || propertyName.Contains("bump", StringComparison.OrdinalIgnoreCase))
+			{
+				channel = KnownChannel.Normal;
+				return true;
+			}
+			if (propertyName is "_MetallicGlossMap" or "_MetallicRoughnessMap" or "_MaskMap")
+			{
+				channel = KnownChannel.MetallicRoughness;
+				return true;
+			}
+			channel = default;
+			return false;
+		}
+
+		private static MemoryImage GetNeutralFallback(KnownChannel channel)
+		{
+			byte[] rgba = channel == KnownChannel.Normal ? [128, 128, 255, 255] : [255, 255, 255, 255];
+			DirectBitmap<ColorRGBA<byte>, byte> bitmap = new(1, 1, 1, rgba);
+			using MemoryStream stream = new();
+			bitmap.SaveAsPng(stream);
+			return new MemoryImage(stream.ToArray());
 		}
 	}
 

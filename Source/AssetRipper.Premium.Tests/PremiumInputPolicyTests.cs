@@ -128,6 +128,57 @@ public sealed class PremiumInputPolicyTests
 	}
 
 	[Test]
+	public void ExplicitPackedNormalDecoderUsesVerifiedSnormUnpacker()
+	{
+		uint packed = PackSnorm10(511) | PackSnorm10(0) << 10 | PackSnorm10(-511) << 20;
+		byte[] bytes = BitConverter.GetBytes(packed);
+
+		bool decoded = PremiumVertexStreamProcessor.TryDecodeExplicitSnorm1010102(bytes, 1, 0, 4, false, out System.Numerics.Vector3[]? normals, out PremiumVertexStreamIssue? issue);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(decoded, Is.True);
+			Assert.That(issue, Is.Null);
+			Assert.That(normals, Is.Not.Null);
+			Assert.That(normals![0], Is.EqualTo(new System.Numerics.Vector3(1, 0, -1)));
+		});
+	}
+
+	[Test]
+	public void ExplicitPackedNormalDecoderRejectsTruncatedStride()
+	{
+		bool decoded = PremiumVertexStreamProcessor.TryDecodeExplicitSnorm1010102(new byte[3], 1, 0, 4, false, out _, out PremiumVertexStreamIssue? issue);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(decoded, Is.False);
+			Assert.That(issue?.Code, Is.EqualTo(PremiumVertexIssueCode.InvalidLayout));
+		});
+	}
+
+	[Test]
+	public void AnimationSamplerUsesSmallestThreeAndInterpolatesAtRequestedRate()
+	{
+		uint identity = 3u << 30;
+		bool decoded = PremiumAnimationStreamProcessor.TryDecodeExplicitSmallestThree(BitConverter.GetBytes(identity), 1, 0, 4, false, out PremiumQuaternionKey[]? decodedKeys, out PremiumAnimationStreamIssue? decodeIssue);
+		PremiumQuaternionTrack track = new("Root", [
+			new(0, System.Numerics.Quaternion.Identity),
+			new(1, System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitY, MathF.PI)),
+		]);
+		PremiumQuaternionSampleResult samples = PremiumAnimationStreamProcessor.Sample(track, 2);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(decoded, Is.True);
+			Assert.That(decodeIssue, Is.Null);
+			Assert.That(decodedKeys![0].Value, Is.EqualTo(System.Numerics.Quaternion.Identity));
+			Assert.That(samples.IsSuccess, Is.True);
+			Assert.That(samples.Keys.Select(static key => key.Time), Is.EqualTo(new[] { 0f, 0.5f, 1f }));
+			Assert.That(samples.Keys[1].Value.Length(), Is.EqualTo(1f).Within(1e-5f));
+		});
+	}
+
+	[Test]
 	public void EmptyBundleDiagnosticIsDeterministic()
 	{
 		AssetRipper.Assets.Bundles.GameBundle gameBundle = new();
@@ -138,6 +189,8 @@ public sealed class PremiumInputPolicyTests
 			Assert.That(report.AssetCollectionCount, Is.Zero);
 			Assert.That(report.ResourceFileCount, Is.Zero);
 			Assert.That(report.FailedFileCount, Is.Zero);
+			Assert.That(report.VertexStreams.MeshCount, Is.Zero);
+			Assert.That(report.VertexStreams.IssueCount, Is.Zero);
 			Assert.That(report.Inputs, Has.Count.EqualTo(1));
 			Assert.That(report.ImportStatus, Is.EqualTo("No importer-quarantined files were recorded."));
 		});

@@ -242,7 +242,8 @@
 - [x] Implement a non-mutating Prefab override inspection path that records resolvable and unresolved modifications without fabricating missing scripts or properties.
 - [x] Implement bounded, read-only Mecanim state-machine and transition diagnostics for schema-readable AnimatorController data, including canonical ordering and unresolved-condition reports.
 - [x] Implement safe readable AudioClip/VideoClip inventory and container preservation paths; do not decode encrypted, protected, or format-unknown streams.
-- [x] Add CLI orchestration flags for verified-only export, user-provided fallback texture directories, and JSON/HTML diagnostic output, with validation and deterministic filtering.
+- [x] Add CLI orchestration flags for verified-only export, deterministic user-provided fallback texture cataloging, and JSON/HTML diagnostic output, with validation and deterministic filtering.
+- [ ] Wire the validated fallback texture catalog into an explicit GLB export target so it can replace only Unresolved material bindings; keep neutral fallbacks for Null bindings and reject unknown image formats.
 - [x] Add focused Phase 3 tests, run full regression, build the Premium GUI, and document limitations before packaging or any push.
 
 > 2026-08-16 Phase 3 validation: nine test projects completed with 531 passing tests and zero failures. Premium GUI and CLI builds completed successfully using the isolated Roslyn compatibility procedure, with all source generator references restored to 5.6.0 afterward. The CLI was exercised on non-destructive empty inputs for JSON/HTML diagnostics, verified-only manifests, and fallback-texture catalog filtering. No AudioClip/VideoClip fixture was available locally for a final container-conversion test; this limitation is documented in `docs/articles/PremiumPhase3LogicalReconstructionReport.md`.

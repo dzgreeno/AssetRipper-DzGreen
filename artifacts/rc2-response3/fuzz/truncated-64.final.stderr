@@ -1,0 +1,2 @@
+AssetRipper CLI failed: Input file is too short to contain a supported Unity header: /home/ubuntu/AssetRipper-DzGreen-vnext/artifacts/rc2-response3/fuzz/corpus/truncated-64.bundle
+{"eventType":"assetripper-ci-summary","exitCode":1,"assetCount":0,"issueCount":0}

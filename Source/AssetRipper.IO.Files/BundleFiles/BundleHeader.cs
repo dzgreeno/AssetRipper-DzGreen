@@ -30,9 +30,15 @@ public abstract record class BundleHeader : IEndianWritable
 	public virtual void Read(EndianReader reader)
 	{
 		Utf8String signature = reader.ReadStringZeroTerm();
-		Debug.Assert(signature == MagicString);
+		if (signature != MagicString)
+		{
+			throw new InvalidDataException($"Expected bundle signature '{MagicString}' but found '{signature}'.");
+		}
 		Version = (BundleVersion)reader.ReadInt32();
-		Debug.Assert(Version >= 0);
+		if (Version < 0)
+		{
+			throw new InvalidDataException($"Bundle header contains a negative format version: {(int)Version}.");
+		}
 		UnityWebBundleVersion = reader.ReadStringZeroTerm();
 		UnityWebMinimumRevision = reader.ReadStringZeroTerm();
 	}

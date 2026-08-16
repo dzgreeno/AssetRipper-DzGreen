@@ -1,0 +1,4496 @@
+{
+  "diagnostics": {
+    "unityVersion": "2020.1.0a0",
+    "inputs": [
+      {
+        "path": "/home/ubuntu/AssetRipper-DzGreen-vnext/artifacts/rc2-response3/fuzz/corpus/inconsistent-pointer-like.bundle",
+        "isDirectory": false,
+        "exists": true
+      },
+      {
+        "path": "/home/ubuntu/AssetRipper-DzGreen-vnext/artifacts/rc2-response3/fuzz/corpus/malformed-header.bundle",
+        "isDirectory": false,
+        "exists": true
+      },
+      {
+        "path": "/home/ubuntu/AssetRipper-DzGreen-vnext/artifacts/rc2-response3/fuzz/corpus/truncated-64.bundle",
+        "isDirectory": false,
+        "exists": true
+      },
+      {
+        "path": "/home/ubuntu/AssetRipper-DzGreen-vnext/artifacts/rc2-response3/fuzz/corpus/zero-length.bundle",
+        "isDirectory": false,
+        "exists": true
+      }
+    ],
+    "assetCollectionCount": 11,
+    "resourceFileCount": 1,
+    "failedFileCount": 2,
+    "referenceGraph": {
+      "nodeCount": 301,
+      "edgeCount": 972,
+      "resolvedEdgeCount": 1,
+      "nullReferenceCount": 971,
+      "missingCollectionCount": 0,
+      "missingAssetCount": 0,
+      "cycleComponentCount": 0,
+      "cyclicNodeCount": 0,
+      "isTruncated": false
+    },
+    "typeTreeCoverage": {
+      "collectionCount": 1,
+      "embeddedCollectionCount": 1,
+      "knownEngineSchemaCollectionCount": 0,
+      "partialCollectionCount": 0,
+      "unavailableCollectionCount": 0,
+      "collections": [
+        {
+          "collectionPath": "",
+          "collectionName": "cab-482f622dec799bf5\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD06bac935",
+          "assetCount": 2,
+          "serializedTypeCount": 2,
+          "strippedTypeCount": 0,
+          "referenceTypeCount": 0,
+          "state": 0
+        }
+      ]
+    },
+    "materialBindings": {
+      "materialCount": 15,
+      "textureBindingCount": 0,
+      "resolvedTextureBindingCount": 0,
+      "unresolvedTextureBindingCount": 0,
+      "nullTextureBindingCount": 0,
+      "materials": [
+        {
+          "collectionPath": "unity default resources",
+          "pathID": 10100,
+          "materialName": "Font Material",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity default resources",
+          "pathID": 10756,
+          "materialName": "FrameDebuggerRenderTargetDisplay",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10301,
+          "materialName": "Default-Particle",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10302,
+          "materialName": "Default-Diffuse",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10303,
+          "materialName": "Default-Material",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10304,
+          "materialName": "Default-Skybox",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10306,
+          "materialName": "Default-Line",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10308,
+          "materialName": "Default-ParticleSystem",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10650,
+          "materialName": "Default-Terrain-Diffuse",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10651,
+          "materialName": "Default-Terrain-Specular",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10652,
+          "materialName": "Default-Terrain-Standard",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10754,
+          "materialName": "Sprites-Default",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 10758,
+          "materialName": "Sprites-Mask",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 15302,
+          "materialName": "SpatialMappingOcclusion",
+          "textures": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "pathID": 15303,
+          "materialName": "SpatialMappingWireframe",
+          "textures": []
+        }
+      ]
+    },
+    "vertexStreams": {
+      "meshCount": 13,
+      "positionVerifiedMeshCount": 0,
+      "normalVerifiedMeshCount": 0,
+      "tangentVerifiedMeshCount": 0,
+      "issueCount": 39,
+      "issues": [
+        {
+          "semantic": 0,
+          "code": 0,
+          "message": "The known vertex channel is absent from this mesh schema.",
+          "count": 13
+        },
+        {
+          "semantic": 1,
+          "code": 0,
+          "message": "The known vertex channel is absent from this mesh schema.",
+          "count": 13
+        },
+        {
+          "semantic": 2,
+          "code": 0,
+          "message": "The known vertex channel is absent from this mesh schema.",
+          "count": 13
+        }
+      ]
+    },
+    "hierarchy": {
+      "transformCount": 0,
+      "rectTransformCount": 0,
+      "rootCount": 0,
+      "missingParentCount": 0,
+      "missingChildCount": 0,
+      "parentChildDisagreementCount": 0,
+      "cycleComponentCount": 0,
+      "cyclicNodeCount": 0,
+      "duplicateIdCount": 0,
+      "nodes": []
+    },
+    "prefabOverrides": {
+      "definitionCount": 0,
+      "instanceCount": 0,
+      "exposedModificationFieldCount": 0,
+      "nullModificationReferenceCount": 0,
+      "prefabs": []
+    },
+    "mecanim": {
+      "controllerCount": 0,
+      "stateMachineCount": 0,
+      "stateCount": 0,
+      "transitionCount": 0,
+      "conditionCount": 0,
+      "blendTreeStateCount": 0,
+      "unresolvedParameterBindingCount": 0,
+      "controllers": []
+    },
+    "media": {
+      "audioClipCount": 0,
+      "readyAudioClipCount": 0,
+      "unavailableAudioClipCount": 0,
+      "unsupportedAudioClipCount": 0,
+      "videoClipCount": 0,
+      "readyVideoClipCount": 0,
+      "unavailableVideoClipCount": 0,
+      "audio": [],
+      "video": []
+    },
+    "textures": {
+      "textureCount": 52,
+      "readyTextureCount": 0,
+      "unavailableTextureCount": 0,
+      "unsupportedTextureCount": 52,
+      "textures": [
+        {
+          "id": "unity default resources:10001",
+          "name": "Soft",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10103",
+          "name": "Font Texture",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10400",
+          "name": "UnityWatermark-small",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10401",
+          "name": "EscToExit_back",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10402",
+          "name": "EscToExit_Text",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10403",
+          "name": "UnitySplash-cube",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10406",
+          "name": "UnityWatermark-trial-big",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10407",
+          "name": "UnityWatermark-trial",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10408",
+          "name": "UnityWatermark-beta",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10409",
+          "name": "UnityWatermark-edu",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10410",
+          "name": "UnityWatermark-dev",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10411",
+          "name": "WarningSign",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10413",
+          "name": "UnityWatermark-proto",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:10414",
+          "name": "UnityWatermarkPlugin-beta",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11001",
+          "name": "box",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11002",
+          "name": "button active",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11003",
+          "name": "button hover",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11004",
+          "name": "button on hover",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11005",
+          "name": "button on",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11006",
+          "name": "button",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11007",
+          "name": "horizontal scrollbar thumb",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11008",
+          "name": "horizontal scrollbar",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11009",
+          "name": "horizontalslider",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11010",
+          "name": "slider thumb active",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11011",
+          "name": "slider thumb",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11012",
+          "name": "slidert humb hover",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11013",
+          "name": "toggle active",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11014",
+          "name": "toggle hover",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11015",
+          "name": "toggle on hover",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11016",
+          "name": "toggle on",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11017",
+          "name": "toggle on active",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11018",
+          "name": "toggle",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11019",
+          "name": "vertical scrollbar thumb",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11020",
+          "name": "vertical scrollbar",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11021",
+          "name": "verticalslider",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11022",
+          "name": "window on",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11023",
+          "name": "window",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11024",
+          "name": "textfield",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11025",
+          "name": "textfield on",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:11026",
+          "name": "textfield hover",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity default resources:15000",
+          "name": "UnitySplash-HolographicTrackingLoss",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10300",
+          "name": "Default-Particle",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10305",
+          "name": "Default-Checker",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10307",
+          "name": "Default-ParticleSystem",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10309",
+          "name": "Default-Checker-Gray",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10900",
+          "name": "Checkmark",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10904",
+          "name": "UISprite",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10906",
+          "name": "Background",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10910",
+          "name": "InputFieldBackground",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10912",
+          "name": "Knob",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10914",
+          "name": "DropdownArrow",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        },
+        {
+          "id": "unity_builtin_extra:10916",
+          "name": "UIMask",
+          "textureKind": "Texture2D_2020",
+          "colorSpace": 0,
+          "mipStatus": 0,
+          "status": 2,
+          "message": "No established decoder accepted this texture format."
+        }
+      ]
+    },
+    "standardShaderPlan": {
+      "target": 0,
+      "materialCount": 15,
+      "assignmentCount": 0,
+      "materials": [
+        {
+          "collectionPath": "unity default resources",
+          "materialPathId": 10100,
+          "materialName": "Font Material",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity default resources",
+          "materialPathId": 10756,
+          "materialName": "FrameDebuggerRenderTargetDisplay",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10301,
+          "materialName": "Default-Particle",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10302,
+          "materialName": "Default-Diffuse",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10303,
+          "materialName": "Default-Material",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10304,
+          "materialName": "Default-Skybox",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10306,
+          "materialName": "Default-Line",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10308,
+          "materialName": "Default-ParticleSystem",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10650,
+          "materialName": "Default-Terrain-Diffuse",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10651,
+          "materialName": "Default-Terrain-Specular",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10652,
+          "materialName": "Default-Terrain-Standard",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10754,
+          "materialName": "Sprites-Default",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 10758,
+          "materialName": "Sprites-Mask",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 15302,
+          "materialName": "SpatialMappingOcclusion",
+          "target": 0,
+          "assignments": []
+        },
+        {
+          "collectionPath": "unity_builtin_extra",
+          "materialPathId": 15303,
+          "materialName": "SpatialMappingWireframe",
+          "target": 0,
+          "assignments": []
+        }
+      ]
+    },
+    "classifiedAssetCount": 301,
+    "assetClasses": [
+      {
+        "className": "Shader",
+        "count": 190,
+        "isRecoveryPriority": false
+      },
+      {
+        "className": "Texture2D",
+        "count": 52,
+        "isRecoveryPriority": true
+      },
+      {
+        "className": "Material",
+        "count": 16,
+        "isRecoveryPriority": false
+      },
+      {
+        "className": "Mesh",
+        "count": 13,
+        "isRecoveryPriority": true
+      },
+      {
+        "className": "MonoScript",
+        "count": 12,
+        "isRecoveryPriority": false
+      },
+      {
+        "className": "Sprite",
+        "count": 8,
+        "isRecoveryPriority": false
+      },
+      {
+        "className": "LightmapParameters",
+        "count": 4,
+        "isRecoveryPriority": false
+      },
+      {
+        "className": "ComputeShader",
+        "count": 2,
+        "isRecoveryPriority": false
+      },
+      {
+        "className": "AssetBundle",
+        "count": 1,
+        "isRecoveryPriority": false
+      },
+      {
+        "className": "EditorSettings",
+        "count": 1,
+        "isRecoveryPriority": false
+      },
+      {
+        "className": "Font",
+        "count": 1,
+        "isRecoveryPriority": false
+      },
+      {
+        "className": "MonoBehaviour",
+        "count": 1,
+        "isRecoveryPriority": false
+      }
+    ],
+    "importStatus": "Some files were quarantined by the normal importer. Review failed-file diagnostics before export."
+  },
+  "verifiedOnly": {
+    "eligibleAssetCount": 2,
+    "skippedAssetCount": 299,
+    "decisions": [
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "Generated Settings",
+          "pathId": 1,
+          "name": "EditorSettings",
+          "className": "EditorSettings"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "cab-482f622dec799bf5\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD06bac935",
+          "pathId": 1,
+          "name": "d936bb089bac64f5081113510f5897bd.bundle",
+          "className": "AssetBundle"
+        },
+        "isEligible": true,
+        "coverageState": 0,
+        "reason": null
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "cab-482f622dec799bf5\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD06bac935",
+          "pathId": 7241028667368063910,
+          "name": "Material",
+          "className": "Material"
+        },
+        "isEligible": true,
+        "coverageState": 0,
+        "reason": null
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 17,
+          "name": "Hidden/InternalErrorShader",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 68,
+          "name": "Hidden/InternalClear",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 69,
+          "name": "Hidden/Internal-Colored",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 300,
+          "name": "Internal-Skinning",
+          "className": "ComputeShader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 301,
+          "name": "Internal-BlendShape",
+          "className": "ComputeShader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10001,
+          "name": "Soft",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10100,
+          "name": "Font Material",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10101,
+          "name": "GUI/Text Shader",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10102,
+          "name": "Arial",
+          "className": "Font"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10103,
+          "name": "Font Texture",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10200,
+          "name": "pSphere1",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10202,
+          "name": "Cube",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10203,
+          "name": "pCylinder1",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10204,
+          "name": "pPlane1",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10205,
+          "name": "polySurface2",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10206,
+          "name": "Cylinder",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10207,
+          "name": "Sphere",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10208,
+          "name": "Capsule",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10209,
+          "name": "Plane",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10210,
+          "name": "Quad",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10211,
+          "name": "Icosphere",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10212,
+          "name": "icosahedron",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10213,
+          "name": "pyramid",
+          "className": "Mesh"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10400,
+          "name": "UnityWatermark-small",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10401,
+          "name": "EscToExit_back",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10402,
+          "name": "EscToExit_Text",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10403,
+          "name": "UnitySplash-cube",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10404,
+          "name": "UnitySplash-cube",
+          "className": "Sprite"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10406,
+          "name": "UnityWatermark-trial-big",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10407,
+          "name": "UnityWatermark-trial",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10408,
+          "name": "UnityWatermark-beta",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10409,
+          "name": "UnityWatermark-edu",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10410,
+          "name": "UnityWatermark-dev",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10411,
+          "name": "WarningSign",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10413,
+          "name": "UnityWatermark-proto",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10414,
+          "name": "UnityWatermarkPlugin-beta",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10755,
+          "name": "Hidden/FrameDebuggerRenderTargetDisplay",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 10756,
+          "name": "FrameDebuggerRenderTargetDisplay",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11000,
+          "name": "MonoBehaviour",
+          "className": "MonoBehaviour"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11001,
+          "name": "box",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11002,
+          "name": "button active",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11003,
+          "name": "button hover",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11004,
+          "name": "button on hover",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11005,
+          "name": "button on",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11006,
+          "name": "button",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11007,
+          "name": "horizontal scrollbar thumb",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11008,
+          "name": "horizontal scrollbar",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11009,
+          "name": "horizontalslider",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11010,
+          "name": "slider thumb active",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11011,
+          "name": "slider thumb",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11012,
+          "name": "slidert humb hover",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11013,
+          "name": "toggle active",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11014,
+          "name": "toggle hover",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11015,
+          "name": "toggle on hover",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11016,
+          "name": "toggle on",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11017,
+          "name": "toggle on active",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11018,
+          "name": "toggle",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11019,
+          "name": "vertical scrollbar thumb",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11020,
+          "name": "vertical scrollbar",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11021,
+          "name": "verticalslider",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11022,
+          "name": "window on",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11023,
+          "name": "window",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11024,
+          "name": "textfield",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11025,
+          "name": "textfield on",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11026,
+          "name": "textfield hover",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11993,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11995,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 11998,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 12001,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 13312,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 13313,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 15000,
+          "name": "UnitySplash-HolographicTrackingLoss",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 19000,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 19001,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 19002,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 19003,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 19004,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity default resources",
+          "pathId": 19100,
+          "name": "MonoScript",
+          "className": "MonoScript"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 1,
+          "name": "Legacy Shaders/Diffuse Fast",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 2,
+          "name": "Legacy Shaders/Bumped Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 3,
+          "name": "Legacy Shaders/Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 4,
+          "name": "Legacy Shaders/Bumped Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 5,
+          "name": "Legacy Shaders/Diffuse Detail",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 6,
+          "name": "Legacy Shaders/VertexLit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 7,
+          "name": "Legacy Shaders/Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 8,
+          "name": "Legacy Shaders/Parallax Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 9,
+          "name": "Legacy Shaders/Parallax Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10,
+          "name": "Legacy Shaders/Self-Illumin/Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 11,
+          "name": "Legacy Shaders/Self-Illumin/Bumped Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 12,
+          "name": "Legacy Shaders/Self-Illumin/Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 13,
+          "name": "Legacy Shaders/Self-Illumin/Bumped Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 14,
+          "name": "Legacy Shaders/Self-Illumin/VertexLit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15,
+          "name": "Legacy Shaders/Self-Illumin/Parallax Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 16,
+          "name": "Legacy Shaders/Self-Illumin/Parallax Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 19,
+          "name": "Hidden/Internal-StencilWrite",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 20,
+          "name": "Legacy Shaders/Reflective/Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 21,
+          "name": "Legacy Shaders/Reflective/Bumped Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 22,
+          "name": "Legacy Shaders/Reflective/Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 23,
+          "name": "Legacy Shaders/Reflective/Bumped Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 24,
+          "name": "Legacy Shaders/Reflective/VertexLit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 25,
+          "name": "Legacy Shaders/Reflective/Bumped Unlit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 26,
+          "name": "Legacy Shaders/Reflective/Bumped VertexLit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 27,
+          "name": "Legacy Shaders/Reflective/Parallax Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 28,
+          "name": "Legacy Shaders/Reflective/Parallax Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 30,
+          "name": "Legacy Shaders/Transparent/Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 31,
+          "name": "Legacy Shaders/Transparent/Bumped Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 32,
+          "name": "Legacy Shaders/Transparent/Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 33,
+          "name": "Legacy Shaders/Transparent/Bumped Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 34,
+          "name": "Legacy Shaders/Transparent/VertexLit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 35,
+          "name": "Legacy Shaders/Transparent/Parallax Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 36,
+          "name": "Legacy Shaders/Transparent/Parallax Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 40,
+          "name": "Legacy Shaders/Lightmapped/VertexLit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 41,
+          "name": "Legacy Shaders/Lightmapped/Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 42,
+          "name": "Legacy Shaders/Lightmapped/Bumped Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 43,
+          "name": "Legacy Shaders/Lightmapped/Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 44,
+          "name": "Legacy Shaders/Lightmapped/Bumped Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 45,
+          "name": "Standard (Specular setup)",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 46,
+          "name": "Standard",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 47,
+          "name": "Autodesk Interactive",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 50,
+          "name": "Legacy Shaders/Transparent/Cutout/VertexLit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 51,
+          "name": "Legacy Shaders/Transparent/Cutout/Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 52,
+          "name": "Legacy Shaders/Transparent/Cutout/Bumped Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 53,
+          "name": "Legacy Shaders/Transparent/Cutout/Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 54,
+          "name": "Legacy Shaders/Transparent/Cutout/Bumped Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 62,
+          "name": "Hidden/Internal-DepthNormalsTexture",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 63,
+          "name": "Hidden/Internal-PrePassLighting",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 64,
+          "name": "Hidden/Internal-ScreenSpaceShadows",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 65,
+          "name": "Hidden/Internal-CombineDepthNormals",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 66,
+          "name": "Hidden/BlitCopy",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 67,
+          "name": "Hidden/BlitCopyDepth",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 68,
+          "name": "Hidden/ConvertTexture",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 69,
+          "name": "Hidden/Internal-DeferredShading",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 74,
+          "name": "Hidden/Internal-DeferredReflections",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 75,
+          "name": "Hidden/Internal-MotionVectors",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 100,
+          "name": "Legacy Shaders/Decal",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 101,
+          "name": "FX/Flare",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 102,
+          "name": "Hidden/Internal-Flare",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 103,
+          "name": "Skybox/Cubemap",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 104,
+          "name": "Skybox/6 Sided",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 105,
+          "name": "Hidden/Internal-Halo",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 106,
+          "name": "Skybox/Procedural",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 107,
+          "name": "Hidden/BlitCopyWithDepth",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 108,
+          "name": "Skybox/Panoramic",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 109,
+          "name": "Hidden/BlitToDepth",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 110,
+          "name": "Hidden/BlitToDepth_MSAA",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 200,
+          "name": "Legacy Shaders/Particles/Additive",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 201,
+          "name": "Legacy Shaders/Particles/~Additive-Multiply",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 202,
+          "name": "Legacy Shaders/Particles/Additive (Soft)",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 203,
+          "name": "Legacy Shaders/Particles/Alpha Blended",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 205,
+          "name": "Legacy Shaders/Particles/Multiply",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 206,
+          "name": "Legacy Shaders/Particles/Multiply (Double)",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 207,
+          "name": "Legacy Shaders/Particles/Alpha Blended Premultiply",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 208,
+          "name": "Legacy Shaders/Particles/VertexLit Blended",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 209,
+          "name": "Legacy Shaders/Particles/Anim Alpha Blended",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 210,
+          "name": "Particles/Standard Surface",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 211,
+          "name": "Particles/Standard Unlit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 9000,
+          "name": "Hidden/Internal-GUITextureClip",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 9001,
+          "name": "Hidden/Internal-GUITextureClipText",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 9002,
+          "name": "Hidden/Internal-GUITexture",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 9003,
+          "name": "Hidden/Internal-GUITextureBlit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 9004,
+          "name": "Hidden/Internal-GUIRoundedRect",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 9005,
+          "name": "Hidden/Internal-UIRDefault",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 9006,
+          "name": "Hidden/Internal-UIRAtlasBlitCopy",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 9007,
+          "name": "Hidden/Internal-GUIRoundedRectWithColorPerBorder",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10300,
+          "name": "Default-Particle",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10301,
+          "name": "Default-Particle",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10302,
+          "name": "Default-Diffuse",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10303,
+          "name": "Default-Material",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10304,
+          "name": "Default-Skybox",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10305,
+          "name": "Default-Checker",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10306,
+          "name": "Default-Line",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10307,
+          "name": "Default-ParticleSystem",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10308,
+          "name": "Default-ParticleSystem",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10309,
+          "name": "Default-Checker-Gray",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10490,
+          "name": "Hidden/Nature/Terrain/Utilities",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10500,
+          "name": "Hidden/TerrainEngine/Details/Vertexlit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10501,
+          "name": "Hidden/TerrainEngine/Details/WavingDoublePass",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10502,
+          "name": "Hidden/TerrainEngine/Details/BillboardWavingDoublePass",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10503,
+          "name": "Hidden/TerrainEngine/Splatmap/Diffuse-AddPass",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10504,
+          "name": "Hidden/TerrainEngine/Splatmap/Diffuse-Base",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10505,
+          "name": "Nature/Terrain/Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10506,
+          "name": "Hidden/TerrainEngine/Splatmap/Diffuse-BaseGen",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10507,
+          "name": "Hidden/TerrainEngine/BillboardTree",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10508,
+          "name": "Hidden/Nature/Tree Soft Occlusion Bark Rendertex",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10509,
+          "name": "Nature/Tree Soft Occlusion Bark",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10510,
+          "name": "Hidden/Nature/Tree Soft Occlusion Leaves Rendertex",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10511,
+          "name": "Nature/Tree Soft Occlusion Leaves",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10512,
+          "name": "Legacy Shaders/Transparent/Cutout/Soft Edge Unlit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10513,
+          "name": "Hidden/TerrainEngine/CameraFacingBillboardTree",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10600,
+          "name": "Nature/Tree Creator Bark",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10601,
+          "name": "Nature/Tree Creator Leaves",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10602,
+          "name": "Hidden/Nature/Tree Creator Bark Rendertex",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10603,
+          "name": "Hidden/Nature/Tree Creator Leaves Rendertex",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10604,
+          "name": "Hidden/Nature/Tree Creator Bark Optimized",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10605,
+          "name": "Hidden/Nature/Tree Creator Leaves Optimized",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10606,
+          "name": "Nature/Tree Creator Leaves Fast",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10607,
+          "name": "Hidden/Nature/Tree Creator Leaves Fast Optimized",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10608,
+          "name": "Hidden/Nature/Tree Creator Albedo Rendertex",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10609,
+          "name": "Hidden/Nature/Tree Creator Normal Rendertex",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10620,
+          "name": "Nature/Terrain/Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10621,
+          "name": "Hidden/TerrainEngine/Splatmap/Specular-AddPass",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10622,
+          "name": "Hidden/TerrainEngine/Splatmap/Specular-Base",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10623,
+          "name": "Nature/Terrain/Standard",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10624,
+          "name": "Hidden/TerrainEngine/Splatmap/Standard-AddPass",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10625,
+          "name": "Hidden/TerrainEngine/Splatmap/Standard-Base",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10626,
+          "name": "Hidden/TerrainEngine/Splatmap/Standard-BaseGen",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10650,
+          "name": "Default-Terrain-Diffuse",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10651,
+          "name": "Default-Terrain-Specular",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10652,
+          "name": "Default-Terrain-Standard",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10700,
+          "name": "Mobile/Skybox",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10701,
+          "name": "Mobile/VertexLit",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10703,
+          "name": "Mobile/Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10704,
+          "name": "Mobile/Bumped Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10705,
+          "name": "Mobile/Bumped Specular",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10706,
+          "name": "Mobile/Bumped Specular (1 Directional Realtime Light)",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10707,
+          "name": "Mobile/VertexLit (Only Directional Lights)",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10708,
+          "name": "Mobile/Unlit (Supports Lightmap)",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10720,
+          "name": "Mobile/Particles/Additive",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10721,
+          "name": "Mobile/Particles/Alpha Blended",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10722,
+          "name": "Mobile/Particles/VertexLit Blended",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10723,
+          "name": "Mobile/Particles/Multiply",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10750,
+          "name": "Unlit/Transparent",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10751,
+          "name": "Unlit/Transparent Cutout",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10752,
+          "name": "Unlit/Texture",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10753,
+          "name": "Sprites/Default",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10754,
+          "name": "Sprites-Default",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10755,
+          "name": "Unlit/Color",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10757,
+          "name": "Sprites/Mask",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10758,
+          "name": "Sprites-Mask",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10760,
+          "name": "UI/Unlit/Transparent",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10761,
+          "name": "UI/Unlit/Detail",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10762,
+          "name": "UI/Unlit/Text",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10763,
+          "name": "UI/Unlit/Text Detail",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10764,
+          "name": "UI/Lit/Transparent",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10765,
+          "name": "UI/Lit/Bumped",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10766,
+          "name": "UI/Lit/Detail",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10767,
+          "name": "UI/Lit/Refraction",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10768,
+          "name": "UI/Lit/Refraction Detail",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10770,
+          "name": "UI/Default",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10782,
+          "name": "UI/Default Font",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10783,
+          "name": "UI/DefaultETC1",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10784,
+          "name": "Hidden/UI/CompositeOverdraw",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10785,
+          "name": "Hidden/UI/Overdraw",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10800,
+          "name": "Sprites/Diffuse",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10900,
+          "name": "Checkmark",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10901,
+          "name": "Checkmark",
+          "className": "Sprite"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10904,
+          "name": "UISprite",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10905,
+          "name": "UISprite",
+          "className": "Sprite"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10906,
+          "name": "Background",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10907,
+          "name": "Background",
+          "className": "Sprite"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10910,
+          "name": "InputFieldBackground",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10911,
+          "name": "InputFieldBackground",
+          "className": "Sprite"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10912,
+          "name": "Knob",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10913,
+          "name": "Knob",
+          "className": "Sprite"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10914,
+          "name": "DropdownArrow",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10915,
+          "name": "DropdownArrow",
+          "className": "Sprite"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10916,
+          "name": "UIMask",
+          "className": "Texture2D"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 10917,
+          "name": "UIMask",
+          "className": "Sprite"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 14000,
+          "name": "Nature/SpeedTree",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 14001,
+          "name": "Nature/SpeedTree Billboard",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 14002,
+          "name": "Nature/SpeedTree8",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15100,
+          "name": "Hidden/GIDebug/TextureUV",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15101,
+          "name": "Hidden/GIDebug/ShowLightMask",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15102,
+          "name": "Hidden/GIDebug/UV1sAsPositions",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15103,
+          "name": "Hidden/GIDebug/VertexColors",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15104,
+          "name": "Hidden/CubeBlur",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15105,
+          "name": "Hidden/CubeCopy",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15106,
+          "name": "Hidden/CubeBlend",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15200,
+          "name": "Default-HighResolution",
+          "className": "LightmapParameters"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15201,
+          "name": "Default-LowResolution",
+          "className": "LightmapParameters"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15203,
+          "name": "Default-VeryLowResolution",
+          "className": "LightmapParameters"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15204,
+          "name": "Default-Medium",
+          "className": "LightmapParameters"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15300,
+          "name": "VR/SpatialMapping/Occlusion",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15301,
+          "name": "VR/SpatialMapping/Wireframe",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15302,
+          "name": "SpatialMappingOcclusion",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15303,
+          "name": "SpatialMappingWireframe",
+          "className": "Material"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15304,
+          "name": "Hidden/VR/BlitTexArraySlice",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15305,
+          "name": "Hidden/VR/Internal-VRDistortion",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15306,
+          "name": "Hidden/VR/BlitTexArraySliceToDepth",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15307,
+          "name": "Hidden/VR/BlitTexArraySliceToDepth_MSAA",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15308,
+          "name": "Hidden/Internal-ODSWorldTexture",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15309,
+          "name": "Hidden/Internal-CubemapToEquirect",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15312,
+          "name": "Hidden/VR/BlitFromTex2DToTexArraySlice",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 15401,
+          "name": "AR/TangoARRender",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 16000,
+          "name": "Hidden/VideoComposite",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 16001,
+          "name": "Hidden/VideoDecode",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 16002,
+          "name": "Hidden/VideoDecodeOSX",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 16003,
+          "name": "Hidden/VideoDecodeAndroid",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 16004,
+          "name": "Hidden/VideoDecodeML",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 17000,
+          "name": "Hidden/Compositing",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 18000,
+          "name": "Hidden/TerrainEngine/PaintHeight",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 18001,
+          "name": "Hidden/TerrainEngine/HeightBlitCopy",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 18002,
+          "name": "Hidden/TerrainEngine/GenerateNormalmap",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 18003,
+          "name": "Hidden/TerrainEngine/TerrainLayerUtils",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 18004,
+          "name": "Hidden/TerrainEngine/BrushPreview",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 18005,
+          "name": "Hidden/TerrainEngine/CrossBlendNeighbors",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 19010,
+          "name": "Hidden/TextCore/Distance Field",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      },
+      {
+        "candidate": {
+          "collectionPath": "",
+          "collectionName": "unity_builtin_extra",
+          "pathId": 19011,
+          "name": "Hidden/TextCore/Distance Field SSD",
+          "className": "Shader"
+        },
+        "isEligible": false,
+        "coverageState": null,
+        "reason": "The collection has no TypeTree coverage record."
+      }
+    ]
+  },
+  "fallbackTextures": null
+}

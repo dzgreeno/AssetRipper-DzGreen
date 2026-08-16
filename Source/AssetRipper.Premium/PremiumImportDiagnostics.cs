@@ -24,6 +24,8 @@ public static class PremiumImportDiagnostics
 		PremiumPrefabOverrideReport prefabOverrides = PremiumPrefabOverrideResolver.Create(gameBundle);
 		PremiumMecanimReport mecanim = PremiumMecanimStateMachineAnalyzer.Create(gameBundle);
 		PremiumMediaReport media = PremiumAudioMediaProcessor.CreateDiagnostics(gameBundle);
+		PremiumTextureTranscodeReport textures = PremiumTextureTranscoder.CreateDiagnostics(gameBundle);
+		PremiumShaderInjectionReport standardShaderPlan = PremiumShaderPropertyInjector.Create(materialBindings, PremiumShaderTarget.UrpLit);
 
 		PremiumAssetClassSummary[] classes = gameBundle.FetchAssets()
 			.GroupBy(static asset => asset.ClassName, StringComparer.Ordinal)
@@ -47,6 +49,8 @@ public static class PremiumImportDiagnostics
 			prefabOverrides,
 			mecanim,
 			media,
+			textures,
+			standardShaderPlan,
 			classes.Sum(static summary => summary.Count),
 			classes,
 			gameBundle.AnyFailed ? "Some files were quarantined by the normal importer. Review failed-file diagnostics before export." : "No importer-quarantined files were recorded.");
@@ -104,6 +108,8 @@ public sealed record PremiumImportDiagnosticReport(
 	PremiumPrefabOverrideReport PrefabOverrides,
 	PremiumMecanimReport Mecanim,
 	PremiumMediaReport Media,
+	PremiumTextureTranscodeReport Textures,
+	PremiumShaderInjectionReport StandardShaderPlan,
 	long ClassifiedAssetCount,
 	IReadOnlyList<PremiumAssetClassSummary> AssetClasses,
 	string ImportStatus);

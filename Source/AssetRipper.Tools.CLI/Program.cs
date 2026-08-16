@@ -31,7 +31,11 @@ internal static class Program
 			PremiumFallbackTextureCatalog? fallbackTextures = options.FallbackTexturesDirectory is null ? null : service.CreateFallbackTextureCatalog(options.FallbackTexturesDirectory);
 			string? diagnosticsPath = options.DiagnosticsFormat is null ? null : service.ExportDiagnostics(options.OutputDirectory, options.DiagnosticsFormat.Value, fallbackTextures);
 			object result;
-			if (options.BatchProcess || options.Raw || options.ExportVerifiedOnly)
+			if (options.ExportTextures)
+			{
+				result = new { load, diagnosticsPath, textures = service.ExportTextures(options.OutputDirectory, options.TextureOutputFormat) };
+			}
+			else if (options.BatchProcess || options.Raw || options.ExportVerifiedOnly)
 			{
 				result = new { load, diagnosticsPath, batch = service.BatchProcess(options.OutputDirectory, options.Filter, options.Raw, options.Fbx, options.IncludeAnimations, options.ExportVerifiedOnly, fallbackTextures) };
 			}
@@ -78,6 +82,8 @@ internal sealed class CliOptions
 	public bool ExportVerifiedOnly { get; private set; }
 	public string? FallbackTexturesDirectory { get; private set; }
 	public PremiumDiagnosticsFormat? DiagnosticsFormat { get; private set; }
+	public bool ExportTextures { get; private set; }
+	public PremiumTextureOutputFormat TextureOutputFormat { get; private set; } = PremiumTextureOutputFormat.Png;
 	public bool Help { get; private set; }
 
 	public static CliOptions Parse(string[] args)
@@ -153,6 +159,19 @@ internal sealed class CliOptions
 							_ => throw new ArgumentException("--export-diagnostics must be json or html."),
 						};
 						break;
+					case "textures":
+						options.ExportTextures = ParseBoolean(key, inlineValue, args, ref i, true);
+						break;
+					case "texture-format":
+						string requestedTextureFormat = RequireValue(key, inlineValue, args, ref i);
+						options.TextureOutputFormat = requestedTextureFormat.ToLowerInvariant() switch
+						{
+							"png" => PremiumTextureOutputFormat.Png,
+							"tga" => PremiumTextureOutputFormat.Tga,
+							"exr" => PremiumTextureOutputFormat.Exr,
+							_ => throw new ArgumentException("--texture-format must be png, tga, or exr."),
+						};
+						break;
 				default:
 					throw new ArgumentException($"Unknown option '--{key}'.");
 			}
@@ -209,6 +228,8 @@ Core options:
 	  --export-verified-only  In batch mode, export only assets from Embedded or KnownEngineSchema collections.
 	  --fallback-textures <dir>  Deterministically catalog user-supplied replacement textures for the diagnostics/manifest.
 	  --export-diagnostics <json|html>  Write the loaded Premium diagnostic report beside export output.
+	  --textures[=bool]       Export only image textures accepted by the established decoder pipeline.
+	  --texture-format <png|tga|exr>  Output format for --textures (default: png).
 	  --help, -h              Show this help.
 
 Examples:
@@ -216,5 +237,6 @@ Examples:
   AssetRipper.CLI --input game_Data --output export --fbx --filter hero --include-anim
 	  AssetRipper.CLI --input game_Data --output export --batch-process --raw --fbx
 	  AssetRipper.CLI --input game_Data --output export --batch --raw --export-verified-only --export-diagnostics html
+	  AssetRipper.CLI --input game_Data --output export --textures --texture-format png
 """;
 }

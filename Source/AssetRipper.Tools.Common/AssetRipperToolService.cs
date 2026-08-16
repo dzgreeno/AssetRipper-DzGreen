@@ -8,6 +8,7 @@ using AssetRipper.GUI.Web;
 using AssetRipper.IO.Files;
 using AssetRipper.Processing;
 using AssetRipper.Premium;
+using AssetRipper.SourceGenerated.Classes.ClassID_189;
 using AssetRipper.SourceGenerated.Classes.ClassID_1;
 using AssetRipper.SourceGenerated.Classes.ClassID_2;
 using AssetRipper.SourceGenerated.Classes.ClassID_4;
@@ -82,6 +83,25 @@ public sealed class AssetRipperToolService
 			File.WriteAllText(path, $"<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>AssetRipper DzGreen Premium Diagnostics</title><style>body{{font-family:system-ui,sans-serif;margin:2rem;background:#101513;color:#eaf5ef}}pre{{white-space:pre-wrap;word-break:break-word;background:#18211d;padding:1rem;border-radius:.5rem}}</style></head><body><h1>AssetRipper DzGreen Premium Diagnostics</h1><p>Read-only report derived from already imported plaintext data.</p><pre>{payload}</pre></body></html>", new UTF8Encoding(false));
 		}
 		return path;
+	}
+
+	public PremiumTextureBatchResult ExportTextures(string outputDirectory, PremiumTextureOutputFormat format)
+	{
+		EnsureLoaded();
+		string directory = PrepareOutputDirectory(Path.Combine(outputDirectory, "textures"));
+		PremiumTextureBatchItem[] items = GameFileLoader.GameBundle.FetchAssets()
+			.OfType<IImageTexture>()
+			.OrderBy(texture => texture.Collection.FilePath, StringComparer.OrdinalIgnoreCase)
+			.ThenBy(static texture => texture.PathID)
+			.Select(texture =>
+			{
+				PremiumTextureExportResult result = PremiumTextureTranscoder.TryExport(texture, directory, format);
+				return new PremiumTextureBatchItem(texture.PathID, texture.GetBestName(), result.IsSuccess, result.Path, result.Message);
+			})
+			.ToArray();
+		string manifestPath = Path.Combine(directory, "assetripper-texture-transcode-manifest.json");
+		File.WriteAllText(manifestPath, JsonSerializer.Serialize(new { generatedUtc = DateTimeOffset.UtcNow, format, items }, JsonOptions), new UTF8Encoding(false));
+		return new PremiumTextureBatchResult(directory, format, items.LongCount(static item => item.IsSuccess), items.LongCount(static item => !item.IsSuccess), manifestPath, items);
 	}
 
 	public LoadSummary Load(IEnumerable<string> inputPaths, ModelExportFormat modelFormat = ModelExportFormat.Fbx, bool strict = false)
@@ -444,6 +464,8 @@ public enum PremiumDiagnosticsFormat
 }
 
 public sealed record BatchProcessResult(string OutputDirectory, IReadOnlyList<string> Files, string ManifestPath, bool Raw, bool Fbx, bool IncludeAnimations, bool VerifiedOnly, int SkippedAssetCount, PremiumFallbackTextureCatalog? FallbackTextures, IReadOnlyList<ProcessingIssue> Issues);
+public sealed record PremiumTextureBatchItem(long PathId, string Name, bool IsSuccess, string? Path, string? Message);
+public sealed record PremiumTextureBatchResult(string OutputDirectory, PremiumTextureOutputFormat Format, long SucceededCount, long FailedCount, string ManifestPath, IReadOnlyList<PremiumTextureBatchItem> Items);
 
 internal sealed class ReferenceComparer<T> : IEqualityComparer<T> where T : class
 {

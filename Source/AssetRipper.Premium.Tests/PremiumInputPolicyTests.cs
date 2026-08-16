@@ -278,6 +278,28 @@ public sealed class PremiumInputPolicyTests
 	}
 
 	[Test]
+	public void ShaderPropertyInjectorUsesOnlyDeclaredStandardMappings()
+	{
+		PremiumMaterialBindingReport materials = PremiumMaterialBindingAnalyzer.Analyze(
+		[
+			new PremiumMaterialBinding("A", 1, "Hero", [
+				new PremiumTextureBinding("_MainTex", 11, "Albedo", 1, 1, 0, 0, PremiumTextureBindingStatus.Resolved),
+				new PremiumTextureBinding("_BumpMap", null, null, 1, 1, 0, 0, PremiumTextureBindingStatus.Null),
+				new PremiumTextureBinding("_GameSpecificMap", 12, "Opaque", 1, 1, 0, 0, PremiumTextureBindingStatus.Resolved),
+			]),
+		]);
+		PremiumShaderInjectionReport report = PremiumShaderPropertyInjector.Create(materials, PremiumShaderTarget.UrpLit);
+		PremiumShaderPropertyAssignment[] assignments = report.Materials.Single().Assignments.ToArray();
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(assignments.Single(static assignment => assignment.SourceProperty == "_MainTex").TargetProperty, Is.EqualTo("_BaseMap"));
+			Assert.That(assignments.Single(static assignment => assignment.SourceProperty == "_BumpMap").Status, Is.EqualTo(PremiumShaderAssignmentStatus.NeutralFallbackRequired));
+			Assert.That(assignments.Single(static assignment => assignment.SourceProperty == "_GameSpecificMap").Status, Is.EqualTo(PremiumShaderAssignmentStatus.NotMapped));
+		});
+	}
+
+	[Test]
 	public void EmptyBundleDiagnosticIsDeterministic()
 	{
 		AssetRipper.Assets.Bundles.GameBundle gameBundle = new();
@@ -295,6 +317,8 @@ public sealed class PremiumInputPolicyTests
 			Assert.That(report.Mecanim.ControllerCount, Is.Zero);
 			Assert.That(report.Media.AudioClipCount, Is.Zero);
 			Assert.That(report.Media.VideoClipCount, Is.Zero);
+			Assert.That(report.Textures.TextureCount, Is.Zero);
+			Assert.That(report.StandardShaderPlan.MaterialCount, Is.Zero);
 			Assert.That(report.Inputs, Has.Count.EqualTo(1));
 			Assert.That(report.ImportStatus, Is.EqualTo("No importer-quarantined files were recorded."));
 		});

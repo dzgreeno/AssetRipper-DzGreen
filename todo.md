@@ -247,3 +247,13 @@
 - [x] Add focused Phase 3 tests, run full regression, build the Premium GUI, and document limitations before packaging or any push.
 
 > 2026-08-16 Phase 3 validation: nine test projects completed with 531 passing tests and zero failures. Premium GUI and CLI builds completed successfully using the isolated Roslyn compatibility procedure, with all source generator references restored to 5.6.0 afterward. The CLI was exercised on non-destructive empty inputs for JSON/HTML diagnostics, verified-only manifests, and fallback-texture catalog filtering. No AudioClip/VideoClip fixture was available locally for a final container-conversion test; this limitation is documented in `docs/articles/PremiumPhase3LogicalReconstructionReport.md`.
+
+## Premium Phase 4 — Visual Fidelity and Diagnostics
+
+- [x] Inspect the existing readable texture decoders, compression support, image writers, material bindings, and Premium GUI routes; document only formats that have a verified decoder path.
+- [x] Implement deterministic texture transcoding reports and exports for formats decoded by the existing importer, with color-space metadata and mip-chain status; reject opaque or unsupported compressed payloads without guessing.
+- [x] Implement a safe standard shader property-injection plan derived from readable material bindings, including explicit resolved/null/unresolved texture decisions and user-provided fallback catalog references.
+- [x] Add a read-only Premium diagnostics dashboard that presents coverage, reference cycles, material bindings, unavailable/partial assets, and verified-only decisions without changing loaded assets.
+- [x] Integrate Phase 4 diagnostics into Premium GUI and CLI export reports; add focused tests, run full regression, and build GUI/CLI.
+- [x] Write a local Release Candidate report with supported formats, limitations, verification evidence, and authorized usage instructions; do not publish or push.
+- [ ] Add decoded-mipmap preservation/export only after a readable source mip layout can be validated per texture type; do not synthesize missing mipmaps without a user-selected and documented policy.

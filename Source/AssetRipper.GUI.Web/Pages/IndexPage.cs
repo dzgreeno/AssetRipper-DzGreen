@@ -14,9 +14,13 @@ public sealed class IndexPage : DefaultPage
 			{
 				AssetBrowserPanel.Write(writer, GameFileLoader.GameBundle);
 				using (new Div(writer).WithClass("asset-browser-footer-actions").End())
-				{
-					PathLinking.WriteLink(writer, GameFileLoader.GameBundle, "Open loaded file tree", "btn btn-outline-secondary");
-					new A(writer).WithHref("/Commands").WithClass("btn btn-primary").Close("Open / export");
+					{
+						PathLinking.WriteLink(writer, GameFileLoader.GameBundle, "Open loaded file tree", "btn btn-outline-secondary");
+						if (GameFileLoader.Premium)
+						{
+							new A(writer).WithHref("/PremiumDiagnostics").WithClass("btn btn-outline-secondary").Close("Premium diagnostics");
+						}
+						new A(writer).WithHref("/Commands").WithClass("btn btn-primary").Close("Open / export");
 				}
 			}
 			else

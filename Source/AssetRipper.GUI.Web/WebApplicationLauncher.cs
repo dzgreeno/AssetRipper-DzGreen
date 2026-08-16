@@ -178,8 +178,9 @@ app.MapStaticFile("/js/commands_page.js", "text/javascript");
 				.WithSummary("Complete diagnostics captured since startup, including multiline exception details.")
 				.Produces<byte[]>(contentType: "text/plain");
 		app.MapGet("/Privacy", PrivacyPage.Instance.ToResult).ProducesHtmlPage();
-		app.MapGet("/Licenses", LicensesPage.Instance.ToResult).ProducesHtmlPage();
-		app.MapGet("/PremiumFeatures", PremiumFeaturesPage.Instance.ToResult).ProducesHtmlPage();
+			app.MapGet("/Licenses", LicensesPage.Instance.ToResult).ProducesHtmlPage();
+			app.MapGet("/PremiumFeatures", PremiumFeaturesPage.Instance.ToResult).ProducesHtmlPage();
+			app.MapGet("/PremiumDiagnostics", PremiumDiagnosticsPage.Instance.ToResult).ProducesHtmlPage();
 
 		app.MapGet("/ConfigurationFiles", (context) =>
 		{

@@ -1,0 +1,6 @@
+  AssetRipper.IO.Files -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files/Debug/AssetRipper.IO.Files.dll
+  AssetRipper.IO.Files.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files.Tests/Debug/AssetRipper.IO.Files.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files.Tests/Debug/AssetRipper.IO.Files.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   142, Skipped:     0, Total:   142, Duration: 228 ms - AssetRipper.IO.Files.Tests.dll (net10.0)

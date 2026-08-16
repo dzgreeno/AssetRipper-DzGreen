@@ -59,6 +59,15 @@ public static class FileStreamTests
 		}
 	}
 
+	[Test]
+	public static void NegativeBundleVersionThrowsInsteadOfTerminating()
+	{
+		byte[] bytes = "UnityFS\0\xFF\xFF\xFF\xFF\0\0"u8.ToArray();
+		using MemoryStream stream = new(bytes);
+		FileStreamBundleHeader header = new();
+		Assert.That(() => header.Read(stream), Throws.TypeOf<InvalidDataException>());
+	}
+
 	private static FileStreamBundleFile MakeEmptyBundle(BundleVersion bundleVersion, string unityVersion)
 	{
 		FileStreamBundleFile bundle = new();

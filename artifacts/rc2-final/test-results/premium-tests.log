@@ -1,0 +1,20 @@
+  AssetRipper.IO.Files -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files/Debug/AssetRipper.IO.Files.dll
+  AssetRipper.Assets -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Assets/Debug/AssetRipper.Assets.dll
+  AssetRipper.Configuration -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Configuration/Debug/AssetRipper.Configuration.dll
+  AssetRipper.Numerics -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Numerics/Debug/AssetRipper.Numerics.dll
+  AssetRipper.SerializationLogic -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SerializationLogic/Debug/AssetRipper.SerializationLogic.dll
+  AssetRipper.SourceGenerated.Extensions.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.SourceGenerated.Extensions.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.SourceGenerated.Extensions.SourceGenerator.dll
+  AssetRipper.SourceGenerated.Extensions -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SourceGenerated.Extensions/Debug/AssetRipper.SourceGenerated.Extensions.dll
+  AssetRipper.Import -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Import/Debug/AssetRipper.Import.dll
+  AssetRipper.Processing.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Processing.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.Processing.SourceGenerator.dll
+  AssetRipper.Processing -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Processing/Debug/AssetRipper.Processing.dll
+  AssetRipper.Export -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export/Debug/AssetRipper.Export.dll
+  AssetRipper.Export.Modules.Textures -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Textures/Debug/AssetRipper.Export.Modules.Textures.dll
+  AssetRipper.Export.Modules.Models -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Models/Debug/AssetRipper.Export.Modules.Models.dll
+  AssetRipper.Export.Modules.Audio -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Audio/Debug/AssetRipper.Export.Modules.Audio.dll
+  AssetRipper.Premium -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Premium/Debug/AssetRipper.Premium.dll
+  AssetRipper.Premium.Tests -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Premium.Tests/Debug/AssetRipper.Premium.Tests.dll
+Test run for /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Premium.Tests/Debug/AssetRipper.Premium.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 390 ms - AssetRipper.Premium.Tests.dll (net10.0)

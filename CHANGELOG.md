@@ -25,3 +25,12 @@ The CLI exposes strict processing diagnostics and returns a non-zero status when
 Serialized-file parsing now derives a generation-appropriate Unity version for legacy formats and malformed signatures instead of using a fixed modern fallback. MCP input and output paths are normalized and can be confined with `ASSETRIPPER_MCP_ALLOWED_ROOTS`.
 
 The public `main` branch and its published release are intentionally not changed by this development entry.
+## 1.3.15-dzgreen.18 RC2 — Local Final Candidate
+
+This local candidate adds deterministic CI artifacts, defensive input handling, and auditable RC2 evidence without changing the public release or attempting to process encrypted or protected Unity data. The CLI supports `--ci`, compact JSON output, stable exit codes (`0` success, `1` unexpected failure, `2` invalid arguments, `3` recoverable issues, `4` missing input), and omits generated timestamps from diagnostics and batch manifests in CI mode.
+
+Fallback-texture catalogs are restricted to top-level regular image files, reject reparse points and zero-byte candidates, and impose a 64 MiB per-file ceiling. Output roots and output-inside-input locations remain rejected. Short or malformed direct-file inputs are rejected before the importer runs. Bundle headers with an invalid signature or a negative version now raise a normal `InvalidDataException` rather than terminating the CLI process.
+
+The authorized F1 legacy-skinned and F2 Android multi-file fixture runs were repeated twice in CI mode. Their diagnostics JSON and batch manifests compared byte-for-byte. The four-sample corruption corpus completed its final run with no signal crash. This evidence does not claim universal compatibility, performance at 10k/50k real assets, real-game decoder acceptance across every compression family, or real Audio/Video coverage.
+
+Response 2 continued the conservative GLB fallback policy: user fallback textures apply only to material bindings reported as `Unresolved`; `Resolved` bindings are not overwritten and `Null` bindings retain a neutral fallback. Mip and colour-space metadata are reported only when exposed by the readable schema, while audio/video handling remains container-preserving and decoder-gated.

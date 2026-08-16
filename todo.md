@@ -268,3 +268,20 @@
 - [x] Produce a detailed final delivery report with exact build, test, package, checksum, limitations, and no-push evidence.
 
 > 2026-08-16 Release Candidate delivery: restored `AssetRipper.slnx`; built Release GUI and CLI with 0 warnings and 0 errors through the isolated Roslyn 5.0 compatibility procedure, then restored all four generator project references to 5.6.0. Re-ran all nine test projects without rebuilding: 532 passed, 0 failed. Published local self-contained Windows x64 GUI and CLI. The binary ZIP `AssetRipper-DzGreen-Premium-v1.3.15-dzgreen.16-rc1-Windows-x64.zip` has 923 entries, passed `unzip -t`, and SHA-256 `ff6fc576a01d7105e434a8e44f0dea7052a3390fff22d6c9fa7924858139edd8`. The tracked-source ZIP contains 1,744 entries, passed `unzip -t`, and SHA-256 `b0ed1eefe8c4c84025d4f6b8af62e6d92c0575d3948cae919c9e8eb947c5662c`. No push or release was performed.
+
+## Release Candidate Detailed Delivery Report
+
+- [x] Produce a detailed auditable Arabic report covering source commits, implementation scope, build/test evidence, package contents, checksums, limitations, and local-only release status.
+
+## Premium RC2 Verification, Hardening, Trials, and Evolution
+
+- [x] Recompute and compare both RC1 archive SHA-256 values, then save a checksum comparison artifact.
+- [x] Rebuild RC1 source and rerun all nine test projects with captured logs; retain Roslyn 5.6.0 in the final tree.
+- [x] Audit the six specified Premium core modules for stubs, TODOs, and NotImplementedException paths; fix verified findings with tests only.
+- [x] Publish a ranked list of at least ten compliance-safe RC2 improvement candidates and select the top five for incremental implementation.
+- [ ] Implement GLB user fallback catalog application only for explicit Unresolved bindings, preserving neutral fallback behavior for Null bindings, with integration tests.
+- [ ] Add mip exposure reporting, color-space reporting, safe readable audio/video fixture coverage, and decoder-gated texture format acceptance evidence.
+- [ ] Locate authorized fixture classes F1/F2/F3 or create clearly labeled synthetic fixtures that exercise exact supported paths, then run deterministic CLI/GUI acceptance trials.
+- [ ] Add fuzz, path validation, hostile-size, archive-path, determinism, CI-summary, and performance checks with machine-readable evidence.
+- [ ] Implement the five selected RC2 improvements as separate local commits, each with tests and documentation.
+- [ ] Produce local RC2 Windows/source packages, diagnostics JSON Schema, SBOM/license evidence, coverage report, and release-gate matrix without any push or external release.

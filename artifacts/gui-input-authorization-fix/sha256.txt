@@ -1,0 +1,1 @@
+f3922bfeabc8ca1e766b63fb00619df39a12bb64b4c2f9aa232c7d53ddce1ac2  artifacts/gui-input-authorization-fix/AssetRipper-DzGreen-Premium-v1.3.15-dzgreen.18-gui-input-fix-Windows-x64.zip

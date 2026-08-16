@@ -315,3 +315,8 @@
 - [x] Write verified-facts-only CHANGELOG.md, USER_GUIDE.md, and PremiumTestCoverageReport.md for RC2 Response 3.
 - [x] Implement three bounded compliance-safe Evolution improvements with focused tests and implementation evidence.
 - [x] Rebuild, retest, repackage, and publish an evidence-based RC2 final release-gate matrix without pushing or releasing externally.
+
+## Premium GUI Input Authorization Regression
+
+- [x] Remove the mandatory GUI authorization gate that rejects user-owned local Unity folders, while retaining non-decryption and non-bypass boundaries.
+- [x] Add a regression test covering GUI loading policy for a normal local folder and rebuild a corrected Windows package locally.

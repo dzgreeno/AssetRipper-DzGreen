@@ -50,6 +50,18 @@ public sealed class PremiumInputPolicyTests
 	}
 
 	[Test]
+	public void UserAuthorizedUnityBundleIsAcceptedWithoutEnvironmentAttestation()
+	{
+		PremiumInputDescriptor descriptor = new("android", PremiumInputKind.UnityBundle, IsUserAuthorized: true, IsEncrypted: false, IsRuntimeMemoryDump: false, UsesCustomVirtualContainer: false);
+		PremiumInputAssessment assessment = PremiumInputPolicy.Assess(descriptor);
+		Assert.Multiple(() =>
+		{
+			Assert.That(assessment.IsAccepted, Is.True);
+			Assert.That(assessment.Code, Is.EqualTo("plaintext-supported"));
+		});
+	}
+
+	[Test]
 	public void ReferenceGraphReportsCyclesAndMissingTargets()
 	{
 		PremiumReferenceLink[] links =

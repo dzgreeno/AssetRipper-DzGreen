@@ -91,17 +91,19 @@ public static class GameFileLoader
 			return;
 		}
 
-		bool hasAuthorizationAttestation = string.Equals(Environment.GetEnvironmentVariable("ASSET_RIPPER_DZGREEN_AUTHORIZED_INPUT"), "1", StringComparison.Ordinal);
 		foreach (string path in paths)
 		{
-			PremiumInputDescriptor descriptor = CreatePremiumInputDescriptor(path, hasAuthorizationAttestation);
+			// Selecting a local path from this GUI is the user's explicit authorization
+			// for that path. The policy still rejects encrypted data, memory dumps, and
+			// unsupported virtual containers; it is not a decryption or bypass mechanism.
+			PremiumInputDescriptor descriptor = CreatePremiumInputDescriptor(path, isUserAuthorized: true);
 			PremiumInputAssessment assessment = PremiumInputPolicy.Assess(descriptor);
 			if (!assessment.IsAccepted)
 			{
 				Logger.Error(LogCategory.Import, $"Premium input policy rejected '{path}' ({assessment.Code}): {assessment.Message}");
 				throw new InvalidOperationException($"Premium input policy rejected '{path}' ({assessment.Code}). {assessment.Message}");
 			}
-			Logger.Info(LogCategory.Import, $"Premium input policy accepted '{path}' ({assessment.Code}).");
+			Logger.Info(LogCategory.Import, $"Premium input policy accepted user-selected local path '{path}' ({assessment.Code}).");
 		}
 	}
 

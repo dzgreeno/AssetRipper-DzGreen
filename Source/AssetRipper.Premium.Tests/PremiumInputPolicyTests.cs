@@ -7,6 +7,72 @@ namespace AssetRipper.Premium.Tests;
 public sealed class PremiumInputPolicyTests
 {
 	[Test]
+	public void HalfToSinglePreservesZeroSubnormalInfinityAndNaN()
+	{
+		Assert.Multiple(() =>
+		{
+			Assert.That(PremiumGeometryUnpackers.HalfToSingle(0x0000), Is.EqualTo(0.0f));
+			Assert.That(PremiumGeometryUnpackers.HalfToSingle(0x3C00), Is.EqualTo(1.0f));
+			Assert.That(PremiumGeometryUnpackers.HalfToSingle(0x0001), Is.EqualTo(5.9604645e-8f).Within(1e-14f));
+			Assert.That(float.IsPositiveInfinity(PremiumGeometryUnpackers.HalfToSingle(0x7C00)), Is.True);
+			Assert.That(float.IsNaN(PremiumGeometryUnpackers.HalfToSingle(0x7E00)), Is.True);
+		});
+	}
+
+	[Test]
+	public void UnpackSnorm101010RecoversSignedNormalizedChannels()
+	{
+		uint packed = PackSnorm10(511) | PackSnorm10(0) << 10 | PackSnorm10(-511) << 20;
+		System.Numerics.Vector3 value = PremiumGeometryUnpackers.UnpackSnorm101010(packed);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(value.X, Is.EqualTo(1.0f));
+			Assert.That(value.Y, Is.EqualTo(0.0f));
+			Assert.That(value.Z, Is.EqualTo(-1.0f));
+		});
+	}
+
+	[Test]
+	public void UnpackSmallestThreeQuaternionProducesCanonicalIdentity()
+	{
+		uint packed = 3u << 30;
+		System.Numerics.Quaternion value = PremiumGeometryUnpackers.UnpackSmallestThreeQuaternion(packed);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(value.X, Is.EqualTo(0.0f).Within(1e-6f));
+			Assert.That(value.Y, Is.EqualTo(0.0f).Within(1e-6f));
+			Assert.That(value.Z, Is.EqualTo(0.0f).Within(1e-6f));
+			Assert.That(value.W, Is.EqualTo(1.0f).Within(1e-6f));
+		});
+	}
+
+	[Test]
+	public void ReferenceGraphReportsCyclesAndMissingTargets()
+	{
+		PremiumReferenceLink[] links =
+		[
+			new("A", "child", "B", PremiumReferenceResolution.Resolved),
+			new("B", "parent", "A", PremiumReferenceResolution.Resolved),
+			new("B", "material", null, PremiumReferenceResolution.MissingAsset),
+			new("C", "optional", null, PremiumReferenceResolution.Null),
+		];
+		PremiumReferenceGraphReport report = PremiumReferenceGraphAnalyzer.Analyze(["A", "B", "C"], links);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(report.NodeCount, Is.EqualTo(3));
+			Assert.That(report.EdgeCount, Is.EqualTo(4));
+			Assert.That(report.ResolvedEdgeCount, Is.EqualTo(2));
+			Assert.That(report.MissingAssetCount, Is.EqualTo(1));
+			Assert.That(report.NullReferenceCount, Is.EqualTo(1));
+			Assert.That(report.BackEdgeCount, Is.GreaterThanOrEqualTo(1));
+			Assert.That(report.IsTruncated, Is.False);
+		});
+	}
+
+	[Test]
 	public void EmptyBundleDiagnosticIsDeterministic()
 	{
 		AssetRipper.Assets.Bundles.GameBundle gameBundle = new();
@@ -76,4 +142,6 @@ public sealed class PremiumInputPolicyTests
 		Assert.That(assessment.IsAccepted, Is.False);
 		Assert.That(assessment.Code, Is.EqualTo(expectedCode));
 	}
+
+	private static uint PackSnorm10(int value) => unchecked((uint)value) & 0x03FF;
 }

@@ -198,7 +198,7 @@
 - [x] Provide only user-supplied plaintext conversion adapters and documented open-format decompressors; refuse encrypted, protected, or authorization-unknown containers with actionable diagnostics.
 - [ ] Add Premium acceptance fixtures for a plain Unity asset bundle, a multi-bundle character export, a SpriteAtlas, a supported AudioClip, and non-fatal corrupted-input isolation.
 - [x] Build and ZIP-test a separate self-contained Windows x64 Premium preview package locally without uploading it.
-- [x] Restore and run all nine .NET test projects after the Premium changes; 517 tests passed with zero failures.
+- [x] Restore and run all nine .NET test projects after the Premium changes; 522 tests passed with zero failures.
 
 > 2026-08-15 Premium safety boundary: the supplied proposal contains decryption, runtime-memory, anti-tamper, and de-obfuscation instructions. The Premium plan will not implement or document security-control bypasses. It may improve processing of plaintext Unity content, non-fatal diagnostics, deterministic reference reconstruction, open-format import, and user-supplied authorized conversion workflows.
 
@@ -209,3 +209,15 @@
 > 2026-08-15 Premium recovery profile validation: when a plaintext input passes the explicit authorization policy, Premium applies the existing safe high-fidelity modes: Prefab outlining on, static-mesh separation and asset deduplication off, direct bundle exports, binary-ready FBX selection, PNG/YAML sprite and texture preservation, source-preferred texture extension, supported audio defaults, and unreadable-asset fabrication off. The dedicated policy/profile/diagnostic test suite passed 8/8 and the Premium GUI built with zero warnings and zero errors.
 
 > 2026-08-15 environment validation: after a sandbox reset, all nine test projects were restored and ran successfully with 517 passing tests and zero failures. A temporary Roslyn compatibility adjustment was used only to rebuild the reset test environment and was reverted before source review; it is not part of the Premium change set.
+
+- [x] Inventory the Unity test files, packages, and validation logs used for AssetRipper DzGreen Premium.
+- [x] Document confirmed coverage and gaps across legacy and current Unity generations without claiming unperformed game-specific tests.
+- [x] Publish a user-facing intake matrix that specifies the minimum authorized files required for each Unity-version and asset-family test case.
+- [x] Publish a separate execution-and-security report for the Premium implementation, including implemented functionality, verification status, and explicitly rejected protection-bypass paths.
+- [x] Design a TypeTree coverage and confidence architecture for authorized, unencrypted serialized data with explicit diagnostics instead of speculative field recovery.
+- [x] Design a readable-Shader inventory and property-binding export path that preserves available metadata without decompiling protected proprietary bytecode.
+- [x] Define safe Mesh, BlendShape, skeleton, and animation validation milestones backed by authorized Unity fixture projects.
+- [x] Add deterministic numerical unpackers for Half precision, packed signed-normalized vectors, and smallest-three quaternion validation used by Premium geometry diagnostics.
+- [x] Add a bounded cross-file reference graph analyzer with unresolved-edge and cycle diagnostics based on loaded Unity PPtr relationships.
+- [x] Integrate numerical and reference-graph findings into the Premium diagnostic JSON endpoint and add unit tests for valid, edge, and malformed inputs.
+- [x] Build and verify an updated local Windows Premium preview package after the advanced diagnostics pass their tests.

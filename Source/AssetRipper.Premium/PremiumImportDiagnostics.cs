@@ -16,6 +16,7 @@ public static class PremiumImportDiagnostics
 	{
 		ArgumentNullException.ThrowIfNull(gameBundle);
 		ArgumentNullException.ThrowIfNull(inputPaths);
+		PremiumReferenceGraphReport referenceGraph = PremiumReferenceGraphAnalyzer.Create(gameBundle);
 
 		PremiumAssetClassSummary[] classes = gameBundle.FetchAssets()
 			.GroupBy(static asset => asset.ClassName, StringComparer.Ordinal)
@@ -31,6 +32,7 @@ public static class PremiumImportDiagnostics
 			gameBundle.FetchAssetCollections().LongCount(),
 			gameBundle.FetchResourceFiles().LongCount(),
 			CountFailedFiles(gameBundle),
+			referenceGraph,
 			classes.Sum(static summary => summary.Count),
 			classes,
 			gameBundle.AnyFailed ? "Some files were quarantined by the normal importer. Review failed-file diagnostics before export." : "No importer-quarantined files were recorded.");
@@ -80,6 +82,7 @@ public sealed record PremiumImportDiagnosticReport(
 	long AssetCollectionCount,
 	long ResourceFileCount,
 	long FailedFileCount,
+	PremiumReferenceGraphReport ReferenceGraph,
 	long ClassifiedAssetCount,
 	IReadOnlyList<PremiumAssetClassSummary> AssetClasses,
 	string ImportStatus);

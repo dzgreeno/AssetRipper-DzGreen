@@ -257,3 +257,12 @@
 - [x] Integrate Phase 4 diagnostics into Premium GUI and CLI export reports; add focused tests, run full regression, and build GUI/CLI.
 - [x] Write a local Release Candidate report with supported formats, limitations, verification evidence, and authorized usage instructions; do not publish or push.
 - [ ] Add decoded-mipmap preservation/export only after a readable source mip layout can be validated per texture type; do not synthesize missing mipmaps without a user-selected and documented policy.
+
+## Premium Release Candidate Delivery
+
+- [ ] Audit the current solution and verify every implemented Premium source file, GUI integration point, CLI entry point, licenses, and documentation that must be included in the delivery bundle.
+- [ ] Keep Release Candidate scope on the current AssetRipper DzGreen Premium source tree; do not create a parallel replacement solution or fabricate files that are not part of the compiled implementation.
+- [ ] Build Release GUI and CLI, restore only where required, and run the full nine-project test suite with captured logs.
+- [ ] Publish Windows x64 self-contained GUI and CLI, package them with GPL-3.0, README, source manifest, and diagnostic documentation, then verify the ZIP contents and SHA-256.
+- [ ] Generate an auditable source bundle from the tracked current solution and attach the actual requested C# source files separately.
+- [ ] Produce a detailed final delivery report with exact build, test, package, checksum, limitations, and no-push evidence.

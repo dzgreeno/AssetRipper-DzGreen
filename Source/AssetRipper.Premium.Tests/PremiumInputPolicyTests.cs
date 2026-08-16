@@ -61,6 +61,22 @@ public sealed class PremiumInputPolicyTests
 		});
 	}
 
+	[TestCase("A7x9Q2", true)]
+	[TestCase("abc123", true)]
+	[TestCase("abc12", false)]
+	[TestCase("abc-12", false)]
+	public void EnterpriseRecoveryTokenValidationRequiresSixAlphanumericCharacters(string token, bool expected)
+	{
+		Assert.That(EnterpriseAccessGate.IsValidToken(token), Is.EqualTo(expected));
+	}
+
+	[Test]
+	public void DiagnosticSessionCannotUseTier1ReadableDataProfile()
+	{
+		EnterpriseAccessSession session = new(EnterpriseAccessMode.DiagnosticOnly, "recovery-token-unavailable", "test");
+		Assert.That(() => EnterpriseAccessGate.RequireTier1ReadableData(session), Throws.TypeOf<Tier1AuthorizationRequiredException>());
+	}
+
 	[Test]
 	public void ReferenceGraphReportsCyclesAndMissingTargets()
 	{

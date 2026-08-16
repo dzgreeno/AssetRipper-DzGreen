@@ -1,0 +1,29 @@
+{
+  "enterpriseAccess": {
+    "mode": 0,
+    "code": "recovery-token-unavailable",
+    "message": "Set a valid local recovery token and restart the application to select the advanced readable-data profile.",
+    "isTier1ReadableData": false
+  },
+  "load": {
+    "inputFiles": [
+      "F2-android-multifile-real"
+    ],
+    "assetCount": 534,
+    "unityVersion": "2020.1.0a0",
+    "issues": []
+  },
+  "diagnosticsPath": null,
+  "verifiedOnly": null,
+  "fallbackTextures": null,
+  "assets": [
+    {
+      "name": "1fd3617c2ccd5a61c2ffe83952a326e7.bundle",
+      "className": "AssetBundle",
+      "pathId": 1,
+      "collection": "cab-ad47a2c01c5c1b41d6338e16cb4dae11",
+      "isComponent": false,
+      "isGameObject": false
+    }
+  ]
+}

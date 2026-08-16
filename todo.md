@@ -320,3 +320,9 @@
 
 - [x] Remove the mandatory GUI authorization gate that rejects user-owned local Unity folders, while retaining non-decryption and non-bypass boundaries.
 - [x] Add a regression test covering GUI loading policy for a normal local folder and rebuild a corrected Windows package locally.
+
+## Enterprise Recovery Access Gate — Authorized Plaintext Scope
+
+- [x] Design a local 6-character access gate that selects advanced authorized-plaintext workflow versus diagnostic-only mode; do not use it to unlock encryption, DRM, memory, or proprietary-container bypasses.
+- [x] Integrate a CLI recovery-token option and GUI session state with focused tests for valid, invalid, and missing token paths.
+- [x] Document supported advanced recovery capabilities and explicitly retain diagnostic reporting for unavailable schema or unsupported data.

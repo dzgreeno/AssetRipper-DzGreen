@@ -1,5 +1,7 @@
 using AssetRipper.GUI.Web.Paths;
 
+using AssetRipper.Premium;
+
 namespace AssetRipper.GUI.Web.Pages;
 
 public sealed class IndexPage : DefaultPage
@@ -23,11 +25,13 @@ public sealed class IndexPage : DefaultPage
 						new A(writer).WithHref("/Commands").WithClass("btn btn-primary").Close("Open / export");
 				}
 			}
-			else
+		else
+		{
+			using (new Div(writer).WithClass("text-center container mt-5").End())
 			{
-				using (new Div(writer).WithClass("text-center container mt-5").End())
-				{
-					new H1(writer).WithClass("display-4 mb-4").Close(Localization.Welcome);
+				EnterpriseAccessSession access = EnterpriseAccessGate.Resolve();
+				new P(writer).WithClass(access.IsTier1ReadableData ? "alert alert-success" : "alert alert-secondary").Close(access.IsTier1ReadableData ? "Enterprise readable-data profile is active for this local session." : "Diagnostic profile is active. Set ASSET_RIPPER_DZGREEN_RECOVERY_TOKEN to a six-character local token, then restart to enable the advanced readable-data profile.");
+				new H1(writer).WithClass("display-4 mb-4").Close(Localization.Welcome);
 					new P(writer).WithClass("mt-4").Close("Use File → Open file or Open folder to load Unity data. The processed asset workspace will appear here.");
 					new Button(writer).WithType("button").WithClass("btn btn-secondary").WithDisabled().Close(Localization.NoFilesLoaded);
 				}

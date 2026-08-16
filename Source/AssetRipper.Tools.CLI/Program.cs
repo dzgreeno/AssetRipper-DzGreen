@@ -15,6 +15,7 @@ internal static class Program
 		try
 		{
 			CliOptions options = CliOptions.Parse(args);
+			EnterpriseAccessSession enterpriseAccess = EnterpriseAccessGate.Resolve(options.RecoveryToken);
 			if (options.Help)
 			{
 				Console.WriteLine(CliOptions.HelpText);
@@ -29,32 +30,36 @@ internal static class Program
 
 			AssetRipperToolService service = new();
 			LoadSummary load = service.Load(options.Inputs, ModelExportFormat.Fbx, options.StrictProcessing);
+			if (RequiresTier1ReadableData(options))
+			{
+				EnterpriseAccessGate.RequireTier1ReadableData(enterpriseAccess);
+			}
 			PremiumFallbackTextureCatalog? fallbackTextures = options.FallbackTexturesDirectory is null ? null : service.CreateFallbackTextureCatalog(options.FallbackTexturesDirectory);
 			string? diagnosticsPath = options.DiagnosticsFormat is null ? null : service.ExportDiagnostics(options.OutputDirectory, options.DiagnosticsFormat.Value, fallbackTextures, options.Ci);
 			object result;
 			if (options.ExportTextures)
 			{
-				result = new { load, diagnosticsPath, textures = service.ExportTextures(options.OutputDirectory, options.TextureOutputFormat) };
+				result = new { enterpriseAccess, load, diagnosticsPath, textures = service.ExportTextures(options.OutputDirectory, options.TextureOutputFormat) };
 			}
 			else if (options.BatchProcess || options.Raw || options.ExportVerifiedOnly)
 			{
-				result = new { load, diagnosticsPath, batch = service.BatchProcess(options.OutputDirectory, options.Filter, options.Raw, options.Fbx, options.IncludeAnimations, options.ExportVerifiedOnly, fallbackTextures, options.Ci) };
+				result = new { enterpriseAccess, load, diagnosticsPath, batch = service.BatchProcess(options.OutputDirectory, options.Filter, options.Raw, options.Fbx, options.IncludeAnimations, options.ExportVerifiedOnly, fallbackTextures, options.Ci) };
 			}
 			else if (options.Fbx)
 			{
-				result = new { load, diagnosticsPath, fbx = service.ExportFbxWithAnimation(options.Filter, options.OutputDirectory, options.IncludeAnimations), fallbackTextures };
+				result = new { enterpriseAccess, load, diagnosticsPath, fbx = service.ExportFbxWithAnimation(options.Filter, options.OutputDirectory, options.IncludeAnimations), fallbackTextures };
 			}
 			else if (options.Glb)
 			{
-				result = new { load, diagnosticsPath, glb = service.ExportGlb(options.Filter, options.OutputDirectory, fallbackTextures), fallbackTextures };
+				result = new { enterpriseAccess, load, diagnosticsPath, glb = service.ExportGlb(options.Filter, options.OutputDirectory, fallbackTextures), fallbackTextures };
 			}
 			else if (options.InspectPrefab)
 			{
-				result = new { load, diagnosticsPath, prefab = service.InspectPrefab(options.Filter), fallbackTextures };
+				result = new { enterpriseAccess, load, diagnosticsPath, prefab = service.InspectPrefab(options.Filter), fallbackTextures };
 			}
 			else
 			{
-				result = new { load, diagnosticsPath, verifiedOnly = options.ExportVerifiedOnly ? service.CreateVerifiedOnlyPlan() : null, fallbackTextures, assets = service.ListAssets(options.Filter, options.Limit) };
+				result = new { enterpriseAccess, load, diagnosticsPath, verifiedOnly = options.ExportVerifiedOnly ? service.CreateVerifiedOnlyPlan() : null, fallbackTextures, assets = service.ListAssets(options.Filter, options.Limit) };
 			}
 			Console.WriteLine(JsonSerializer.Serialize(result, options.Ci ? CompactJsonOptions : JsonOptions));
 			if (load.Issues.Count > 0)
@@ -83,9 +88,11 @@ internal static class Program
 			WriteCiSummary(args, CliExitCode.UnhandledFailure, 0, 0);
 			return (int)CliExitCode.UnhandledFailure;
 		}
-	}
+		}
 
-	private static void WriteCiSummary(CliOptions options, CliExitCode exitCode, int assetCount, int issueCount)
+		private static bool RequiresTier1ReadableData(CliOptions options) => options.ExportTextures || options.BatchProcess || options.Raw || options.Fbx || options.Glb || options.InspectPrefab;
+
+		private static void WriteCiSummary(CliOptions options, CliExitCode exitCode, int assetCount, int issueCount)
 	{
 		if (options.Ci)
 		{
@@ -131,6 +138,7 @@ internal sealed class CliOptions
 	public PremiumTextureOutputFormat TextureOutputFormat { get; private set; } = PremiumTextureOutputFormat.Png;
 	public bool Help { get; private set; }
 	public bool Ci { get; private set; }
+	public string? RecoveryToken { get; private set; }
 
 	public static CliOptions Parse(string[] args)
 	{
@@ -152,6 +160,9 @@ internal sealed class CliOptions
 					break;
 				case "ci":
 					options.Ci = ParseBoolean(key, inlineValue, args, ref i, true);
+					break;
+				case "recovery-token":
+					options.RecoveryToken = RequireValue(key, inlineValue, args, ref i);
 					break;
 				case "input":
 				case "i":
@@ -284,6 +295,7 @@ Core options:
 	  --textures[=bool]       Export only image textures accepted by the established decoder pipeline.
 	  --texture-format <png|tga|exr>  Output format for --textures (default: png).
 	  --ci[=bool]              Emit compact JSON results and one-line JSON summary to stderr with stable exit codes.
+	  --recovery-token <token> Optionally prove the six-character token configured in the local environment.
 	  --help, -h              Show this help.
 
 Examples:

@@ -1,0 +1,31 @@
+  AssetRipper.IO.Files -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.IO.Files/Debug/AssetRipper.IO.Files.dll
+  AssetRipper.Assets -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Assets/Debug/AssetRipper.Assets.dll
+  AssetRipper.Configuration -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Configuration/Debug/AssetRipper.Configuration.dll
+  AssetRipper.Numerics -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Numerics/Debug/AssetRipper.Numerics.dll
+  AssetRipper.SerializationLogic -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SerializationLogic/Debug/AssetRipper.SerializationLogic.dll
+  AssetRipper.SourceGenerated.Extensions.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.SourceGenerated.Extensions.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.SourceGenerated.Extensions.SourceGenerator.dll
+  AssetRipper.SourceGenerated.Extensions -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.SourceGenerated.Extensions/Debug/AssetRipper.SourceGenerated.Extensions.dll
+  AssetRipper.Import -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Import/Debug/AssetRipper.Import.dll
+  AssetRipper.Processing.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Processing.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.Processing.SourceGenerator.dll
+  AssetRipper.Processing -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Processing/Debug/AssetRipper.Processing.dll
+  AssetRipper.Export -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export/Debug/AssetRipper.Export.dll
+  AssetRipper.Export.Modules.Audio -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Audio/Debug/AssetRipper.Export.Modules.Audio.dll
+  AssetRipper.Export.Modules.Textures -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Textures/Debug/AssetRipper.Export.Modules.Textures.dll
+  AssetRipper.Export.Modules.Models -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.Modules.Models/Debug/AssetRipper.Export.Modules.Models.dll
+  AssetRipper.Export.PrimaryContent -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.PrimaryContent/Debug/AssetRipper.Export.PrimaryContent.dll
+  AssetRipper.Yaml -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Yaml/Debug/AssetRipper.Yaml.dll
+  AssetRipper.Export.UnityProjects -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Export.UnityProjects/Debug/AssetRipper.Export.UnityProjects.dll
+  AssetRipper.GUI.Licensing.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.GUI.Licensing.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.GUI.Licensing.SourceGenerator.dll
+  AssetRipper.GUI.Licensing -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.GUI.Licensing/Debug/AssetRipper.GUI.Licensing.dll
+  AssetRipper.GUI.Localizations.SourceGenerator -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.GUI.Localizations.SourceGenerator/bin/Debug/netstandard2.0/AssetRipper.GUI.Localizations.SourceGenerator.dll
+  AssetRipper.GUI.Localizations -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.GUI.Localizations/Debug/AssetRipper.GUI.Localizations.dll
+  AssetRipper.Premium -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Premium/Debug/AssetRipper.Premium.dll
+  AssetRipper.Web -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.Web/Debug/AssetRipper.Web.dll
+  AssetRipper.GUI.Web -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/Other/AssetRipper.GUI.Web/Debug/AssetRipper.GUI.Web.dll
+  AssetRipper.GUI.Premium -> /home/ubuntu/AssetRipper-DzGreen-vnext/Source/0Bins/AssetRipper.GUI.Premium/Debug/AssetRipper.GUI.Premium.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:06.05

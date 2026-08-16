@@ -260,9 +260,11 @@
 
 ## Premium Release Candidate Delivery
 
-- [ ] Audit the current solution and verify every implemented Premium source file, GUI integration point, CLI entry point, licenses, and documentation that must be included in the delivery bundle.
-- [ ] Keep Release Candidate scope on the current AssetRipper DzGreen Premium source tree; do not create a parallel replacement solution or fabricate files that are not part of the compiled implementation.
-- [ ] Build Release GUI and CLI, restore only where required, and run the full nine-project test suite with captured logs.
-- [ ] Publish Windows x64 self-contained GUI and CLI, package them with GPL-3.0, README, source manifest, and diagnostic documentation, then verify the ZIP contents and SHA-256.
-- [ ] Generate an auditable source bundle from the tracked current solution and attach the actual requested C# source files separately.
-- [ ] Produce a detailed final delivery report with exact build, test, package, checksum, limitations, and no-push evidence.
+- [x] Audit the current solution and verify every implemented Premium source file, GUI integration point, CLI entry point, licenses, and documentation that must be included in the delivery bundle.
+- [x] Keep Release Candidate scope on the current AssetRipper DzGreen Premium source tree; do not create a parallel replacement solution or fabricate files that are not part of the compiled implementation.
+- [x] Build Release GUI and CLI, restore only where required, and run the full nine-project test suite with captured logs.
+- [x] Publish Windows x64 self-contained GUI and CLI, package them with GPL-3.0, README, source manifest, and diagnostic documentation, then verify the ZIP contents and SHA-256.
+- [x] Generate an auditable source bundle from the tracked current solution and attach the actual requested C# source files separately.
+- [x] Produce a detailed final delivery report with exact build, test, package, checksum, limitations, and no-push evidence.
+
+> 2026-08-16 Release Candidate delivery: restored `AssetRipper.slnx`; built Release GUI and CLI with 0 warnings and 0 errors through the isolated Roslyn 5.0 compatibility procedure, then restored all four generator project references to 5.6.0. Re-ran all nine test projects without rebuilding: 532 passed, 0 failed. Published local self-contained Windows x64 GUI and CLI. The binary ZIP `AssetRipper-DzGreen-Premium-v1.3.15-dzgreen.16-rc1-Windows-x64.zip` has 923 entries, passed `unzip -t`, and SHA-256 `ff6fc576a01d7105e434a8e44f0dea7052a3390fff22d6c9fa7924858139edd8`. The tracked-source ZIP contains 1,744 entries, passed `unzip -t`, and SHA-256 `b0ed1eefe8c4c84025d4f6b8af62e6d92c0575d3948cae919c9e8eb947c5662c`. No push or release was performed.

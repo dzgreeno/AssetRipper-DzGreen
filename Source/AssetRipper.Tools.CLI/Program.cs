@@ -8,6 +8,7 @@ namespace AssetRipper.Tools.CLI;
 internal static class Program
 {
 	private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
+	private static readonly JsonSerializerOptions CompactJsonOptions = new(JsonSerializerDefaults.Web);
 
 	public static int Main(string[] args)
 	{
@@ -17,19 +18,19 @@ internal static class Program
 			if (options.Help)
 			{
 				Console.WriteLine(CliOptions.HelpText);
-				return 0;
+				return (int)CliExitCode.Success;
 			}
 			if (options.Inputs.Count == 0)
 			{
 				Console.Error.WriteLine("No input path was supplied. Use --input <file-or-directory>.");
 				Console.Error.WriteLine(CliOptions.HelpText);
-				return 2;
+				return (int)CliExitCode.InvalidArguments;
 			}
 
 			AssetRipperToolService service = new();
 			LoadSummary load = service.Load(options.Inputs, ModelExportFormat.Fbx, options.StrictProcessing);
 			PremiumFallbackTextureCatalog? fallbackTextures = options.FallbackTexturesDirectory is null ? null : service.CreateFallbackTextureCatalog(options.FallbackTexturesDirectory);
-			string? diagnosticsPath = options.DiagnosticsFormat is null ? null : service.ExportDiagnostics(options.OutputDirectory, options.DiagnosticsFormat.Value, fallbackTextures);
+			string? diagnosticsPath = options.DiagnosticsFormat is null ? null : service.ExportDiagnostics(options.OutputDirectory, options.DiagnosticsFormat.Value, fallbackTextures, options.Ci);
 			object result;
 			if (options.ExportTextures)
 			{
@@ -37,7 +38,7 @@ internal static class Program
 			}
 			else if (options.BatchProcess || options.Raw || options.ExportVerifiedOnly)
 			{
-				result = new { load, diagnosticsPath, batch = service.BatchProcess(options.OutputDirectory, options.Filter, options.Raw, options.Fbx, options.IncludeAnimations, options.ExportVerifiedOnly, fallbackTextures) };
+				result = new { load, diagnosticsPath, batch = service.BatchProcess(options.OutputDirectory, options.Filter, options.Raw, options.Fbx, options.IncludeAnimations, options.ExportVerifiedOnly, fallbackTextures, options.Ci) };
 			}
 			else if (options.Fbx)
 			{
@@ -55,20 +56,59 @@ internal static class Program
 			{
 				result = new { load, diagnosticsPath, verifiedOnly = options.ExportVerifiedOnly ? service.CreateVerifiedOnlyPlan() : null, fallbackTextures, assets = service.ListAssets(options.Filter, options.Limit) };
 			}
-			Console.WriteLine(JsonSerializer.Serialize(result, JsonOptions));
+			Console.WriteLine(JsonSerializer.Serialize(result, options.Ci ? CompactJsonOptions : JsonOptions));
 			if (load.Issues.Count > 0)
 			{
-				Console.Error.WriteLine($"AssetRipper CLI completed with {load.Issues.Count} recoverable processing issue(s). See the JSON issues array or batch manifest.");
-				return 3;
+				WriteCiSummary(options, CliExitCode.RecoverableIssues, load.AssetCount, load.Issues.Count);
+				return (int)CliExitCode.RecoverableIssues;
 			}
-			return 0;
+			WriteCiSummary(options, CliExitCode.Success, load.AssetCount, 0);
+			return (int)CliExitCode.Success;
+		}
+		catch (ArgumentException ex)
+		{
+			Console.Error.WriteLine($"AssetRipper CLI argument error: {ex.Message}");
+			WriteCiSummary(args, CliExitCode.InvalidArguments, 0, 0);
+			return (int)CliExitCode.InvalidArguments;
+		}
+		catch (FileNotFoundException ex)
+		{
+			Console.Error.WriteLine($"AssetRipper CLI input error: {ex.Message}");
+			WriteCiSummary(args, CliExitCode.InputNotFound, 0, 0);
+			return (int)CliExitCode.InputNotFound;
 		}
 		catch (Exception ex)
 		{
 			Console.Error.WriteLine($"AssetRipper CLI failed: {ex.Message}");
-			return 1;
+			WriteCiSummary(args, CliExitCode.UnhandledFailure, 0, 0);
+			return (int)CliExitCode.UnhandledFailure;
 		}
 	}
+
+	private static void WriteCiSummary(CliOptions options, CliExitCode exitCode, int assetCount, int issueCount)
+	{
+		if (options.Ci)
+		{
+			Console.Error.WriteLine(JsonSerializer.Serialize(new { eventType = "assetripper-ci-summary", exitCode = (int)exitCode, assetCount, issueCount }, CompactJsonOptions));
+		}
+	}
+
+	private static void WriteCiSummary(string[] args, CliExitCode exitCode, int assetCount, int issueCount)
+	{
+		if (args.Any(static argument => string.Equals(argument, "--ci", StringComparison.OrdinalIgnoreCase) || argument.StartsWith("--ci=", StringComparison.OrdinalIgnoreCase)))
+		{
+			Console.Error.WriteLine(JsonSerializer.Serialize(new { eventType = "assetripper-ci-summary", exitCode = (int)exitCode, assetCount, issueCount }, CompactJsonOptions));
+		}
+	}
+}
+
+internal enum CliExitCode
+{
+	Success = 0,
+	UnhandledFailure = 1,
+	InvalidArguments = 2,
+	RecoverableIssues = 3,
+	InputNotFound = 4,
 }
 
 internal sealed class CliOptions
@@ -90,6 +130,7 @@ internal sealed class CliOptions
 	public bool ExportTextures { get; private set; }
 	public PremiumTextureOutputFormat TextureOutputFormat { get; private set; } = PremiumTextureOutputFormat.Png;
 	public bool Help { get; private set; }
+	public bool Ci { get; private set; }
 
 	public static CliOptions Parse(string[] args)
 	{
@@ -108,6 +149,9 @@ internal sealed class CliOptions
 				case "help":
 				case "h":
 					options.Help = true;
+					break;
+				case "ci":
+					options.Ci = ParseBoolean(key, inlineValue, args, ref i, true);
 					break;
 				case "input":
 				case "i":
@@ -239,6 +283,7 @@ Core options:
 	  --export-diagnostics <json|html>  Write the loaded Premium diagnostic report beside export output.
 	  --textures[=bool]       Export only image textures accepted by the established decoder pipeline.
 	  --texture-format <png|tga|exr>  Output format for --textures (default: png).
+	  --ci[=bool]              Emit compact JSON results and one-line JSON summary to stderr with stable exit codes.
 	  --help, -h              Show this help.
 
 Examples:

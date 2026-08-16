@@ -7,6 +7,7 @@ namespace AssetRipper.Premium;
 /// </summary>
 public static class PremiumExportOrchestrator
 {
+	private const long MaximumFallbackTextureBytes = 64L * 1024 * 1024;
 	private static readonly HashSet<string> SupportedTextureExtensions = new(StringComparer.OrdinalIgnoreCase)
 	{
 		".bmp", ".gif", ".jpeg", ".jpg", ".png", ".tga", ".tif", ".tiff", ".webp",
@@ -44,11 +45,29 @@ public static class PremiumExportOrchestrator
 		}
 		PremiumFallbackTexture[] textures = Directory.EnumerateFiles(fullPath, "*", SearchOption.TopDirectoryOnly)
 			.Where(static path => SupportedTextureExtensions.Contains(Path.GetExtension(path)))
-			.Select(path => new PremiumFallbackTexture(Path.GetFileNameWithoutExtension(path), Path.GetFullPath(path), Path.GetExtension(path)))
+			.Select(Path.GetFullPath)
+			.Where(path => IsRegularFallbackFile(path, fullPath))
+			.Select(path => new PremiumFallbackTexture(Path.GetFileNameWithoutExtension(path), path, Path.GetExtension(path)))
 			.OrderBy(static texture => texture.Key, StringComparer.OrdinalIgnoreCase)
 			.ThenBy(static texture => texture.Path, StringComparer.OrdinalIgnoreCase)
 			.ToArray();
 		return new PremiumFallbackTextureCatalog(fullPath, textures);
+	}
+
+	private static bool IsRegularFallbackFile(string path, string catalogDirectory)
+	{
+		if (!File.Exists(path) || !IsSameOrInside(path, catalogDirectory))
+		{
+			return false;
+		}
+		FileInfo info = new(path);
+		return (info.Attributes & FileAttributes.ReparsePoint) == 0 && info.Length is > 0 and <= MaximumFallbackTextureBytes;
+	}
+
+	private static bool IsSameOrInside(string candidate, string basePath)
+	{
+		string relative = Path.GetRelativePath(basePath, candidate);
+		return relative == "." || (!Path.IsPathRooted(relative) && relative != ".." && !relative.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal));
 	}
 
 	private static PremiumVerifiedAssetDecision CreateDecision(PremiumExportCandidate candidate, IReadOnlyDictionary<(string Path, string Name), PremiumTypeTreeCoverageState> states)

@@ -66,14 +66,16 @@ public sealed class AssetRipperToolService
 
 	public PremiumFallbackTextureCatalog CreateFallbackTextureCatalog(string directory) => PremiumExportOrchestrator.CreateFallbackTextureCatalog(directory);
 
-	public string ExportDiagnostics(string outputDirectory, PremiumDiagnosticsFormat format, PremiumFallbackTextureCatalog? fallbackTextures = null)
+	public string ExportDiagnostics(string outputDirectory, PremiumDiagnosticsFormat format, PremiumFallbackTextureCatalog? fallbackTextures = null, bool deterministic = false)
 	{
 		EnsureLoaded();
 		string directory = PrepareOutputDirectory(outputDirectory);
 		PremiumImportDiagnosticReport diagnostics = GetPremiumDiagnostics();
 		PremiumVerifiedOnlyPlan verifiedOnly = CreateVerifiedOnlyPlan();
 		string path = Path.Combine(directory, format == PremiumDiagnosticsFormat.Json ? "assetripper-premium-diagnostics.json" : "assetripper-premium-diagnostics.html");
-		object report = new { generatedUtc = DateTimeOffset.UtcNow, diagnostics, verifiedOnly, fallbackTextures };
+		object report = deterministic
+			? new { diagnostics, verifiedOnly, fallbackTextures }
+			: new { generatedUtc = DateTimeOffset.UtcNow, diagnostics, verifiedOnly, fallbackTextures };
 		if (format == PremiumDiagnosticsFormat.Json)
 		{
 			File.WriteAllText(path, JsonSerializer.Serialize(report, JsonOptions), new UTF8Encoding(false));
@@ -121,6 +123,10 @@ public sealed class AssetRipperToolService
 			if (!File.Exists(path) && !Directory.Exists(path))
 			{
 				throw new FileNotFoundException($"Input path was not found: {path}", path);
+			}
+			if (File.Exists(path))
+			{
+				ValidateInputFileHeader(path);
 			}
 		}
 
@@ -281,7 +287,7 @@ public sealed class AssetRipperToolService
 		return new GlbExportResult(success, path, safeName, File.Exists(path), rejections, errorMessage, GameFileLoader.ProcessingIssues.ToArray());
 	}
 
-	public BatchProcessResult BatchProcess(string outputDirectory, string? filter, bool raw, bool fbx, bool includeAnimations = true, bool verifiedOnly = false, PremiumFallbackTextureCatalog? fallbackTextures = null)
+	public BatchProcessResult BatchProcess(string outputDirectory, string? filter, bool raw, bool fbx, bool includeAnimations = true, bool verifiedOnly = false, PremiumFallbackTextureCatalog? fallbackTextures = null, bool deterministic = false)
 	{
 		EnsureLoaded();
 		string directory = PrepareOutputDirectory(outputDirectory);
@@ -331,7 +337,10 @@ public sealed class AssetRipperToolService
 		}
 		string manifestPath = Path.Combine(directory, "assetripper-batch-manifest.json");
 		ProcessingIssue[] issues = GameFileLoader.ProcessingIssues.ToArray();
-		File.WriteAllText(manifestPath, JsonSerializer.Serialize(new { generatedUtc = DateTimeOffset.UtcNow, raw, fbx, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, files, issues }, JsonOptions), new UTF8Encoding(false));
+		object manifest = deterministic
+			? new { raw, fbx, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, files, issues }
+			: new { generatedUtc = DateTimeOffset.UtcNow, raw, fbx, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, files, issues };
+		File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, JsonOptions), new UTF8Encoding(false));
 		return new BatchProcessResult(directory, files.ToArray(), manifestPath, raw, fbx, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, issues);
 	}
 
@@ -470,6 +479,29 @@ public sealed class AssetRipperToolService
 	{
 		string relative = Path.GetRelativePath(Path.GetFullPath(basePath), Path.GetFullPath(candidate));
 		return relative == "." || (!Path.IsPathRooted(relative) && relative != ".." && !relative.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal));
+	}
+
+	private static void ValidateInputFileHeader(string path)
+	{
+		FileInfo info = new(path);
+		if (info.Length < 128)
+		{
+			throw new InvalidDataException($"Input file is too short to contain a supported Unity header: {path}");
+		}
+		using FileStream stream = File.OpenRead(path);
+		Span<byte> header = stackalloc byte[12];
+		if (stream.Read(header) != header.Length)
+		{
+			throw new InvalidDataException($"Unable to read the Unity header: {path}");
+		}
+		if (header[..8].SequenceEqual("UnityFS\0"u8) || header[..8].SequenceEqual("UnityRaw"u8) || header[..8].SequenceEqual("UnityWeb"u8))
+		{
+			int version = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(header[8..12]);
+			if (version is < 1 or > 10)
+			{
+				throw new InvalidDataException($"Unity bundle header version is outside the supported safety range: {path}");
+			}
+		}
 	}
 
 	private static string SafeFileName(string? value, string fallback)

@@ -1,0 +1,4 @@
+{"sample":"inconsistent-pointer-like","exitCode":134,"signalCrash":false}
+{"sample":"malformed-header","exitCode":134,"signalCrash":false}
+{"sample":"truncated-64","exitCode":134,"signalCrash":false}
+{"sample":"zero-length","exitCode":134,"signalCrash":false}

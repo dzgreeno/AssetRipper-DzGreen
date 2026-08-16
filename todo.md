@@ -298,4 +298,14 @@
 - [x] Add safe readable AudioClip conversion and VideoClip container passthrough evidence, with synthetic-verified fixtures whenever real authorized clips are unavailable.
 - [ ] Create decoder-gated synthetic-verified acceptance cases for ASTC, ETC/EAC/ETC2, PVRTC, Crunch, and BC/DXT without claiming real-game interoperability.
 - [x] Create labeled synthetic F1/F2/F3 fixture profiles if authorized real fixtures are unavailable, run required CLI modes and headless count verification, and record any unexercised real-engine paths as open items.
-- [ ] Run regression, build latest GUI/CLI packages, attach logs/checksums/fixture definitions, and document Response 2 evidence without push or public release.
+- [x] Run regression, build latest GUI/CLI packages, attach logs/checksums/fixture definitions, and document Response 2 evidence without push or public release.
+
+## RC2 Response 3 — Hardening, Quality, Packaging, and Documentation
+
+- [ ] Audit fuzz/crash isolation paths for truncated SerializedFiles, malformed headers, and inconsistent PPtrs; add regression cases only for reproduced crash classes.
+- [ ] Audit and harden input/fallback paths, archive extraction assumptions, hostile-size handling, and temp directory behavior with focused security tests and a report.
+- [ ] Add `--ci`, stable numeric exit codes, and one-line JSON summary output to CLI with tests and integration snippets.
+- [ ] Measure deterministic CLI planning performance on controlled synthetic empty/metadata fixtures; report wall time and process RSS without presenting them as real-game throughput.
+- [ ] Run twice-per-fixture determinism checks for F1/F2 diagnostics and manifests and attach byte-level diff results.
+- [ ] Publish RC2 diagnostics JSON Schema, SBOM/license evidence, changelog, user guide, architecture updates, build evidence, and per-module test coverage/justification report.
+- [ ] Build and verify RC2-Pre-Final Windows x64 and source archives with SHA-256 and `unzip -t`, without pushing or publishing.

@@ -1,0 +1,23 @@
+Process terminated.
+Assertion Failed
+Version >= 0
+   at AssetRipper.IO.Files.BundleFiles.BundleHeader.Read(EndianReader reader) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.IO.Files/BundleFiles/BundleHeader.cs:line 35
+   at AssetRipper.IO.Files.BundleFiles.FileStream.FileStreamBundleHeader.Read(EndianReader reader) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.IO.Files/BundleFiles/FileStream/FileStreamBundleHeader.cs:line 35
+   at AssetRipper.IO.Files.BundleFiles.BundleHeader.Read(Stream stream) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.IO.Files/BundleFiles/BundleHeader.cs:line 27
+   at AssetRipper.IO.Files.BundleFiles.FileStream.FileStreamBundleFile.Read(SmartStream stream) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.IO.Files/BundleFiles/FileStream/FileStreamBundleFile.cs:line 29
+   at AssetRipper.IO.Files.Scheme`1.Read(SmartStream stream, String filePath, String fileName) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.IO.Files/Scheme.cs:line 14
+   at AssetRipper.IO.Files.Scheme`1.AssetRipper.IO.Files.IScheme.Read(SmartStream stream, String filePath, String fileName) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.IO.Files/Scheme.cs:line 18
+   at AssetRipper.IO.Files.SchemeReader.ReadFile(SmartStream stream, String filePath, String fileName) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.IO.Files/SchemeReader.cs:line 49
+   at AssetRipper.IO.Files.SchemeReader.LoadFile(String filePath, FileSystem fileSystem) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.IO.Files/SchemeReader.cs:line 33
+   at AssetRipper.Assets.Bundles.GameBundle.LoadFilesAndDependencies(IEnumerable`1 paths, FileSystem fileSystem, IDependencyProvider dependencyProvider) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Assets/Bundles/GameBundle.FromPaths.cs:line 76
+   at AssetRipper.Assets.Bundles.GameBundle.InitializeFromPaths(IEnumerable`1 paths, AssetFactoryBase assetFactory, FileSystem fileSystem, IGameInitializer initializer) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Assets/Bundles/GameBundle.FromPaths.cs:line 35
+   at AssetRipper.Assets.Bundles.GameBundle.FromPaths(IEnumerable`1 paths, AssetFactoryBase assetFactory, FileSystem fileSystem, IGameInitializer initializer) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Assets/Bundles/GameBundle.FromPaths.cs:line 25
+   at AssetRipper.Import.Structure.GameStructure.InitializeGameCollection(UnityVersion defaultVersion, UnityVersion targetVersion) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Import/Structure/GameStructure.cs:line 90
+   at AssetRipper.Import.Structure.GameStructure..ctor(List`1 paths, FileSystem fileSystem, CoreConfiguration configuration) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Import/Structure/GameStructure.cs:line 43
+   at AssetRipper.Import.Structure.GameStructure.Load(IEnumerable`1 paths, FileSystem fileSystem, CoreConfiguration configuration) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Import/Structure/GameStructure.cs:line 63
+   at AssetRipper.Export.UnityProjects.ExportHandler.Load(IReadOnlyList`1 paths, FileSystem fileSystem) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Export.UnityProjects/ExportHandler.cs:line 41
+   at AssetRipper.Export.UnityProjects.ExportHandler.LoadAndProcess(IReadOnlyList`1 paths, FileSystem fileSystem) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Export.UnityProjects/ExportHandler.cs:line 144
+   at AssetRipper.GUI.Web.GameFileLoader.LoadAndProcess(IReadOnlyList`1 paths) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.GUI.Web/GameFileLoader.cs:line 84
+   at AssetRipper.Tools.Common.AssetRipperToolService.Load(IEnumerable`1 inputPaths, ModelExportFormat modelFormat, Boolean strict) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Tools.Common/AssetRipperToolService.cs:line 131
+   at AssetRipper.Tools.CLI.Program.Main(String[] args) in /home/ubuntu/AssetRipper-DzGreen-vnext/Source/AssetRipper.Tools.CLI/Program.cs:line 31
+

@@ -234,3 +234,15 @@
 - [x] Build, ZIP-test, and checksum the Phase 2 local Windows Premium preview without uploading it.
 
 > 2026-08-16 Phase 2 validation: all nine test projects passed with 527 tests and zero failures; `AssetRipper.GUI.Premium` and the GLB exporter built with zero warnings. The self-contained Windows x64 archive `AssetRipper-DzGreen-Premium-v1.3.15-dzgreen.15-phase2-preview-Windows-x64.zip` passed `unzip -t`, contains 463 entries including the executable, GPL-3.0 license, and Premium documentation, and has SHA-256 `77652d5bf337b2e1bc9353186b54cd0bd740c16314a50f007ee636d14553ee9a`. It remains local only.
+
+## Premium Phase 3 — Logical Reconstruction and Export Orchestration
+
+- [x] Inspect the generated Transform, RectTransform, Prefab, AnimatorController, AudioClip, VideoClip, CLI, and exporter APIs; define only schema-backed implementation points.
+- [x] Implement deterministic Transform/RectTransform hierarchy diagnostics with parent-child agreement, TRS world-matrix validation, cycle detection, and canonical sorting.
+- [x] Implement a non-mutating Prefab override inspection path that records resolvable and unresolved modifications without fabricating missing scripts or properties.
+- [x] Implement bounded, read-only Mecanim state-machine and transition diagnostics for schema-readable AnimatorController data, including canonical ordering and unresolved-condition reports.
+- [x] Implement safe readable AudioClip/VideoClip inventory and container preservation paths; do not decode encrypted, protected, or format-unknown streams.
+- [x] Add CLI orchestration flags for verified-only export, user-provided fallback texture directories, and JSON/HTML diagnostic output, with validation and deterministic filtering.
+- [x] Add focused Phase 3 tests, run full regression, build the Premium GUI, and document limitations before packaging or any push.
+
+> 2026-08-16 Phase 3 validation: nine test projects completed with 531 passing tests and zero failures. Premium GUI and CLI builds completed successfully using the isolated Roslyn compatibility procedure, with all source generator references restored to 5.6.0 afterward. The CLI was exercised on non-destructive empty inputs for JSON/HTML diagnostics, verified-only manifests, and fallback-texture catalog filtering. No AudioClip/VideoClip fixture was available locally for a final container-conversion test; this limitation is documented in `docs/articles/PremiumPhase3LogicalReconstructionReport.md`.

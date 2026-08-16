@@ -20,6 +20,10 @@ public static class PremiumImportDiagnostics
 		PremiumTypeTreeCoverageReport typeTreeCoverage = PremiumTypeTreeCoverageAnalyzer.Create(gameBundle);
 		PremiumMaterialBindingReport materialBindings = PremiumMaterialBindingAnalyzer.Create(gameBundle);
 		PremiumVertexStreamDiagnostics vertexStreams = PremiumVertexStreamProcessor.CreateDiagnostics(gameBundle);
+		PremiumHierarchyReport hierarchy = PremiumHierarchyReconstructor.Create(gameBundle);
+		PremiumPrefabOverrideReport prefabOverrides = PremiumPrefabOverrideResolver.Create(gameBundle);
+		PremiumMecanimReport mecanim = PremiumMecanimStateMachineAnalyzer.Create(gameBundle);
+		PremiumMediaReport media = PremiumAudioMediaProcessor.CreateDiagnostics(gameBundle);
 
 		PremiumAssetClassSummary[] classes = gameBundle.FetchAssets()
 			.GroupBy(static asset => asset.ClassName, StringComparer.Ordinal)
@@ -39,6 +43,10 @@ public static class PremiumImportDiagnostics
 			typeTreeCoverage,
 			materialBindings,
 			vertexStreams,
+			hierarchy,
+			prefabOverrides,
+			mecanim,
+			media,
 			classes.Sum(static summary => summary.Count),
 			classes,
 			gameBundle.AnyFailed ? "Some files were quarantined by the normal importer. Review failed-file diagnostics before export." : "No importer-quarantined files were recorded.");
@@ -92,6 +100,10 @@ public sealed record PremiumImportDiagnosticReport(
 	PremiumTypeTreeCoverageReport TypeTreeCoverage,
 	PremiumMaterialBindingReport MaterialBindings,
 	PremiumVertexStreamDiagnostics VertexStreams,
+	PremiumHierarchyReport Hierarchy,
+	PremiumPrefabOverrideReport PrefabOverrides,
+	PremiumMecanimReport Mecanim,
+	PremiumMediaReport Media,
 	long ClassifiedAssetCount,
 	IReadOnlyList<PremiumAssetClassSummary> AssetClasses,
 	string ImportStatus);

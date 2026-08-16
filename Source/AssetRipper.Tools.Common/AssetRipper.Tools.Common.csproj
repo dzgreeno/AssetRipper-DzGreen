@@ -4,7 +4,8 @@
     <IntermediateOutputPath>..\0Bins\obj\AssetRipper.Tools.Common\$(Configuration)\</IntermediateOutputPath>
     <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AssetRipper.GUI.Web\AssetRipper.GUI.Web.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\AssetRipper.GUI.Web\AssetRipper.GUI.Web.csproj" />
+		<ProjectReference Include="..\AssetRipper.Premium\AssetRipper.Premium.csproj" />
+	</ItemGroup>
 </Project>

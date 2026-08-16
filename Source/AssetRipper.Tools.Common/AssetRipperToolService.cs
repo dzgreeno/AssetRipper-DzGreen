@@ -7,6 +7,7 @@ using AssetRipper.Export.UnityProjects;
 using AssetRipper.GUI.Web;
 using AssetRipper.IO.Files;
 using AssetRipper.Processing;
+using AssetRipper.Premium;
 using AssetRipper.SourceGenerated.Classes.ClassID_1;
 using AssetRipper.SourceGenerated.Classes.ClassID_2;
 using AssetRipper.SourceGenerated.Classes.ClassID_4;
@@ -28,6 +29,7 @@ using AssetRipper.Yaml;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace AssetRipper.Tools.Common;
@@ -43,6 +45,44 @@ public sealed class AssetRipperToolService
 		set => GameFileLoader.StrictProcessing = value;
 	}
 	public IReadOnlyList<ProcessingIssue> ProcessingIssues => GameFileLoader.ProcessingIssues;
+
+	public PremiumImportDiagnosticReport GetPremiumDiagnostics()
+	{
+		EnsureLoaded();
+		return PremiumImportDiagnostics.Create(GameFileLoader.GameBundle, GameFileLoader.CurrentGameData.ProjectVersion, GameFileLoader.LoadedInputPaths);
+	}
+
+	public PremiumVerifiedOnlyPlan CreateVerifiedOnlyPlan()
+	{
+		EnsureLoaded();
+		PremiumImportDiagnosticReport diagnostics = GetPremiumDiagnostics();
+		PremiumExportCandidate[] candidates = GameFileLoader.GameBundle.FetchAssets()
+			.Select(asset => new PremiumExportCandidate(asset.Collection.FilePath, asset.Collection.Name, asset.PathID, asset.GetBestName(), asset.ClassName))
+			.ToArray();
+		return PremiumExportOrchestrator.CreateVerifiedOnlyPlan(diagnostics.TypeTreeCoverage, candidates);
+	}
+
+	public PremiumFallbackTextureCatalog CreateFallbackTextureCatalog(string directory) => PremiumExportOrchestrator.CreateFallbackTextureCatalog(directory);
+
+	public string ExportDiagnostics(string outputDirectory, PremiumDiagnosticsFormat format, PremiumFallbackTextureCatalog? fallbackTextures = null)
+	{
+		EnsureLoaded();
+		string directory = PrepareOutputDirectory(outputDirectory);
+		PremiumImportDiagnosticReport diagnostics = GetPremiumDiagnostics();
+		PremiumVerifiedOnlyPlan verifiedOnly = CreateVerifiedOnlyPlan();
+		string path = Path.Combine(directory, format == PremiumDiagnosticsFormat.Json ? "assetripper-premium-diagnostics.json" : "assetripper-premium-diagnostics.html");
+		object report = new { generatedUtc = DateTimeOffset.UtcNow, diagnostics, verifiedOnly, fallbackTextures };
+		if (format == PremiumDiagnosticsFormat.Json)
+		{
+			File.WriteAllText(path, JsonSerializer.Serialize(report, JsonOptions), new UTF8Encoding(false));
+		}
+		else
+		{
+			string payload = HtmlEncoder.Default.Encode(JsonSerializer.Serialize(report, JsonOptions));
+			File.WriteAllText(path, $"<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>AssetRipper DzGreen Premium Diagnostics</title><style>body{{font-family:system-ui,sans-serif;margin:2rem;background:#101513;color:#eaf5ef}}pre{{white-space:pre-wrap;word-break:break-word;background:#18211d;padding:1rem;border-radius:.5rem}}</style></head><body><h1>AssetRipper DzGreen Premium Diagnostics</h1><p>Read-only report derived from already imported plaintext data.</p><pre>{payload}</pre></body></html>", new UTF8Encoding(false));
+		}
+		return path;
+	}
 
 	public LoadSummary Load(IEnumerable<string> inputPaths, ModelExportFormat modelFormat = ModelExportFormat.Fbx, bool strict = false)
 	{
@@ -191,11 +231,15 @@ public sealed class AssetRipperToolService
 		return new FbxExportResult(success, path, safeName, includeAnimations, File.Exists(path), CountFiles(directory), GameFileLoader.ProcessingIssues.ToArray());
 	}
 
-	public BatchProcessResult BatchProcess(string outputDirectory, string? filter, bool raw, bool fbx, bool includeAnimations = true)
+	public BatchProcessResult BatchProcess(string outputDirectory, string? filter, bool raw, bool fbx, bool includeAnimations = true, bool verifiedOnly = false, PremiumFallbackTextureCatalog? fallbackTextures = null)
 	{
 		EnsureLoaded();
 		string directory = PrepareOutputDirectory(outputDirectory);
 		List<string> files = [];
+		HashSet<(long PathId, string Collection)> eligibleAssets = verifiedOnly
+			? CreateVerifiedOnlyPlan().Decisions.Where(static decision => decision.IsEligible).Select(static decision => (decision.Candidate.PathId, decision.Candidate.CollectionName)).ToHashSet()
+			: [];
+		int skippedAssetCount = 0;
 		if (raw)
 		{
 			string rawDirectory = Path.Combine(directory, "raw");
@@ -207,6 +251,11 @@ public sealed class AssetRipperToolService
 				{
 					continue;
 				}
+				if (verifiedOnly && !eligibleAssets.Contains((resolved.PathID, resolved.Collection.Name)))
+				{
+					skippedAssetCount++;
+					continue;
+				}
 				string rawPath = Path.Combine(rawDirectory, $"{SafeFileName(asset.Name, asset.ClassName)}_{asset.PathId}.json");
 				File.WriteAllText(rawPath, ToRawJson(resolved), new UTF8Encoding(false));
 				files.Add(rawPath);
@@ -216,6 +265,11 @@ public sealed class AssetRipperToolService
 		{
 			foreach (IGameObject root in FindCharacterRoots(filter))
 			{
+				if (verifiedOnly && root.FetchHierarchy().OfType<IUnityObjectBase>().Any(asset => !eligibleAssets.Contains((asset.PathID, asset.Collection.Name))))
+				{
+					skippedAssetCount++;
+					continue;
+				}
 				FbxAsciiExporter exporter = new() { IncludeAnimations = includeAnimations };
 					string safeName = SafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
 				string path = Path.Combine(directory, safeName + ".fbx");
@@ -227,8 +281,8 @@ public sealed class AssetRipperToolService
 		}
 		string manifestPath = Path.Combine(directory, "assetripper-batch-manifest.json");
 		ProcessingIssue[] issues = GameFileLoader.ProcessingIssues.ToArray();
-		File.WriteAllText(manifestPath, JsonSerializer.Serialize(new { generatedUtc = DateTimeOffset.UtcNow, raw, fbx, includeAnimations, files, issues }, JsonOptions), new UTF8Encoding(false));
-		return new BatchProcessResult(directory, files.ToArray(), manifestPath, raw, fbx, includeAnimations, issues);
+		File.WriteAllText(manifestPath, JsonSerializer.Serialize(new { generatedUtc = DateTimeOffset.UtcNow, raw, fbx, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, files, issues }, JsonOptions), new UTF8Encoding(false));
+		return new BatchProcessResult(directory, files.ToArray(), manifestPath, raw, fbx, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, issues);
 	}
 
 	public string ToRawJson(IUnityObjectBase asset)
@@ -383,7 +437,13 @@ public sealed record AssetSummary(string Name, string ClassName, long PathId, st
 public sealed record MeshInspection(string Name, long PathId, string Collection, int VertexCount, int SubMeshCount, int UvChannelCount, bool HasSkin, int BindPoseCount, bool HasTangents, bool HasNormals, int BlendShapeCount, int BlendShapeFrameCount);
 public sealed record PrefabInspection(AssetSummary Root, IReadOnlyList<AssetSummary> Hierarchy, IReadOnlyList<AssetSummary> Components, IReadOnlyList<MeshInspection> Meshes, IReadOnlyList<AssetSummary> Materials, IReadOnlyList<AssetSummary> Textures, IReadOnlyList<AssetSummary> AnimationClips, int BoneCount, int WeightedMeshCount, int MissingWeightMeshCount, string UnityVersion, IReadOnlyList<ProcessingIssue> Issues);
 public sealed record FbxExportResult(bool Success, string Path, string RootName, bool IncludeAnimations, bool FileExists, int FilesWritten, IReadOnlyList<ProcessingIssue> Issues);
-public sealed record BatchProcessResult(string OutputDirectory, IReadOnlyList<string> Files, string ManifestPath, bool Raw, bool Fbx, bool IncludeAnimations, IReadOnlyList<ProcessingIssue> Issues);
+public enum PremiumDiagnosticsFormat
+{
+	Json,
+	Html,
+}
+
+public sealed record BatchProcessResult(string OutputDirectory, IReadOnlyList<string> Files, string ManifestPath, bool Raw, bool Fbx, bool IncludeAnimations, bool VerifiedOnly, int SkippedAssetCount, PremiumFallbackTextureCatalog? FallbackTextures, IReadOnlyList<ProcessingIssue> Issues);
 
 internal sealed class ReferenceComparer<T> : IEqualityComparer<T> where T : class
 {

@@ -179,6 +179,105 @@ public sealed class PremiumInputPolicyTests
 	}
 
 	[Test]
+	public void HierarchyAnalyzerSortsAndQuarantinesCycleWorldMatrices()
+	{
+		PremiumHierarchyNode[] nodes =
+		[
+			new("Root", null, ["Child"], System.Numerics.Matrix4x4.CreateTranslation(1, 0, 0), false),
+			new("Child", "Root", [], System.Numerics.Matrix4x4.CreateTranslation(0, 2, 0), false),
+			new("CycleA", "CycleB", ["CycleB"], System.Numerics.Matrix4x4.Identity, false),
+			new("CycleB", "CycleA", ["CycleA", "CycleChild"], System.Numerics.Matrix4x4.Identity, false),
+			new("CycleChild", "CycleB", [], System.Numerics.Matrix4x4.Identity, true),
+		];
+		PremiumHierarchyReport report = PremiumHierarchyReconstructor.Analyze(nodes.Reverse());
+		PremiumHierarchyNodeResult child = report.Nodes.Single(static node => node.Id == "Child");
+		PremiumHierarchyNodeResult cycleChild = report.Nodes.Single(static node => node.Id == "CycleChild");
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(report.TransformCount, Is.EqualTo(5));
+			Assert.That(report.RectTransformCount, Is.EqualTo(1));
+			Assert.That(report.CycleComponentCount, Is.EqualTo(1));
+			Assert.That(report.CyclicNodeCount, Is.EqualTo(2));
+			Assert.That(child.WorldMatrix?.Translation, Is.EqualTo(new System.Numerics.Vector3(1, 2, 0)));
+			Assert.That(cycleChild.IsCyclic, Is.False);
+			Assert.That(cycleChild.HasCyclicAncestor, Is.True);
+			Assert.That(cycleChild.WorldMatrix, Is.Null);
+		});
+	}
+
+	[Test]
+	public void PrefabOverrideResolverDoesNotInventUnknownProperties()
+	{
+		PremiumPrefabPropertyResolution resolution = PremiumPrefabOverrideResolver.Resolve(
+			new Dictionary<string, string?> { ["m_LocalPosition.x"] = "1" },
+			[
+				new("A", "m_LocalPosition.x", "2"),
+				new("A", "m_MissingScript.field", "value"),
+			]);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(resolution.EffectiveProperties["m_LocalPosition.x"], Is.EqualTo("2"));
+			Assert.That(resolution.EffectiveProperties.ContainsKey("m_MissingScript.field"), Is.False);
+			Assert.That(resolution.UnresolvedOverrides, Has.Count.EqualTo(1));
+		});
+	}
+
+	[Test]
+	public void VerifiedOnlyPlanAcceptsOnlyCompleteCoverageStates()
+	{
+		PremiumTypeTreeCoverageReport coverage = PremiumTypeTreeCoverageAnalyzer.Analyze(
+		[
+			new("A", "A", 1, true, 1, 0, 0),
+			new("B", "B", 1, true, 1, 1, 0),
+			new("C", "C", 0, false, 0, 0, 0),
+		]);
+		PremiumVerifiedOnlyPlan plan = PremiumExportOrchestrator.CreateVerifiedOnlyPlan(
+			coverage,
+			[
+				new("A", "A", 1, "verified", "Mesh"),
+				new("B", "B", 2, "partial", "Mesh"),
+				new("C", "C", 3, "unavailable", "Mesh"),
+				new("Missing", "Missing", 4, "missing", "Mesh"),
+			]);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(plan.EligibleAssetCount, Is.EqualTo(1));
+			Assert.That(plan.SkippedAssetCount, Is.EqualTo(3));
+			Assert.That(plan.Decisions.Single(static item => item.Candidate.Name == "partial").CoverageState, Is.EqualTo(PremiumTypeTreeCoverageState.Partial));
+			Assert.That(plan.Decisions.Single(static item => item.Candidate.Name == "missing").Reason, Does.Contain("no TypeTree"));
+		});
+	}
+
+	[Test]
+	public void BlendTreeEvaluatorUsesExplicitFiniteInputsOnly()
+	{
+		PremiumBlendTreeWeightResult oneDimensional = PremiumBlendTreeEvaluator.Evaluate1D(
+			[
+				new("Idle", 0),
+				new("Run", 10),
+			],
+			2.5f);
+		PremiumBlendTreeWeightResult twoDimensional = PremiumBlendTreeEvaluator.EvaluateInverseDistance2D(
+			[
+				new("Forward", new System.Numerics.Vector2(0, 1)),
+				new("Right", new System.Numerics.Vector2(1, 0)),
+			],
+			new System.Numerics.Vector2(0, 1));
+		PremiumBlendTreeWeightResult rejected = PremiumBlendTreeEvaluator.Evaluate1D([], float.NaN);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(oneDimensional.IsSuccess, Is.True);
+			Assert.That(oneDimensional.Weights.Select(static weight => weight.Weight), Is.EqualTo(new[] { 0.75f, 0.25f }));
+			Assert.That(twoDimensional.Weights, Is.EqualTo([new PremiumBlendTreeWeight("Forward", 1)]));
+			Assert.That(rejected.IsSuccess, Is.False);
+		});
+	}
+
+	[Test]
 	public void EmptyBundleDiagnosticIsDeterministic()
 	{
 		AssetRipper.Assets.Bundles.GameBundle gameBundle = new();
@@ -191,6 +290,11 @@ public sealed class PremiumInputPolicyTests
 			Assert.That(report.FailedFileCount, Is.Zero);
 			Assert.That(report.VertexStreams.MeshCount, Is.Zero);
 			Assert.That(report.VertexStreams.IssueCount, Is.Zero);
+			Assert.That(report.Hierarchy.TransformCount, Is.Zero);
+			Assert.That(report.PrefabOverrides.ExposedModificationFieldCount, Is.Zero);
+			Assert.That(report.Mecanim.ControllerCount, Is.Zero);
+			Assert.That(report.Media.AudioClipCount, Is.Zero);
+			Assert.That(report.Media.VideoClipCount, Is.Zero);
 			Assert.That(report.Inputs, Has.Count.EqualTo(1));
 			Assert.That(report.ImportStatus, Is.EqualTo("No importer-quarantined files were recorded."));
 		});

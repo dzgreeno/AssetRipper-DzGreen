@@ -1,4 +1,5 @@
 using AssetRipper.Export.Configuration;
+using AssetRipper.Premium;
 using AssetRipper.Tools.Common;
 using System.Text.Json;
 
@@ -27,22 +28,24 @@ internal static class Program
 
 			AssetRipperToolService service = new();
 			LoadSummary load = service.Load(options.Inputs, ModelExportFormat.Fbx, options.StrictProcessing);
+			PremiumFallbackTextureCatalog? fallbackTextures = options.FallbackTexturesDirectory is null ? null : service.CreateFallbackTextureCatalog(options.FallbackTexturesDirectory);
+			string? diagnosticsPath = options.DiagnosticsFormat is null ? null : service.ExportDiagnostics(options.OutputDirectory, options.DiagnosticsFormat.Value, fallbackTextures);
 			object result;
-			if (options.BatchProcess || options.Raw)
+			if (options.BatchProcess || options.Raw || options.ExportVerifiedOnly)
 			{
-				result = service.BatchProcess(options.OutputDirectory, options.Filter, options.Raw, options.Fbx, options.IncludeAnimations);
+				result = new { load, diagnosticsPath, batch = service.BatchProcess(options.OutputDirectory, options.Filter, options.Raw, options.Fbx, options.IncludeAnimations, options.ExportVerifiedOnly, fallbackTextures) };
 			}
 			else if (options.Fbx)
 			{
-				result = service.ExportFbxWithAnimation(options.Filter, options.OutputDirectory, options.IncludeAnimations);
+				result = new { load, diagnosticsPath, fbx = service.ExportFbxWithAnimation(options.Filter, options.OutputDirectory, options.IncludeAnimations), fallbackTextures };
 			}
 			else if (options.InspectPrefab)
 			{
-				result = service.InspectPrefab(options.Filter);
+				result = new { load, diagnosticsPath, prefab = service.InspectPrefab(options.Filter), fallbackTextures };
 			}
 			else
 			{
-				result = new { load, assets = service.ListAssets(options.Filter, options.Limit) };
+				result = new { load, diagnosticsPath, verifiedOnly = options.ExportVerifiedOnly ? service.CreateVerifiedOnlyPlan() : null, fallbackTextures, assets = service.ListAssets(options.Filter, options.Limit) };
 			}
 			Console.WriteLine(JsonSerializer.Serialize(result, JsonOptions));
 			if (load.Issues.Count > 0)
@@ -70,8 +73,11 @@ internal sealed class CliOptions
 	public bool Raw { get; private set; }
 	public bool Fbx { get; private set; }
 	public bool InspectPrefab { get; private set; }
-		public bool BatchProcess { get; private set; }
-		public bool StrictProcessing { get; private set; }
+	public bool BatchProcess { get; private set; }
+	public bool StrictProcessing { get; private set; }
+	public bool ExportVerifiedOnly { get; private set; }
+	public string? FallbackTexturesDirectory { get; private set; }
+	public PremiumDiagnosticsFormat? DiagnosticsFormat { get; private set; }
 	public bool Help { get; private set; }
 
 	public static CliOptions Parse(string[] args)
@@ -129,9 +135,24 @@ internal sealed class CliOptions
 				case "batch":
 					options.BatchProcess = true;
 					break;
-				case "strict":
-					options.StrictProcessing = ParseBoolean(key, inlineValue, args, ref i, true);
-					break;
+					case "strict":
+						options.StrictProcessing = ParseBoolean(key, inlineValue, args, ref i, true);
+						break;
+					case "export-verified-only":
+						options.ExportVerifiedOnly = ParseBoolean(key, inlineValue, args, ref i, true);
+						break;
+					case "fallback-textures":
+						options.FallbackTexturesDirectory = RequireValue(key, inlineValue, args, ref i);
+						break;
+					case "export-diagnostics":
+						string requestedFormat = RequireValue(key, inlineValue, args, ref i);
+						options.DiagnosticsFormat = requestedFormat.ToLowerInvariant() switch
+						{
+							"json" => PremiumDiagnosticsFormat.Json,
+							"html" => PremiumDiagnosticsFormat.Html,
+							_ => throw new ArgumentException("--export-diagnostics must be json or html."),
+						};
+						break;
 				default:
 					throw new ArgumentException($"Unknown option '--{key}'.");
 			}
@@ -185,11 +206,15 @@ Core options:
 	  --raw                   Write raw JSON assets under output/raw.
 	  --batch-process         Run batch mode; combine with --raw and/or --fbx.
 	  --strict[=bool]         Fail on the first processing error instead of continuing with diagnostics.
+	  --export-verified-only  In batch mode, export only assets from Embedded or KnownEngineSchema collections.
+	  --fallback-textures <dir>  Deterministically catalog user-supplied replacement textures for the diagnostics/manifest.
+	  --export-diagnostics <json|html>  Write the loaded Premium diagnostic report beside export output.
 	  --help, -h              Show this help.
 
 Examples:
   AssetRipper.CLI --input game_Data --inspect-prefab --filter hero
   AssetRipper.CLI --input game_Data --output export --fbx --filter hero --include-anim
-  AssetRipper.CLI --input game_Data --output export --batch-process --raw --fbx
+	  AssetRipper.CLI --input game_Data --output export --batch-process --raw --fbx
+	  AssetRipper.CLI --input game_Data --output export --batch --raw --export-verified-only --export-diagnostics html
 """;
 }

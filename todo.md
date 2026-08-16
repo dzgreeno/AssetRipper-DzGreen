@@ -231,4 +231,6 @@
 - [x] Implement a bounded Premium animation keyframe processor and sampler only for readable curves whose schema and timing are available.
 - [x] Extend GLB material mapping with resolved property-channel classifications, texture transform and wrap metadata, and neutral fallbacks only for Null or Unresolved textures.
 - [x] Add Phase 2 unit tests and run the complete nine-project regression suite with 527 passing tests and zero failures.
-- [ ] Build, ZIP-test, and checksum the Phase 2 local Windows Premium preview without uploading it.
+- [x] Build, ZIP-test, and checksum the Phase 2 local Windows Premium preview without uploading it.
+
+> 2026-08-16 Phase 2 validation: all nine test projects passed with 527 tests and zero failures; `AssetRipper.GUI.Premium` and the GLB exporter built with zero warnings. The self-contained Windows x64 archive `AssetRipper-DzGreen-Premium-v1.3.15-dzgreen.15-phase2-preview-Windows-x64.zip` passed `unzip -t`, contains 463 entries including the executable, GPL-3.0 license, and Premium documentation, and has SHA-256 `77652d5bf337b2e1bc9353186b54cd0bd740c16314a50f007ee636d14553ee9a`. It remains local only.

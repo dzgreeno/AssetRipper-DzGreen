@@ -1,0 +1,33 @@
+{
+  "schema": "assetripper-dzgreen.rc2.fixture-profiles.v1",
+  "authorization": "All real fixture paths refer to files supplied by the user for local testing. Synthetic fixtures do not represent a game, Unity build, proprietary asset, or compatibility claim.",
+  "profiles": [
+    {
+      "id": "F1",
+      "label": "legacy-skinned-real",
+      "provenance": "user-supplied-authorized",
+      "sourceArchive": "/home/ubuntu/upload/character.rar",
+      "extractionRoot": "/home/ubuntu/assetripper-rc2-fixtures/F1-legacy-skinned-real",
+      "expectedContent": ["character bundles", "animation bundles", "manifest companions"],
+      "unityVersionClaim": "not asserted until importer reports it"
+    },
+    {
+      "id": "F2",
+      "label": "android-multifile-real",
+      "provenance": "user-supplied-authorized",
+      "sourceArchive": "/home/ubuntu/upload/android.rar",
+      "extractionRoot": "/home/ubuntu/assetripper-rc2-fixtures/F2-android-multifile-real",
+      "expectedContent": ["character mesh bundle", "materials bundle", "textures bundle"],
+      "unityVersionClaim": "not asserted until importer reports it"
+    },
+    {
+      "id": "F3",
+      "label": "modern-2021.3-or-2022.3-synthetic-verified",
+      "provenance": "synthetic-verified",
+      "extractionRoot": "/home/ubuntu/assetripper-rc2-fixtures/F3-modern-synthetic-verified",
+      "expectedContent": ["deterministic empty-import and option-path fixture only"],
+      "unityVersionClaim": "none; this fixture cannot establish engine-version compatibility",
+      "limitations": ["no real serialized Unity payload", "no real mesh/rig/material/media re-import claim", "used only to verify deterministic CLI option and empty-report behavior"]
+    }
+  ]
+}

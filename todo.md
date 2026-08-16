@@ -285,3 +285,17 @@
 - [ ] Add fuzz, path validation, hostile-size, archive-path, determinism, CI-summary, and performance checks with machine-readable evidence.
 - [ ] Implement the five selected RC2 improvements as separate local commits, each with tests and documentation.
 - [ ] Produce local RC2 Windows/source packages, diagnostics JSON Schema, SBOM/license evidence, coverage report, and release-gate matrix without any push or external release.
+
+## Latest Local Build Delivery
+
+- [x] Build and package the latest local Premium GUI and CLI as a self-contained Windows x64 archive, with source archive, README, GPL-3.0 license, active RC2 evidence, and SHA-256 checksum files; do not push or publish.
+
+## RC2 Response 2 — Section 2 and Section 3
+
+- [x] Audit the current GLB, texture, color-space, mip, audio/video, CLI, and fixture APIs; distinguish real authorized fixtures from synthetic-verified coverage.
+- [x] Apply user fallback texture catalog entries only to material bindings explicitly Unresolved in the GLB export plan; preserve Resolved inputs and Null neutral fallbacks with tests.
+- [x] Add mip-chain exposure and color-space diagnostics that preserve/read metadata only when exposed and otherwise report NotExposed/Unknown, with synthetic-verified fixture tests.
+- [x] Add safe readable AudioClip conversion and VideoClip container passthrough evidence, with synthetic-verified fixtures whenever real authorized clips are unavailable.
+- [ ] Create decoder-gated synthetic-verified acceptance cases for ASTC, ETC/EAC/ETC2, PVRTC, Crunch, and BC/DXT without claiming real-game interoperability.
+- [x] Create labeled synthetic F1/F2/F3 fixture profiles if authorized real fixtures are unavailable, run required CLI modes and headless count verification, and record any unexercised real-engine paths as open items.
+- [ ] Run regression, build latest GUI/CLI packages, attach logs/checksums/fixture definitions, and document Response 2 evidence without push or public release.

@@ -14,6 +14,7 @@ namespace AssetRipper.GUI.Web;
 
 public static class GameFileLoader
 {
+	private const int MaxExpandedInputFiles = 10_000;
 	private static GameData? GameData { get; set; }
 	private static string[] LoadedPaths { get; set; } = [];
 	[MemberNotNullWhen(true, nameof(GameData))]
@@ -114,11 +115,7 @@ public static class GameFileLoader
 		bool isEncrypted = extension is ".enc" or ".encrypted" or ".crypt";
 		bool isRuntimeMemoryDump = extension is ".dmp" or ".core";
 		bool usesCustomVirtualContainer = extension is ".dat" or ".pkg" or ".pck";
-		PremiumInputKind kind = isDirectory || extension is ".bundle" or ".unity3d" or ".assets" or ".manifest"
-			? PremiumInputKind.UnityBundle
-			: extension is ".res" or ".resource" or ".ress"
-				? PremiumInputKind.ResourceStream
-				: PremiumInputKind.Unknown;
+		PremiumInputKind kind = isDirectory ? PremiumInputKind.UnityBundle : PremiumInputFileClassifier.Classify(path);
 		return new(Path.GetFileName(path), kind, isUserAuthorized, isEncrypted, IsRuntimeMemoryDump: isRuntimeMemoryDump, UsesCustomVirtualContainer: usesCustomVirtualContainer);
 	}
 
@@ -136,6 +133,27 @@ public static class GameFileLoader
 			string fullPath = GetFullPathOrOriginal(inputPath);
 			if (Directory.Exists(fullPath))
 			{
+				expanded.Remove(fullPath);
+				try
+				{
+					foreach (string file in Directory.EnumerateFiles(fullPath, "*", SearchOption.AllDirectories))
+					{
+						expanded.Add(Path.GetFullPath(file));
+						if (expanded.Count > MaxExpandedInputFiles)
+						{
+							throw new InvalidOperationException($"The selected directory expands beyond the safe input limit of {MaxExpandedInputFiles:N0} files. Select a narrower game-data directory.");
+						}
+					}
+					Logger.Info(LogCategory.Import, $"Expanded selected directory '{fullPath}' to {expanded.Count} files for complete user-authorized import.");
+				}
+				catch (IOException ex)
+				{
+					Logger.Warning(LogCategory.Import, $"Could not enumerate selected directory '{fullPath}': {ex.Message}");
+				}
+				catch (UnauthorizedAccessException ex)
+				{
+					Logger.Warning(LogCategory.Import, $"Access denied while enumerating selected directory '{fullPath}': {ex.Message}");
+				}
 				continue;
 			}
 
@@ -169,29 +187,12 @@ public static class GameFileLoader
 		{
 			Logger.Info(LogCategory.Import, $"Expanded selected Unity files from {paths.Count} to {expanded.Count} paths by including compatible Unity data, bundles, manifests, and cab/resource companions from the containing folders.");
 		}
-		return expanded.ToArray();
+		return expanded.Order(StringComparer.OrdinalIgnoreCase).ToArray();
 	}
 
 	private static bool IsUnityCompanionFile(string fileName)
 	{
-		string lower = fileName.ToLowerInvariant();
-		if (lower.StartsWith("cab-", StringComparison.Ordinal) || lower.Contains(".split", StringComparison.Ordinal))
-		{
-			return true;
-		}
-
-		bool recognizedExtension = lower.EndsWith(".unity3d", StringComparison.Ordinal)
-			|| lower.Contains(".unity3d_", StringComparison.Ordinal)
-			|| lower.EndsWith(".bundle", StringComparison.Ordinal)
-			|| lower.Contains(".bundle_", StringComparison.Ordinal)
-			|| lower.EndsWith(".assets", StringComparison.Ordinal)
-			|| lower.Contains(".assets_", StringComparison.Ordinal)
-			|| lower.EndsWith(".res", StringComparison.Ordinal)
-			|| lower.EndsWith(".resource", StringComparison.Ordinal)
-			|| lower.EndsWith(".ress", StringComparison.Ordinal)
-			|| lower.EndsWith(".manifest", StringComparison.Ordinal)
-			|| lower.Contains(".manifest_", StringComparison.Ordinal);
-		return recognizedExtension;
+		return PremiumInputFileClassifier.IsRecognizedUnityCompanionFile(fileName);
 	}
 
 	public static async Task ExportUnityProject(string path)

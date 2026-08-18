@@ -1,7 +1,17 @@
 using AssetRipper.Export.Configuration;
 using AssetRipper.Export.Modules.Models;
+using AssetRipper.IO.Endian;
+using AssetRipper.IO.Files.ResourceFiles;
 using AssetRipper.Processing.Configuration;
+using AssetRipper.Primitives;
+using AssetRipper.SourceGenerated.Extensions;
+using AssetRipper.SourceGenerated.Subclasses.ChannelInfo;
+using AssetRipper.SourceGenerated.Subclasses.StreamInfo;
+using AssetRipper.Tools.Common;
 using NUnit.Framework;
+using System.Buffers.Binary;
+using System.Numerics;
+using System.Text;
 
 namespace AssetRipper.Premium.Tests;
 
@@ -75,6 +85,139 @@ public sealed class PremiumInputPolicyTests
 	{
 		EnterpriseAccessSession session = new(EnterpriseAccessMode.DiagnosticOnly, "recovery-token-unavailable", "test");
 		Assert.That(() => EnterpriseAccessGate.RequireTier1ReadableData(session), Throws.TypeOf<Tier1AuthorizationRequiredException>());
+	}
+
+	[Test]
+	public void SkinSanitizerDropsZeroBindPoseAndRemapsWeights()
+	{
+		MeshData source = new(
+			[Vector3.Zero], null, null, null, null, null, null, null, null, null, null, null,
+			[new AssetRipper.Numerics.BoneWeight4(0.25f, 0.75f, 0f, 0f, 0, 1, 0, 0)],
+			[default, Matrix4x4.Identity], [], []);
+
+		Assert.That(SkinnedMeshSanitizer.TrySanitize(source, 2, out SanitizedSkinData sanitized), Is.True);
+		Assert.Multiple(() =>
+		{
+			Assert.That(sanitized.SurvivingSourceBoneIndices, Is.EqualTo(new[] { 1 }));
+			Assert.That(sanitized.DroppedBindPoseCount, Is.EqualTo(1));
+			Assert.That(sanitized.Mesh.BindPose, Has.Length.EqualTo(1));
+			Assert.That(sanitized.Mesh.Skin![0].Index0, Is.EqualTo(0));
+			Assert.That(sanitized.Mesh.Skin![0].Weight0, Is.EqualTo(1f));
+		});
+	}
+
+	[Test]
+	public void VertexStreamProcessorReadsFinalChannelPayloadWithoutRequiringTrailingStridePadding()
+	{
+		ChannelInfo[] channels =
+		[
+			new ChannelInfo { Stream = 0, Offset = 0, Format = 0, Dimension = 3 },
+		];
+		IStreamInfo[] streams =
+		[
+			new StreamInfo_4 { ChannelMask = 1, Offset = 0, Stride_Byte = 16 },
+		];
+		VertexDataBlob blob = new(channels, streams, new byte[28], 2, UnityVersion.Parse("2020.1.0f1"), EndianType.LittleEndian);
+
+		PremiumVertexStreamResult result = PremiumVertexStreamProcessor.Process(blob);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(result.Positions, Has.Length.EqualTo(2));
+			Assert.That(result.Issues.Any(static issue => issue.Semantic == PremiumVertexSemantic.Position && issue.Code == PremiumVertexIssueCode.InvalidLayout), Is.False);
+		});
+	}
+
+	[Test]
+	public void RecoveredAssociationAcceptsExactlyOneFullyCompatibleMesh()
+	{
+		RecoveredAssociationDecision result = RecoveredAssociationResolver.SelectUniqueMesh(
+		[
+			new(11, "incomplete", 4356, 20193, true, false, 25, -1, 1, true),
+			new(12, "candidate", 4356, 20193, true, true, 25, 24, 1, true),
+		],
+		declaredBoneCount: 25,
+		declaredMaterialCount: 1);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(result.Accepted, Is.True);
+			Assert.That(result.Code, Is.EqualTo("recovered-association"));
+			Assert.That(result.Candidate!.PathID, Is.EqualTo(12));
+			Assert.That(result.Evidence, Has.Count.EqualTo(2));
+		});
+	}
+
+	[Test]
+	public void RecoveredAssociationRejectsAmbiguousOrSkinIncompatibleCandidates()
+	{
+		RecoveredAssociationDecision ambiguous = RecoveredAssociationResolver.SelectUniqueMesh(
+		[
+			new(10, "first", 32, 96, true, true, 2, 1, 1, true),
+			new(20, "second", 32, 96, true, true, 2, 1, 1, true),
+		],
+		declaredBoneCount: 2,
+		declaredMaterialCount: 1);
+		RecoveredAssociationDecision incompatible = RecoveredAssociationResolver.SelectUniqueMesh(
+		[
+			new(30, "wrong-bind-pose", 32, 96, true, true, 3, 2, 1, true),
+		],
+		declaredBoneCount: 2,
+		declaredMaterialCount: 1);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(ambiguous.Accepted, Is.False);
+			Assert.That(ambiguous.Code, Is.EqualTo("ambiguous-candidates"));
+			Assert.That(incompatible.Accepted, Is.False);
+			Assert.That(incompatible.Code, Is.EqualTo("no-unique-candidate"));
+			Assert.That(incompatible.Evidence.Single().Message, Does.Contain("bind-pose count"));
+		});
+	}
+
+	[Test]
+	public void RecoveredAssociationAcceptsUsedBindPosePrefixAndRejectsOutOfPrefixWeights()
+	{
+		RecoveredAssociationDecision prefix = RecoveredAssociationResolver.SelectUniqueMesh(
+		[
+			new(40, "prefix", 32, 96, true, true, 35, 34, 1, true),
+		],
+		declaredBoneCount: 53,
+		declaredMaterialCount: 1);
+		RecoveredAssociationDecision outsidePrefix = RecoveredAssociationResolver.SelectUniqueMesh(
+		[
+			new(50, "outside", 32, 96, true, true, 35, 35, 1, true),
+		],
+		declaredBoneCount: 53,
+		declaredMaterialCount: 1);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(prefix.Accepted, Is.True);
+			Assert.That(prefix.Candidate!.BindPoseCount, Is.EqualTo(35));
+			Assert.That(outsidePrefix.Accepted, Is.False);
+			Assert.That(outsidePrefix.Evidence.Single().Message, Does.Contain("bind-pose prefix"));
+		});
+	}
+
+	[Test]
+	public void RecoveredAssociationRequiresRendererAabbExtentMatchWhenDeclared()
+	{
+		RecoveredAssociationDecision result = RecoveredAssociationResolver.SelectUniqueMesh(
+		[
+			new(60, "wrong-aabb", 32, 96, true, true, 2, 1, 1, true, MatchesRendererBounds: false, BoundsCenterDistance: 0.41f, BoundsExtentDistance: 0.18f),
+			new(61, "matching-aabb", 32, 96, true, true, 2, 1, 1, true, MatchesRendererBounds: true),
+		],
+		declaredBoneCount: 2,
+		declaredMaterialCount: 1,
+		requireRendererBoundsMatch: true);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(result.Accepted, Is.True);
+			Assert.That(result.Candidate!.PathID, Is.EqualTo(61));
+			Assert.That(result.Evidence.Single(evidence => evidence.CandidatePathID == 60).Message, Does.Contain("renderer AABB"));
+		});
 	}
 
 	[Test]
@@ -457,6 +600,57 @@ public sealed class PremiumInputPolicyTests
 		Assert.That(assessment.Code, Is.EqualTo("plaintext-supported"));
 	}
 
+	[TestCase("characters.resS", PremiumInputKind.ResourceStream)]
+	[TestCase("characters.streaming", PremiumInputKind.ResourceStream)]
+	[TestCase("resources.assets", PremiumInputKind.SerializedFile)]
+	[TestCase("CAB-82e4aa35e2772775fa43714c41018c4f", PremiumInputKind.UnityBundle)]
+	[TestCase("globalgamemanagers", PremiumInputKind.SerializedFile)]
+	[TestCase("unknown-payload.bin", PremiumInputKind.Unknown)]
+	public void ClassifiesRecognizedUnityAndStreamingCompanionFiles(string path, PremiumInputKind expectedKind)
+	{
+		Assert.That(PremiumInputFileClassifier.Classify(path), Is.EqualTo(expectedKind));
+	}
+
+	[Test]
+	public void AuthorizedStreamingCompanionIsAcceptedByInputPolicy()
+	{
+		PremiumInputKind kind = PremiumInputFileClassifier.Classify("mesh.resS");
+		PremiumInputAssessment assessment = PremiumInputPolicy.Assess(new("mesh.resS", kind, IsUserAuthorized: true));
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(kind, Is.EqualTo(PremiumInputKind.ResourceStream));
+			Assert.That(assessment.IsAccepted, Is.True);
+			Assert.That(assessment.Code, Is.EqualTo("plaintext-supported"));
+		});
+	}
+
+	[Test]
+	public void InputCompletenessSeparatesUnityAssetsStreamingCompanionsAndUnknownFiles()
+	{
+		using ResourceFile resource = new(new byte[] { 1 }, "/fixtures/characters.resS", "characters.resS");
+		PremiumInputCompletenessReport report = PremiumInputCompletenessAnalyzer.Analyze(
+		[
+			"characters.bundle",
+			"resources.assets",
+			"characters.resS",
+			"unknown-payload.bin",
+		],
+		[resource]);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(report.InputPathCount, Is.EqualTo(4));
+			Assert.That(report.UnityBundleCount, Is.EqualTo(1));
+			Assert.That(report.SerializedFileCount, Is.EqualTo(1));
+			Assert.That(report.ResourceStreamCount, Is.EqualTo(1));
+			Assert.That(report.UnclassifiedFileCount, Is.EqualTo(1));
+			Assert.That(report.ImporterConfirmedResourceFileCount, Is.EqualTo(1));
+			Assert.That(report.ImporterConfirmedResourceNames, Is.EqualTo(new[] { "characters.resS" }));
+			Assert.That(report.Entries.Select(static entry => entry.Kind), Does.Contain(PremiumInputKind.ResourceStream));
+		});
+	}
+
 	[Test]
 	public void RejectsUnrecognizedPlaintextFormat()
 	{
@@ -476,6 +670,147 @@ public sealed class PremiumInputPolicyTests
 
 		Assert.That(assessment.IsAccepted, Is.False);
 		Assert.That(assessment.Code, Is.EqualTo(expectedCode));
+	}
+
+	[Test]
+	public void GlbQualityGateAcceptsStaticMeshWithVerifiedPositionBounds()
+	{
+		string path = WriteSyntheticGlb("""{"asset":{"version":"2.0"},"accessors":[{"count":3,"min":[0,0,0],"max":[1,1,1]}],"meshes":[{"primitives":[{"attributes":{"POSITION":0}}]}]}""");
+		try
+		{
+			Assert.That(GlbQualityGate.TryValidate(path, out string reason), Is.True, reason);
+		}
+		finally
+		{
+			File.Delete(path);
+		}
+	}
+
+	[Test]
+	public void GlbQualityGateRejectsSkinnedPrimitiveWithMissingWeights()
+	{
+		string path = WriteSyntheticGlb("""{"asset":{"version":"2.0"},"accessors":[{"count":3,"min":[0,0,0],"max":[1,1,1]},{"count":3}],"meshes":[{"primitives":[{"attributes":{"POSITION":0,"JOINTS_0":1}}]}],"nodes":[{"mesh":0,"skin":0},{}],"skins":[{"joints":[1]}]}""");
+		try
+		{
+			Assert.Multiple(() =>
+			{
+				Assert.That(GlbQualityGate.TryValidate(path, out string reason), Is.False);
+				Assert.That(reason, Does.Contain("JOINTS_0 and WEIGHTS_0"));
+			});
+		}
+		finally
+		{
+			File.Delete(path);
+		}
+	}
+
+	[Test]
+	public void GlbQualityGateAcceptsSkinnedPrimitiveWithCompleteSkinData()
+	{
+		string path = WriteSyntheticGlb("""{"asset":{"version":"2.0"},"accessors":[{"count":3,"min":[0,0,0],"max":[1,1,1]},{"count":3},{"count":3},{"count":1}],"meshes":[{"primitives":[{"attributes":{"POSITION":0,"JOINTS_0":1,"WEIGHTS_0":2}}]}],"nodes":[{"mesh":0,"skin":0},{}],"skins":[{"joints":[1],"inverseBindMatrices":3}]}""");
+		try
+		{
+			Assert.That(GlbQualityGate.TryValidate(path, out string reason), Is.True, reason);
+		}
+		finally
+		{
+			File.Delete(path);
+		}
+	}
+
+	[Test]
+	public void RecoveredAssociationEvidenceIncludesCandidateProvenanceOnRejection()
+	{
+		RecoveredMeshCandidate candidate = new(
+			PathID: 77,
+			Name: "BodyCandidate",
+			VertexCount: 120,
+			IndexCount: 360,
+			HasPosition: true,
+			HasSkin: true,
+			BindPoseCount: 3,
+			MaxReferencedBoneIndex: 2,
+			SubMeshCount: 1,
+			HasNonZeroBounds: true,
+			CollectionPath: "characters/body.bundle",
+			MatchesRendererBounds: false,
+			BoundsCenterDistance: 0.25f,
+			BoundsExtentDistance: 0.5f);
+
+		RecoveredAssociationDecision decision = RecoveredAssociationResolver.SelectUniqueMesh([candidate], declaredBoneCount: 3, declaredMaterialCount: 1, requireRendererBoundsMatch: true);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(decision.Accepted, Is.False);
+			Assert.That(decision.Evidence, Has.Count.EqualTo(1));
+			Assert.That(decision.Evidence[0].Facts, Is.Not.Null);
+			Assert.That(decision.Evidence[0].Facts!.CollectionPath, Is.EqualTo("characters/body.bundle"));
+			Assert.That(decision.Evidence[0].Facts!.VertexCount, Is.EqualTo(120));
+			Assert.That(decision.Evidence[0].Facts!.BoundsExtentDistance, Is.EqualTo(0.5f));
+			Assert.That(decision.Evidence[0].Message, Does.Contain("renderer AABB"));
+			Assert.That(decision.Requirements, Is.EqualTo(new RecoveredAssociationRequirementFacts(3, 1, true)));
+		});
+	}
+
+	[Test]
+	public void GlbFallbackDiagnosticPreservesAssociationRequirements()
+	{
+		RecoveredAssociationRequirementFacts requirements = new(53, 1, true);
+		GlbLevelBuilder.GlbTypeTreeFallbackDiagnostic diagnostic = new(9, false, "no-unique-candidate", "Rejected", [], requirements);
+
+		Assert.That(diagnostic.Requirements, Is.EqualTo(requirements));
+	}
+
+	[TestCase(1024L, 0UL, 1024U, true)]
+	[TestCase(1024L, 1024UL, 0U, true)]
+	[TestCase(1024L, 1024UL, 1U, false)]
+	[TestCase(1024L, 900UL, 125U, false)]
+	public void DeclaredResourceRangeValidationRejectsOutOfBoundsStreams(long length, ulong offset, uint size, bool expected)
+	{
+		bool actual = TypeTreeMeshAdapter.IsDeclaredResourceRangeValid(length, offset, size, out string? rejection);
+
+		Assert.That(actual, Is.EqualTo(expected));
+		Assert.That(rejection is null, Is.EqualTo(expected));
+	}
+
+	[TestCase((byte)0, true)]
+	[TestCase((byte)4, true)]
+	[TestCase((byte)5, false)]
+	public void DeclaredTypeTreeChannelDimensionsAllowDisabledChannels(byte dimension, bool expected)
+	{
+		Assert.That(TypeTreeMeshAdapter.IsDeclaredChannelDimensionSupported(dimension), Is.EqualTo(expected));
+	}
+
+	[Test]
+	public void RawAssetFileNamesRetainCollectionIdentity()
+	{
+		AssetSummary first = new("Mesh", "Mesh", 42, "cab-first", false, false);
+		AssetSummary second = new("Mesh", "Mesh", 42, "cab-second", false, false);
+
+		Assert.That(AssetRipperToolService.CreateRawAssetFileName(first), Is.EqualTo("cab-first__Mesh_42.json"));
+		Assert.That(AssetRipperToolService.CreateRawAssetFileName(second), Is.EqualTo("cab-second__Mesh_42.json"));
+		Assert.That(AssetRipperToolService.CreateRawAssetFileName(first), Is.Not.EqualTo(AssetRipperToolService.CreateRawAssetFileName(second)));
+	}
+
+	private static string WriteSyntheticGlb(string json)
+	{
+		byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+		int paddedLength = (jsonBytes.Length + 3) & ~3;
+		if (paddedLength < 1030)
+		{
+			paddedLength = 1032;
+		}
+		byte[] file = new byte[12 + 8 + paddedLength];
+		BinaryPrimitives.WriteUInt32LittleEndian(file, 0x46546C67);
+		BinaryPrimitives.WriteUInt32LittleEndian(file.AsSpan(4), 2);
+		BinaryPrimitives.WriteUInt32LittleEndian(file.AsSpan(8), (uint)file.Length);
+		BinaryPrimitives.WriteUInt32LittleEndian(file.AsSpan(12), (uint)paddedLength);
+		BinaryPrimitives.WriteUInt32LittleEndian(file.AsSpan(16), 0x4E4F534A);
+		jsonBytes.CopyTo(file.AsSpan(20));
+		file.AsSpan(20 + jsonBytes.Length, paddedLength - jsonBytes.Length).Fill((byte)' ');
+		string path = Path.Combine(Path.GetTempPath(), $"assetripper-glb-gate-{Guid.NewGuid():N}.glb");
+		File.WriteAllBytes(path, file);
+		return path;
 	}
 
 	private static uint PackSnorm10(int value) => unchecked((uint)value) & 0x03FF;

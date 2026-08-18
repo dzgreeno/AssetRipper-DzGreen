@@ -2,6 +2,7 @@ using AssetRipper.Assets;
 using AssetRipper.Assets.Bundles;
 using AssetRipper.Export.Configuration;
 using AssetRipper.Export.Modules.Models;
+using GlbTypeTreeFallbackDiagnostic = AssetRipper.Export.Modules.Models.GlbLevelBuilder.GlbTypeTreeFallbackDiagnostic;
 using AssetRipper.Export.PrimaryContent;
 using AssetRipper.Export.PrimaryContent.Models;
 using AssetRipper.Export.UnityProjects;
@@ -279,19 +280,41 @@ public sealed class AssetRipperToolService
 		}
 		string safeName = SafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
 		string path = Path.Combine(directory, safeName + ".glb");
-		using FileStream stream = File.Create(path);
-		bool success = GlbWriter.TryWrite(
-			GlbLevelBuilder.Build(hierarchy, isScene: false, GameFileLoader.GameBundle.FetchAssets(), catalog),
-			stream,
-			out string? errorMessage);
-		return new GlbExportResult(success, path, safeName, File.Exists(path), rejections, errorMessage, GameFileLoader.ProcessingIssues.ToArray());
+		List<GlbTypeTreeFallbackDiagnostic> typeTreeFallbackDiagnostics = [];
+		bool writerSucceeded;
+		string? errorMessage;
+		using (FileStream stream = File.Create(path))
+		{
+			writerSucceeded = GlbWriter.TryWrite(
+				GlbLevelBuilder.Build(hierarchy, isScene: false, GameFileLoader.GameBundle.FetchAssets(), catalog, typeTreeFallbackDiagnostics),
+				stream,
+				out errorMessage);
+		}
+		if (!writerSucceeded)
+		{
+			return new GlbExportResult(false, path, safeName, File.Exists(path), rejections, typeTreeFallbackDiagnostics, errorMessage, GameFileLoader.ProcessingIssues.ToArray());
+		}
+		bool sourceAccepted = !typeTreeFallbackDiagnostics.Any(static item => !item.Accepted);
+		string qualityReason = string.Empty;
+		bool qualityAccepted = sourceAccepted && GlbQualityGate.TryValidate(path, out qualityReason);
+		if (!qualityAccepted)
+		{
+			if (File.Exists(path))
+			{
+				File.Delete(path);
+			}
+			errorMessage = sourceAccepted ? qualityReason : "A TypeTree renderer was rejected by the source fidelity gate.";
+			return new GlbExportResult(false, path, safeName, false, rejections, typeTreeFallbackDiagnostics, errorMessage, GameFileLoader.ProcessingIssues.ToArray());
+		}
+		return new GlbExportResult(true, path, safeName, true, rejections, typeTreeFallbackDiagnostics, null, GameFileLoader.ProcessingIssues.ToArray());
 	}
 
-	public BatchProcessResult BatchProcess(string outputDirectory, string? filter, bool raw, bool fbx, bool includeAnimations = true, bool verifiedOnly = false, PremiumFallbackTextureCatalog? fallbackTextures = null, bool deterministic = false)
+	public BatchProcessResult BatchProcess(string outputDirectory, string? filter, bool raw, bool fbx, bool includeAnimations = true, bool verifiedOnly = false, PremiumFallbackTextureCatalog? fallbackTextures = null, bool deterministic = false, bool glb = false)
 	{
 		EnsureLoaded();
 		string directory = PrepareOutputDirectory(outputDirectory);
 		List<string> files = [];
+		List<GlbCharacterDecision> glbDecisions = [];
 		HashSet<(long PathId, string Collection)> eligibleAssets = verifiedOnly
 			? CreateVerifiedOnlyPlan().Decisions.Where(static decision => decision.IsEligible).Select(static decision => (decision.Candidate.PathId, decision.Candidate.CollectionName)).ToHashSet()
 			: [];
@@ -312,7 +335,7 @@ public sealed class AssetRipperToolService
 					skippedAssetCount++;
 					continue;
 				}
-				string rawPath = Path.Combine(rawDirectory, $"{SafeFileName(asset.Name, asset.ClassName)}_{asset.PathId}.json");
+				string rawPath = Path.Combine(rawDirectory, CreateRawAssetFileName(asset));
 				File.WriteAllText(rawPath, ToRawJson(resolved), new UTF8Encoding(false));
 				files.Add(rawPath);
 			}
@@ -335,13 +358,49 @@ public sealed class AssetRipperToolService
 				}
 			}
 		}
+		if (glb)
+		{
+			IUnityObjectBase[] animationCandidates = GameFileLoader.GameBundle.FetchAssets()
+				.Where(static asset => asset is IAnimationClip or IAnimatorController)
+				.ToArray();
+			foreach (IGameObject root in FindCharacterRoots(filter))
+			{
+				string safeName = SafeFileName($"{root.GetBestName()}_{root.PathID}", $"character_{root.PathID}");
+				string path = Path.Combine(directory, safeName + ".glb");
+				List<GlbTypeTreeFallbackDiagnostic> typeTreeDiagnostics = [];
+				using (FileStream stream = File.Create(path))
+				{
+					if (!GlbWriter.TryWrite(GlbLevelBuilder.Build(root.FetchHierarchy().OfType<IUnityObjectBase>(), false, animationCandidates, GlbFallbackTextureCatalog.Empty, typeTreeDiagnostics), stream, out string? error))
+					{
+						glbDecisions.Add(new GlbCharacterDecision(root.GetBestName(), root.PathID, false, null, error ?? "GLB writer failed.", typeTreeDiagnostics));
+						continue;
+					}
+				}
+				bool sourceAccepted = !typeTreeDiagnostics.Any(static item => !item.Accepted);
+				string qualityReason = string.Empty;
+				bool qualityAccepted = sourceAccepted && GlbQualityGate.TryValidate(path, out qualityReason);
+				string reason = qualityAccepted
+					? "accepted"
+					: sourceAccepted
+						? qualityReason
+						: "A TypeTree renderer was rejected by the source fidelity gate.";
+				if (reason != "accepted")
+				{
+					File.Delete(path);
+						glbDecisions.Add(new GlbCharacterDecision(root.GetBestName(), root.PathID, false, null, reason, typeTreeDiagnostics));
+					continue;
+				}
+				files.Add(path);
+					glbDecisions.Add(new GlbCharacterDecision(root.GetBestName(), root.PathID, true, path, "accepted", typeTreeDiagnostics));
+			}
+		}
 		string manifestPath = Path.Combine(directory, "assetripper-batch-manifest.json");
 		ProcessingIssue[] issues = GameFileLoader.ProcessingIssues.ToArray();
 		object manifest = deterministic
-			? new { raw, fbx, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, files, issues }
-			: new { generatedUtc = DateTimeOffset.UtcNow, raw, fbx, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, files, issues };
+			? new { raw, fbx, glb, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, files, glbDecisions, issues }
+			: new { generatedUtc = DateTimeOffset.UtcNow, raw, fbx, glb, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, files, glbDecisions, issues };
 		File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, JsonOptions), new UTF8Encoding(false));
-		return new BatchProcessResult(directory, files.ToArray(), manifestPath, raw, fbx, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, issues);
+		return new BatchProcessResult(directory, files.ToArray(), manifestPath, raw, fbx, glb, includeAnimations, verifiedOnly, skippedAssetCount, fallbackTextures, glbDecisions, issues);
 	}
 
 	public string ToRawJson(IUnityObjectBase asset)
@@ -393,15 +452,16 @@ public sealed class AssetRipperToolService
 
 	private IEnumerable<IGameObject> FindCharacterRoots(string? filter)
 	{
-		string query = filter?.Trim() ?? string.Empty;
+		string[] queries = (filter ?? string.Empty)
+			.Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		HashSet<IGameObject> roots = new(ReferenceComparer<IGameObject>.Instance);
 		foreach (IGameObject gameObject in GameFileLoader.GameBundle.FetchAssets().OfType<IGameObject>())
 		{
-			if (!string.IsNullOrEmpty(query) && !Matches(gameObject, query) && !Matches(gameObject.GetRoot(), query))
+			IGameObject root = gameObject.GetRoot();
+			if (queries.Length > 0 && !queries.Any(query => Matches(root, query)))
 			{
 				continue;
 			}
-			IGameObject root = gameObject.GetRoot();
 			if (root.TryGetComponent<ISkinnedMeshRenderer>(out _) || root.TryGetComponent<IAnimator>(out _) || root.FetchHierarchy().OfType<IComponent>().Any(component => component is ISkinnedMeshRenderer or IMeshFilter or IRenderer))
 			{
 				roots.Add(root);
@@ -511,6 +571,13 @@ public sealed class AssetRipperToolService
 		return string.IsNullOrWhiteSpace(candidate) ? fallback : candidate;
 	}
 
+	public static string CreateRawAssetFileName(AssetSummary asset)
+	{
+		string collection = SafeFileName(asset.Collection, "collection");
+		string assetName = SafeFileName(asset.Name, asset.ClassName);
+		return $"{collection}__{assetName}_{asset.PathId}.json";
+	}
+
 	private static int CountFiles(string directory) => Directory.Exists(directory) ? Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories).Count() : 0;
 }
 
@@ -519,14 +586,15 @@ public sealed record AssetSummary(string Name, string ClassName, long PathId, st
 public sealed record MeshInspection(string Name, long PathId, string Collection, int VertexCount, int SubMeshCount, int UvChannelCount, bool HasSkin, int BindPoseCount, bool HasTangents, bool HasNormals, int BlendShapeCount, int BlendShapeFrameCount);
 public sealed record PrefabInspection(AssetSummary Root, IReadOnlyList<AssetSummary> Hierarchy, IReadOnlyList<AssetSummary> Components, IReadOnlyList<MeshInspection> Meshes, IReadOnlyList<AssetSummary> Materials, IReadOnlyList<AssetSummary> Textures, IReadOnlyList<AssetSummary> AnimationClips, int BoneCount, int WeightedMeshCount, int MissingWeightMeshCount, string UnityVersion, IReadOnlyList<ProcessingIssue> Issues);
 public sealed record FbxExportResult(bool Success, string Path, string RootName, bool IncludeAnimations, bool FileExists, int FilesWritten, IReadOnlyList<ProcessingIssue> Issues);
-public sealed record GlbExportResult(bool Success, string Path, string RootName, bool FileExists, IReadOnlyList<GlbFallbackTextureRejection> FallbackRejections, string? ErrorMessage, IReadOnlyList<ProcessingIssue> Issues);
+public sealed record GlbExportResult(bool Success, string Path, string RootName, bool FileExists, IReadOnlyList<GlbFallbackTextureRejection> FallbackRejections, IReadOnlyList<GlbTypeTreeFallbackDiagnostic> TypeTreeFallbackDiagnostics, string? ErrorMessage, IReadOnlyList<ProcessingIssue> Issues);
 public enum PremiumDiagnosticsFormat
 {
 	Json,
 	Html,
 }
 
-public sealed record BatchProcessResult(string OutputDirectory, IReadOnlyList<string> Files, string ManifestPath, bool Raw, bool Fbx, bool IncludeAnimations, bool VerifiedOnly, int SkippedAssetCount, PremiumFallbackTextureCatalog? FallbackTextures, IReadOnlyList<ProcessingIssue> Issues);
+public sealed record BatchProcessResult(string OutputDirectory, IReadOnlyList<string> Files, string ManifestPath, bool Raw, bool Fbx, bool Glb, bool IncludeAnimations, bool VerifiedOnly, int SkippedAssetCount, PremiumFallbackTextureCatalog? FallbackTextures, IReadOnlyList<GlbCharacterDecision> GlbDecisions, IReadOnlyList<ProcessingIssue> Issues);
+public sealed record GlbCharacterDecision(string RootName, long RootPathId, bool Accepted, string? Path, string Reason, IReadOnlyList<GlbTypeTreeFallbackDiagnostic>? TypeTreeFallbackDiagnostics = null);
 public sealed record PremiumTextureBatchItem(long PathId, string Name, bool IsSuccess, string? Path, string? Message);
 public sealed record PremiumTextureBatchResult(string OutputDirectory, PremiumTextureOutputFormat Format, long SucceededCount, long FailedCount, string ManifestPath, IReadOnlyList<PremiumTextureBatchItem> Items);
 

@@ -1,31 +1,29 @@
-# AssetRipper DzGreen — Premium Edition Request
+# AssetRipper DzGreen — Premium Early Access
 
 ## Title
 
-Request the future AssetRipper DzGreen Premium edition
+Get AssetRipper DzGreen Premium Early Access — USD 10
 
 ## Post copy
 
-AssetRipper DzGreen is an independent fork focused on practical Unity asset inspection, character reconstruction, linked Prefab export, Mesh and skinning recovery, and a traceable workflow for Windows users.
+AssetRipper DzGreen Premium Early Access is a USD 10 Windows x64 package for dzgreeno's development, verification, diagnostics, and packaging additions to the independent AssetRipper DzGreen GPL-3.0 fork.
 
-We are preparing a future **Premium edition** for users who need additional capabilities beyond the current open release. The Premium edition is not available yet. This page is a request and interest list so we can understand which features matter most before development begins.
+It includes a guarded GLB-first verification path for Unity data that is authorized, readable, and unencrypted. Output is rejected rather than fabricated when geometry, materials, skinning, bounds, or source references cannot be proven. It does not decrypt data, bypass DRM or anti-tamper controls, dump memory, or recover protected content.
 
-If you would like to request access or suggest a priority feature, please support the project through Ko-fi and include **“AssetRipper DzGreen Premium request”** in your message. Useful details include the Unity version, the asset family you are testing, the export format you need, and the workflow that currently blocks you.
+This is not the official Premium edition of the upstream AssetRipper project and does not claim exclusive ownership of upstream code. The original AssetRipper attribution and GPL-3.0 materials remain retained, and the source for the dzgreeno fork remains publicly available at https://github.com/dzgreeno/AssetRipper-DzGreen.
 
-Support helps dzgreeno continue testing releases, documenting limitations, and improving the open-source fork while preserving the original AssetRipper attribution and GPL-3.0 lineage.
-
-**Request the future Premium edition:** https://ko-fi.com/dzgreen
+**Get DzGreen Premium Early Access for USD 10:** https://ko-fi.com/dzgreen
 
 ## Short social copy
 
-Interested in a future AssetRipper DzGreen Premium edition? Send a Premium request through Ko-fi and tell dzgreeno which Unity version, asset type, and export workflow should be prioritized. The Premium edition is planned for later and is not available yet: https://ko-fi.com/dzgreen
+AssetRipper DzGreen Premium Early Access is available now for USD 10. Support dzgreeno's verification and recovery-workflow additions while preserving GPL-3.0 source access and upstream attribution: https://ko-fi.com/dzgreen
 
 ## Button labels
 
-- Request Premium
-- Request future Premium edition
-- Premium request on Ko-fi
+- Get Premium · $10
+- DzGreen Premium Early Access
+- Premium on Ko-fi
 
 ## Disclosure
 
-This post requests interest only. It does not promise a release date, feature list, license change, or payment entitlement. The current open-source release remains the available version until a future Premium edition is formally announced.
+This post offers an Early Access Windows x64 package. It does not promise universal Unity recovery, a license change, exclusive ownership of upstream code, or functionality outside the documented verified boundaries. The open-source fork remains publicly available under GPL-3.0.

@@ -15,7 +15,18 @@ internal static class GlbSubMeshBuilder
 {
 	public static IMeshBuilder<MaterialBuilder> BuildSubMeshes(ArraySegment<ValueTuple<ISubMesh, MaterialBuilder>> subMeshes, bool is16BitIndices, MeshData meshData, Transformation transform, Transformation inverseTransform)
 	{
-		BuildSubMeshParameters parameters = new BuildSubMeshParameters(subMeshes, is16BitIndices, meshData, transform, inverseTransform);
+		(SubMeshData, MaterialBuilder)[] declaredSubMeshes = new (SubMeshData, MaterialBuilder)[subMeshes.Count];
+		for (int index = 0; index < subMeshes.Count; index++)
+		{
+			(ISubMesh subMesh, MaterialBuilder material) = subMeshes[index];
+			declaredSubMeshes[index] = (new SubMeshData(subMesh.BaseVertex, checked((int)subMesh.GetFirstIndex(is16BitIndices)), checked((int)subMesh.FirstVertex), checked((int)subMesh.IndexCount), checked((int)subMesh.TriangleCount), checked((int)subMesh.VertexCount), subMesh.GetTopology(), subMesh.LocalAABB), material);
+		}
+		return BuildSubMeshes(new ArraySegment<(SubMeshData, MaterialBuilder)>(declaredSubMeshes), meshData, transform, inverseTransform);
+	}
+
+	public static IMeshBuilder<MaterialBuilder> BuildSubMeshes(ArraySegment<ValueTuple<SubMeshData, MaterialBuilder>> subMeshes, MeshData meshData, Transformation transform, Transformation inverseTransform)
+	{
+		BuildSubMeshParameters parameters = new BuildSubMeshParameters(subMeshes, meshData, transform, inverseTransform);
 		switch (meshData.GetMeshType())
 		{
 			case GlbMeshType.Position | GlbMeshType.Empty | GlbMeshType.Empty:
@@ -139,8 +150,8 @@ internal static class GlbSubMeshBuilder
 
 		for (int i = 0; i < parameters.SubMeshes.Count; i++)
 		{
-			(ISubMesh subMesh, MaterialBuilder material) = parameters.SubMeshes[i];
-			BuildSubMesh(meshBuilder, subMesh, material, parameters.Is16BitIndices, parameters.MeshData, positionTransform, tangentTransform, normalTransform);
+			(SubMeshData subMesh, MaterialBuilder material) = parameters.SubMeshes[i];
+			BuildSubMesh(meshBuilder, subMesh, material, parameters.MeshData, positionTransform, tangentTransform, normalTransform);
 		}
 
 		return meshBuilder;
@@ -148,9 +159,8 @@ internal static class GlbSubMeshBuilder
 
 	private static PrimitiveBuilder<MaterialBuilder, TvG, TvM, TvS> BuildSubMesh<TvG, TvM, TvS>(
 		MeshBuilder<TvG, TvM, TvS> meshBuilder,
-		ISubMesh subMesh,
+		SubMeshData subMesh,
 		MaterialBuilder material,
-		bool is16BitIndices,
 		MeshData meshData,
 		Transformation positionTransform,
 		Transformation tangentTransform,
@@ -159,10 +169,10 @@ internal static class GlbSubMeshBuilder
 		where TvM : unmanaged, IVertexMaterial
 		where TvS : unmanaged, IVertexSkinning
 	{
-		uint firstIndex = subMesh.GetFirstIndex(is16BitIndices);
+		uint firstIndex = checked((uint)subMesh.FirstIndex);
 
-		uint indexCount = subMesh.IndexCount;
-		MeshTopology topology = subMesh.GetTopology();
+		uint indexCount = checked((uint)subMesh.IndexCount);
+		MeshTopology topology = subMesh.Topology;
 
 		int primitiveVertexCount = topology switch
 		{
@@ -396,8 +406,7 @@ internal static class GlbSubMeshBuilder
 	}
 
 	private readonly record struct BuildSubMeshParameters(
-		ArraySegment<ValueTuple<ISubMesh, MaterialBuilder>> SubMeshes,
-		bool Is16BitIndices,
+		ArraySegment<ValueTuple<SubMeshData, MaterialBuilder>> SubMeshes,
 		MeshData MeshData,
 		Transformation Transform,
 		Transformation InverseTransform)

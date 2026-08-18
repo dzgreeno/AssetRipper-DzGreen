@@ -12,6 +12,7 @@ namespace AssetRipper.Assets.Collections;
 public sealed class SerializedAssetCollection : AssetCollection
 {
 	private FileIdentifier[]? DependencyIdentifiers { get; set; }
+	private string[] DependencyNames { get; set; } = [];
 	/// <summary>Whether the source serialized file declared an embedded TypeTree.</summary>
 	public bool HasEmbeddedTypeTree { get; private set; }
 	/// <summary>The number of serialized types declared by the source file.</summary>
@@ -47,6 +48,9 @@ public sealed class SerializedAssetCollection : AssetCollection
 		}
 	}
 
+	/// <summary>Gets the source-declared external filename for a PPtr file ID, when available.</summary>
+	public string? GetDependencyName(int fileID) => fileID is > 0 && fileID <= DependencyNames.Length ? DependencyNames[fileID - 1] : null;
+
 	/// <summary>
 	/// Creates a <see cref="SerializedAssetCollection"/> from a <see cref="SerializedFile"/>.
 	/// </summary>
@@ -79,6 +83,7 @@ public sealed class SerializedAssetCollection : AssetCollection
 		if (fileDependencies.Length > 0)
 		{
 			collection.DependencyIdentifiers = fileDependencies.ToArray();
+			collection.DependencyNames = fileDependencies.ToArray().Select(static identifier => identifier.GetFilePath()).ToArray();
 		}
 		ReadData(collection, file, factory);
 		return collection;

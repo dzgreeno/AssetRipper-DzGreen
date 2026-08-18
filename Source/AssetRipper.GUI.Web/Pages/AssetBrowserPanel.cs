@@ -37,6 +37,8 @@ internal static class AssetBrowserPanel
 		int meshes = rows.Count(row => row.Category == "Mesh");
 		int animations = rows.Count(row => row.Category == "Animation");
 		int textures = rows.Count(row => row.Category == "Texture");
+		int resourceFiles = bundle.FetchResourceFiles().Count();
+		int inputPaths = GameFileLoader.LoadedInputPaths.Count;
 		// Full character reconstruction can traverse every component relationship. For very large
 		// libraries, keep the workspace immediately responsive and let the user narrow to a root asset first.
 		CharacterAssemblyIndex.CharacterAssembly[] characterAssemblies = rows.Length > 8_000
@@ -52,11 +54,15 @@ internal static class AssetBrowserPanel
 new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 						new P(writer).WithClass("asset-browser-subtitle").Close("Browse processed game data, inspect resolved components, and open any asset without leaving the main workspace.");
 				}
-				using (new Div(writer).WithClass("asset-browser-actions").End())
-				{
-					new A(writer).WithHref("/Commands").WithClass("btn btn-primary").Close("Open / export");
-					new A(writer).WithHref("/Search/View").WithClass("btn btn-outline-secondary").Close("Advanced search");
-				}
+					using (new Div(writer).WithClass("asset-browser-actions").End())
+					{
+						new A(writer).WithHref("/Commands").WithClass("btn btn-primary").Close("Open / export");
+						new A(writer).WithHref("/Search/View").WithClass("btn btn-outline-secondary").Close("Advanced search");
+						if (GameFileLoader.Premium)
+						{
+							new A(writer).WithHref("/PremiumDiagnostics").WithClass("btn btn-outline-info").Close("Input diagnostics");
+						}
+					}
 			}
 
 			using (new Div(writer).WithClass("asset-browser-stats").End())
@@ -65,9 +71,15 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 				WriteStat(writer, "Collections", collections.Count.ToString());
 				WriteStat(writer, "GameObjects", gameObjects.ToString());
 				WriteStat(writer, "Meshes", meshes.ToString());
-				WriteStat(writer, "Animations", animations.ToString());
-					WriteStat(writer, "Textures", textures.ToString());
-				}
+					WriteStat(writer, "Animations", animations.ToString());
+						WriteStat(writer, "Textures", textures.ToString());
+						WriteStat(writer, "Input files", inputPaths.ToString());
+						WriteStat(writer, "Resources", resourceFiles.ToString());
+					}
+					if (GameFileLoader.Premium)
+					{
+						new P(writer).WithClass("asset-browser-input-summary").Close($"{inputPaths} local input file(s) and {resourceFiles} importer-confirmed resource file(s) are available. Open Input diagnostics before a verified export.");
+					}
 				if (rows.Length > 5000)
 				{
 					new P(writer).WithClass("asset-browser-large-set-note").Close($"All {rows.Length} processed assets are available. Use search or filters to narrow the workspace.");
@@ -414,11 +426,12 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 							new Span(writer).WithClass("asset-browser-tree-label").Close("RESOLVED COMPONENTS");
 							WriteWorkbenchFact(writer, "Meshes", assembly.Meshes.Count);
 							WriteWorkbenchFact(writer, "Materials", assembly.Materials.Count);
-							WriteWorkbenchFact(writer, "Textures", assembly.Textures.Count);
-							WriteWorkbenchFact(writer, "Clips", assembly.AnimationClips.Count);
-					WriteWorkbenchFact(writer, "Weighted meshes", assembly.WeightedSkinnedMeshCount);
-								if (assembly.MissingSkinWeightsCount > 0)
-							{
+								WriteWorkbenchFact(writer, "Textures", assembly.Textures.Count);
+								WriteWorkbenchFact(writer, "Clips", assembly.AnimationClips.Count);
+						WriteWorkbenchFact(writer, "Weighted meshes", assembly.WeightedSkinnedMeshCount);
+								WriteExportReadiness(writer, assembly);
+									if (assembly.MissingSkinWeightsCount > 0)
+								{
 								new P(writer).WithClass("character-assembly-missing").Close($"{assembly.MissingSkinWeightsCount} mesh(es) need skin-weight review.");
 							}
 						}
@@ -564,14 +577,41 @@ new H1(writer).WithClass("asset-browser-title").Close("Asset Workspace");
 		new A(writer).WithId(id).WithHref(href).WithClass(className).Close(text);
 	}
 
-	private static void WriteWorkbenchFact(TextWriter writer, string label, int value)
+		private static void WriteWorkbenchFact(TextWriter writer, string label, int value)
 	{
 		using (new Div(writer).WithClass("asset-browser-fact").End())
 		{
 			new Strong(writer).Close(value.ToString());
 			new Span(writer).Close(label);
 		}
-	}
+		}
+
+		private static void WriteExportReadiness(TextWriter writer, CharacterAssemblyIndex.CharacterAssembly assembly)
+		{
+			string state;
+			string message;
+			if (assembly.MissingSkinWeightsCount > 0)
+			{
+				state = "blocked";
+				message = $"Verification blocked: {assembly.MissingSkinWeightsCount} skinned mesh(es) do not expose usable skin weights.";
+			}
+			else if (assembly.MissingLinks.Count > 0)
+			{
+				state = "review";
+				message = $"Source review required: {assembly.MissingLinks.Count} resolved relationship(s) are incomplete.";
+			}
+			else if (assembly.SkinnedMeshCount > 0)
+			{
+				state = "verify";
+				message = "Ready to request export verification. GLB geometry, skin, material, and animation gates still decide acceptance.";
+			}
+			else
+			{
+				state = "static";
+				message = "Static-model path detected. GLB geometry and material gates still decide acceptance.";
+			}
+			new P(writer).WithClass("asset-browser-export-readiness").WithCustomAttribute("data-export-readiness", state).Close(message);
+		}
 
 	private static void WriteInspector(TextWriter writer)
 	{

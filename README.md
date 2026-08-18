@@ -22,20 +22,15 @@ AssetRipper is already a powerful tool for analyzing Unity game files. DzGreen e
 | Tool integration | Project-specific APIs | `list_assets`, `inspect_prefab`, `export_fbx_with_anim`, and `batch_process` MCP tools |
 | Distribution | Upstream release channels | Fork-specific Windows package plus reproducible multi-platform GitHub Actions workflow |
 
-## Current prepared package
+## DzGreen Premium Early Access
 
-The latest prepared Windows package contains the GUI, CLI, MCP server, and supporting documentation.
+AssetRipper DzGreen Premium Early Access is a separate **Windows x64** package available for **USD 10** through [dzgreeno's Ko-fi page](https://ko-fi.com/dzgreen). The price supports dzgreeno's development, verification, diagnostics, and packaging additions to this independent GPL-3.0 fork.
 
-| Field | Value |
-| --- | --- |
-| Base line | AssetRipper `1.3.15` |
-| Package | `AssetRipper-DzGreen-v1.3.15-dzgreen.10-dev-premium-request-Windows-x64.zip` |
-| Platform | Windows x64, self-contained |
-| Size | 91,533,238 bytes |
-| Files | 1,374 |
-| SHA256 | `57942ba38bfcdf3630f441f450ea94b037db3ba4ad5433e50f9fbc1bd0d04226` |
+> This is not the official Premium edition of the upstream AssetRipper project and does not claim exclusive ownership of upstream code. Original AssetRipper attribution and GPL-3.0 licensing remain retained; this public repository is the source-access location for the fork.
 
-The source tree also contains a GitHub Actions release workflow for Windows x64/ARM64, Linux x64/ARM64, and macOS x64/Apple Silicon. The **Request Premium** link in the GUI and site opens [dzgreeno's Ko-fi page](https://ko-fi.com/dzgreen) for interest in a future edition; it does not enable a payment feature or promise an unavailable Premium build.
+The Premium workflow is intended for Unity data that the user is authorized to process and that is already readable and unencrypted. It provides a guarded GLB-first acceptance path and rejects incomplete or unprovable output instead of inventing missing meshes, bones, materials, textures, or dependencies. It does not decrypt data, bypass DRM or anti-tamper controls, or recover protected content.
+
+The source tree also contains a GitHub Actions release workflow for Windows x64/ARM64, Linux x64/ARM64, and macOS x64/Apple Silicon. The **Get Premium · $10** link in the GUI and site opens the Ko-fi offer; it is not an entitlement to universal Unity recovery.
 
 ## Getting started
 

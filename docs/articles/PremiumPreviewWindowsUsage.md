@@ -21,4 +21,4 @@ When started without this user attestation, the Premium preview rejects imports 
 
 The preview uses the same safe companion-file discovery, prefab-reference recovery, and Unity-project export pipeline as the current DzGreen build. Keep the full set of legitimate companion files together in their original directory where possible, because incomplete source selections cannot be reconstructed by inventing missing bundles or dependencies.
 
-For the architecture and planned high-fidelity improvements, see `PremiumSafeArchitecture.md`. Support and requests for the future Premium edition are available at [Ko-fi](https://ko-fi.com/dzgreen).
+For the architecture and high-fidelity improvements, see `PremiumSafeArchitecture.md`. DzGreen Premium Early Access is available for USD 10 through [Ko-fi](https://ko-fi.com/dzgreen); it supports the DzGreen development and verification additions, not an official upstream AssetRipper Premium edition. The GPL-3.0 source remains publicly available in the dzgreeno repository.

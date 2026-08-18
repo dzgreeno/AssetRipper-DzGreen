@@ -955,6 +955,11 @@ header::before {
 .asset-browser-stat:last-child { border-right: 0; }
 .asset-browser-stat-value { color: #9be15d; font-family: "Bahnschrift", "Segoe UI", sans-serif; font-size: 1.35rem; letter-spacing: -.04em; }
 .asset-browser-stat-label { color: #899388; font-size: .62rem; }
+.asset-browser-input-summary { margin: -.55rem 0 1.2rem; padding: .68rem .82rem; border-left: 2px solid #9be15d; background: rgba(155, 225, 93, .06); color: #bcc7b9; font-family: "Cascadia Mono", Consolas, monospace; font-size: .72rem; line-height: 1.55; }
+.asset-browser-export-readiness { margin: .85rem 0 0; padding: .62rem .68rem; border-left: 2px solid #5ac8fa; background: rgba(90, 200, 250, .07); color: #c7d8e4; font-size: .74rem; line-height: 1.45; }
+.asset-browser-export-readiness[data-export-readiness="blocked"] { border-left-color: #fbbf24; background: rgba(251, 191, 36, .08); color: #fde5a6; }
+.asset-browser-export-readiness[data-export-readiness="review"] { border-left-color: #f0a05a; background: rgba(240, 160, 90, .08); color: #f5d2ad; }
+.asset-browser-export-readiness[data-export-readiness="verify"] { border-left-color: #9be15d; background: rgba(155, 225, 93, .07); color: #d9edcc; }
 
 .asset-browser-workbench {
 	position: relative;

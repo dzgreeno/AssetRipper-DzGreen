@@ -36,6 +36,7 @@ internal static class Program
 			}
 			PremiumFallbackTextureCatalog? fallbackTextures = options.FallbackTexturesDirectory is null ? null : service.CreateFallbackTextureCatalog(options.FallbackTexturesDirectory);
 			string? diagnosticsPath = options.DiagnosticsFormat is null ? null : service.ExportDiagnostics(options.OutputDirectory, options.DiagnosticsFormat.Value, fallbackTextures, options.Ci);
+			CliExitCode operationExitCode = CliExitCode.Success;
 			object result;
 			if (options.ExportTextures)
 			{
@@ -43,15 +44,30 @@ internal static class Program
 			}
 			else if (options.BatchProcess || options.Raw || options.ExportVerifiedOnly)
 			{
-				result = new { enterpriseAccess, load, diagnosticsPath, batch = service.BatchProcess(options.OutputDirectory, options.Filter, options.Raw, options.Fbx, options.IncludeAnimations, options.ExportVerifiedOnly, fallbackTextures, options.Ci) };
+				BatchProcessResult batch = service.BatchProcess(options.OutputDirectory, options.Filter, options.Raw, options.Fbx, options.IncludeAnimations, options.ExportVerifiedOnly, fallbackTextures, options.Ci, options.Glb);
+				if (options.Glb && batch.GlbDecisions.Any(static decision => !decision.Accepted))
+				{
+					operationExitCode = CliExitCode.ExportRejected;
+				}
+				result = new { enterpriseAccess, load, diagnosticsPath, batch };
 			}
 			else if (options.Fbx)
 			{
-				result = new { enterpriseAccess, load, diagnosticsPath, fbx = service.ExportFbxWithAnimation(options.Filter, options.OutputDirectory, options.IncludeAnimations), fallbackTextures };
+				FbxExportResult fbx = service.ExportFbxWithAnimation(options.Filter, options.OutputDirectory, options.IncludeAnimations);
+				if (!fbx.Success)
+				{
+					operationExitCode = CliExitCode.ExportRejected;
+				}
+				result = new { enterpriseAccess, load, diagnosticsPath, fbx, fallbackTextures };
 			}
 			else if (options.Glb)
 			{
-				result = new { enterpriseAccess, load, diagnosticsPath, glb = service.ExportGlb(options.Filter, options.OutputDirectory, fallbackTextures), fallbackTextures };
+				GlbExportResult glb = service.ExportGlb(options.Filter, options.OutputDirectory, fallbackTextures);
+				if (!glb.Success)
+				{
+					operationExitCode = CliExitCode.ExportRejected;
+				}
+				result = new { enterpriseAccess, load, diagnosticsPath, glb, fallbackTextures };
 			}
 			else if (options.InspectPrefab)
 			{
@@ -62,10 +78,11 @@ internal static class Program
 				result = new { enterpriseAccess, load, diagnosticsPath, verifiedOnly = options.ExportVerifiedOnly ? service.CreateVerifiedOnlyPlan() : null, fallbackTextures, assets = service.ListAssets(options.Filter, options.Limit) };
 			}
 			Console.WriteLine(JsonSerializer.Serialize(result, options.Ci ? CompactJsonOptions : JsonOptions));
-			if (load.Issues.Count > 0)
+			CliExitCode exitCode = load.Issues.Count > 0 ? CliExitCode.RecoverableIssues : operationExitCode;
+			if (exitCode != CliExitCode.Success)
 			{
-				WriteCiSummary(options, CliExitCode.RecoverableIssues, load.AssetCount, load.Issues.Count);
-				return (int)CliExitCode.RecoverableIssues;
+				WriteCiSummary(options, exitCode, load.AssetCount, load.Issues.Count);
+				return (int)exitCode;
 			}
 			WriteCiSummary(options, CliExitCode.Success, load.AssetCount, 0);
 			return (int)CliExitCode.Success;
@@ -73,6 +90,7 @@ internal static class Program
 		catch (ArgumentException ex)
 		{
 			Console.Error.WriteLine($"AssetRipper CLI argument error: {ex.Message}");
+			Console.Error.WriteLine(ex);
 			WriteCiSummary(args, CliExitCode.InvalidArguments, 0, 0);
 			return (int)CliExitCode.InvalidArguments;
 		}
@@ -116,6 +134,7 @@ internal enum CliExitCode
 	InvalidArguments = 2,
 	RecoverableIssues = 3,
 	InputNotFound = 4,
+	ExportRejected = 5,
 }
 
 internal sealed class CliOptions

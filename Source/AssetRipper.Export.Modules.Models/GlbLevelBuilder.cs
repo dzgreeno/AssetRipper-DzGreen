@@ -1,7 +1,10 @@
 ﻿using AssetRipper.Assets;
 using AssetRipper.Assets.Collections;
 using AssetRipper.Assets.Generics;
+using AssetRipper.Assets.Metadata;
 using AssetRipper.Export.Modules.Textures;
+
+using AssetRipper.Import.AssetCreation;
 
 using AssetRipper.Import.Logging;
 using AssetRipper.Numerics;
@@ -21,6 +24,7 @@ using AssetRipper.SourceGenerated.Classes.ClassID_95;
 using AssetRipper.SourceGenerated.Classes.ClassID_137;
 using AssetRipper.SourceGenerated.Extensions;
 using AssetRipper.SourceGenerated.Subclasses.PPtr_Material;
+using AssetRipper.SourceGenerated.Subclasses.PPtr_Component;
 using AssetRipper.SourceGenerated.Subclasses.QuaternionCurve;
 using AssetRipper.SourceGenerated.Subclasses.SubMesh;
 using AssetRipper.SourceGenerated.Subclasses.UnityTexEnv;
@@ -43,12 +47,12 @@ namespace AssetRipper.Export.Modules.Models;
 
 public static class GlbLevelBuilder
 {
-	public static SceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool isScene, IEnumerable<IUnityObjectBase>? animationAssets = null, GlbFallbackTextureCatalog? fallbackTextures = null)
+	public static SceneBuilder Build(IEnumerable<IUnityObjectBase> assets, bool isScene, IEnumerable<IUnityObjectBase>? animationAssets = null, GlbFallbackTextureCatalog? fallbackTextures = null, ICollection<GlbTypeTreeFallbackDiagnostic>? typeTreeFallbackDiagnostics = null)
 	{
 		IUnityObjectBase[] sourceAssets = assets.ToArray();
 		IUnityObjectBase[] animationCandidates = animationAssets?.ToArray() ?? sourceAssets;
 		SceneBuilder sceneBuilder = new();
-		BuildParameters parameters = new BuildParameters(isScene, fallbackTextures ?? GlbFallbackTextureCatalog.Empty);
+		BuildParameters parameters = new BuildParameters(isScene, fallbackTextures ?? GlbFallbackTextureCatalog.Empty, typeTreeFallbackDiagnostics ?? []);
 
 		HashSet<IUnityObjectBase> exportedAssets = new();
 		HashSet<IGameObject> roots = new(ReferenceEqualityComparer.Instance);
@@ -60,7 +64,7 @@ public static class GlbLevelBuilder
 				IGameObject root = GetRoot(asset);
 				roots.Add(root);
 
-				AddGameObjectToScene(sceneBuilder, parameters, null, Transformation.Identity, Transformation.Identity, root.GetTransform());
+				AddGameObjectToScene(sceneBuilder, parameters, null, Transformation.Identity, Transformation.Identity, root.GetTransform(), root.Name.String);
 
 				foreach (IEditorExtension exportedAsset in root.FetchHierarchy())
 				{
@@ -195,7 +199,7 @@ public static class GlbLevelBuilder
 		return current;
 	}
 
-		private static void AddGameObjectToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder? parentNode, Transformation parentGlobalTransform, Transformation parentGlobalInverseTransform, ITransform transform)
+	private static void AddGameObjectToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder? parentNode, Transformation parentGlobalTransform, Transformation parentGlobalInverseTransform, ITransform transform, string recoveryIdentity)
 	{
 		IGameObject? gameObject = transform.GameObject_C4P;
 		if (gameObject is null)
@@ -221,7 +225,7 @@ public static class GlbLevelBuilder
 
 		foreach (ITransform childTransform in transform.Children_C4P.WhereNotNull())
 		{
-			AddGameObjectToScene(sceneBuilder, parameters, node, localTransform * parentGlobalTransform, parentGlobalInverseTransform * localInverseTransform, childTransform);
+			AddGameObjectToScene(sceneBuilder, parameters, node, localTransform * parentGlobalTransform, parentGlobalInverseTransform * localInverseTransform, childTransform, recoveryIdentity);
 		}
 
 		if (gameObject.TryGetComponent(out ISkinnedMeshRenderer? skinnedRenderer)
@@ -229,18 +233,28 @@ public static class GlbLevelBuilder
 			&& parameters.TryGetOrMakeMeshData(skinnedMesh, out MeshData skinnedData)
 		)
 		{
-			ITransform[] bones = skinnedRenderer.BonesP.WhereNotNull().ToArray();
-			if (skinnedData.HasSkin && bones.Length > 0 && bones.All(parameters.NodeCache.ContainsKey))
-			{
-				AddSkinnedMeshToScene(sceneBuilder, parameters, node, skinnedMesh, skinnedData, new MaterialList(skinnedRenderer), bones);
+				ITransform[] sourceBones = skinnedRenderer.BonesP.WhereNotNull().ToArray();
+				if (SkinnedMeshSanitizer.TrySanitize(skinnedData, sourceBones.Length, out SanitizedSkinData sanitized)
+					&& sanitized.SurvivingSourceBoneIndices.Select(index => sourceBones[index]).All(parameters.NodeCache.ContainsKey))
+				{
+					ITransform[] bones = sanitized.SurvivingSourceBoneIndices.Select(index => sourceBones[index]).ToArray();
+					if (sanitized.DroppedBindPoseCount > 0 || sanitized.RootFallbackVertexCount > 0)
+					{
+						Logger.Warning(LogCategory.Export, $"GLB sanitized skinned mesh '{skinnedMesh.GetBestName()}': droppedBindPoses={sanitized.DroppedBindPoseCount}, skinFallbackRootVertices={sanitized.RootFallbackVertexCount}.");
+					}
+					AddSkinnedMeshToScene(sceneBuilder, parameters, node, skinnedMesh, sanitized.Mesh, new MaterialList(skinnedRenderer), bones);
 			}
-			else
-			{
-				Logger.Warning(LogCategory.Export, $"GLB exported skinned mesh '{skinnedMesh.GetBestName()}' as a rigid mesh because its bone references could not be resolved.");
-				AddDynamicMeshToScene(sceneBuilder, parameters, node, skinnedMesh, skinnedData, new MaterialList(skinnedRenderer));
+				else
+				{
+					Logger.Warning(LogCategory.Export, $"GLB exported skinned mesh '{skinnedMesh.GetBestName()}' as a rigid mesh because its bone references could not be resolved.");
+					AddDynamicMeshToScene(sceneBuilder, parameters, node, skinnedMesh, skinnedData, new MaterialList(skinnedRenderer));
+				}
 			}
-		}
-		else if (gameObject.TryGetComponent(out IMeshFilter? meshFilter)
+			else if (TryAddRecoveredTypeTreeSkinnedMesh(sceneBuilder, parameters, node, gameObject, recoveryIdentity))
+			{
+				// The recovered path emitted either a fully validated skinned mesh or an explicit rejection diagnostic.
+			}
+			else if (gameObject.TryGetComponent(out IMeshFilter? meshFilter)
 			&& meshFilter.TryGetMesh(out IMesh? mesh)
 			&& parameters.TryGetOrMakeMeshData(mesh, out MeshData meshData)
 			&& gameObject.TryGetComponent(out IRenderer? meshRenderer))
@@ -254,10 +268,129 @@ public static class GlbLevelBuilder
 				int[] subsetIndices = GetSubsetIndices(meshRenderer, mesh.SubMeshes.Count);
 				AddStaticMeshToScene(sceneBuilder, parameters, node, mesh, meshData, subsetIndices, new MaterialList(meshRenderer), globalTransform, globalInverseTransform);
 			}
+			}
 		}
-	}
 
-	private static void AddSkinnedMeshToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder node, IMesh mesh, MeshData meshData, MaterialList materialList, IReadOnlyList<ITransform> bones)
+	private static bool TryAddRecoveredTypeTreeSkinnedMesh(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder node, IGameObject gameObject, string recoveryIdentity)
+		{
+			bool Reject(long rendererPathId, string code, string message, IReadOnlyList<RecoveredAssociationEvidence>? evidence = null, RecoveredAssociationRequirementFacts? requirements = null)
+			{
+				parameters.TypeTreeFallbackDiagnostics.Add(new GlbTypeTreeFallbackDiagnostic(rendererPathId, false, code, message, evidence ?? [], requirements));
+				Logger.Warning(LogCategory.Export, $"GLB TypeTree fallback-rejected for SkinnedMeshRenderer '{rendererPathId}': {message}");
+				return true;
+			}
+
+			TypeTreeSkinnedMeshRendererData source;
+			long rendererPathId;
+			string? rejection;
+			if (gameObject.TryGetComponent(out ISkinnedMeshRenderer? knownRenderer)
+				&& TryResolveKnownRendererTypeTreeMesh(knownRenderer, out TypeTreeObject? knownMesh))
+			{
+				ITransform[] bones = knownRenderer.BonesP.WhereNotNull().ToArray();
+				IMaterial?[] materials = knownRenderer.Materials_C25.Select(pointer => pointer.TryGetAsset(knownRenderer.Collection)).ToArray();
+				if (bones.Length == 0 || materials.Any(static material => material is null))
+				{
+					Logger.Warning(LogCategory.Export, $"GLB TypeTree fallback-rejected for SkinnedMeshRenderer '{knownRenderer.PathID}': the known renderer does not expose a complete bone or material pointer list.");
+					return true;
+				}
+				source = new TypeTreeSkinnedMeshRendererData(knownMesh, bones, materials!);
+				rendererPathId = knownRenderer.PathID;
+			}
+			else if (TryGetRecoveredTypeTreeSkinnedMeshRenderer(gameObject, out TypeTreeObject? renderer))
+			{
+				rendererPathId = renderer.PathID;
+				if (!TypeTreeMeshAdapter.TryReadDeclaredSkinnedMeshRendererReferences(renderer, out TypeTreeSkinnedMeshRendererReferences references, out rejection))
+				{
+					return Reject(rendererPathId, "renderer-schema-or-pointer", rejection ?? "The recovered renderer does not expose a complete source mesh, bones, and materials set.");
+				}
+				RecoveredAssociationDecision recoveredMesh = TypeTreeMeshAdapter.RecoverUniqueMeshAssociation(renderer, references, recoveryIdentity);
+					if (!recoveredMesh.Accepted || recoveredMesh.Candidate?.Asset is not IUnityObjectBase recoveredMeshAsset)
+					{
+						return Reject(rendererPathId, recoveredMesh.Code, recoveredMesh.Message, recoveredMesh.Evidence, recoveredMesh.Requirements);
+				}
+				if (references.Materials.Any(static material => material is not IMaterial))
+				{
+					return Reject(rendererPathId, "material-type-tree-unavailable", $"The recovered mesh association is unique (PathID={recoveredMeshAsset.PathID}), but its declared materials are not yet readable IMaterial instances ({string.Join(",", references.Materials.Select(static material => material.ClassName))}).");
+				}
+				// Unity skin indices address the bind-pose domain. A shorter domain is valid only because
+				// the resolver proved every vertex index stays inside this declared prefix.
+				source = new TypeTreeSkinnedMeshRendererData(recoveredMeshAsset, references.Bones.Take(recoveredMesh.Candidate.BindPoseCount).ToArray(), references.Materials.Cast<IMaterial>().ToArray());
+			}
+			else
+			{
+				return false;
+			}
+			MeshData meshData = default!;
+			string? meshDataRejection = null;
+			bool hasMeshData = source.Mesh switch
+			{
+				IMesh mesh => parameters.TryGetOrMakeMeshData(mesh, out meshData),
+				TypeTreeObject mesh => TypeTreeMeshAdapter.TryCreateDeclaredMeshData(mesh, out meshData, out meshDataRejection),
+				_ => false,
+			};
+			if (!hasMeshData)
+			{
+				return Reject(rendererPathId, "mesh-schema-or-payload", meshDataRejection ?? "The source m_Mesh does not expose readable mesh data.");
+			}
+			if (!meshData.HasSkin || meshData.BindPose is null || source.Bones.Length != meshData.BindPose.Length)
+			{
+				return Reject(rendererPathId, "bone-bind-pose-mismatch", "The declared bone count does not exactly match the declared bind-pose count.");
+			}
+			if (source.Materials.Length != meshData.SubMeshes.Length)
+			{
+				return Reject(rendererPathId, "material-submesh-mismatch", "The declared material count does not match the declared submesh count.");
+			}
+			if (!source.Bones.All(parameters.NodeCache.ContainsKey))
+			{
+				return Reject(rendererPathId, "bone-outside-hierarchy", "One or more declared bone Transforms are outside the exported hierarchy.");
+			}
+			if (!SkinnedMeshSanitizer.TrySanitize(meshData, source.Bones.Length, out SanitizedSkinData sanitized)
+				|| sanitized.DroppedBindPoseCount != 0
+				|| sanitized.RootFallbackVertexCount != 0)
+			{
+				return Reject(rendererPathId, "lossy-skin-sanitization", "The declared skin requires a lossy sanitization step.");
+			}
+			AddSkinnedMeshToScene(sceneBuilder, parameters, node, sanitized.Mesh, source.Materials, source.Bones);
+				parameters.TypeTreeFallbackDiagnostics.Add(new GlbTypeTreeFallbackDiagnostic(rendererPathId, true, "accepted", $"vertices={sanitized.Mesh.Vertices.Length}; bones={source.Bones.Length}; submeshes={sanitized.Mesh.SubMeshes.Length}"));
+			Logger.Info(LogCategory.Export, $"GLB TypeTree fallback accepted for SkinnedMeshRenderer '{rendererPathId}': vertices={sanitized.Mesh.Vertices.Length}, bones={source.Bones.Length}, submeshes={sanitized.Mesh.SubMeshes.Length}.");
+			return true;
+		}
+
+		private static bool TryResolveKnownRendererTypeTreeMesh(ISkinnedMeshRenderer renderer, [NotNullWhen(true)] out TypeTreeObject? mesh)
+		{
+			mesh = null;
+			IPPtr pointer = renderer.Mesh;
+			if (pointer.PathID == 0 || pointer.FileID < 0)
+			{
+				return false;
+			}
+			AssetCollection? collection = pointer.FileID == 0
+				? renderer.Collection
+				: pointer.FileID < renderer.Collection.Dependencies.Count ? renderer.Collection.Dependencies[pointer.FileID] : null;
+			mesh = collection is not null && collection.Assets.TryGetValue(pointer.PathID, out IUnityObjectBase? target)
+				? target as TypeTreeObject
+				: null;
+			return mesh is { ClassID: 43 };
+		}
+
+		private static bool TryGetRecoveredTypeTreeSkinnedMeshRenderer(IGameObject gameObject, [NotNullWhen(true)] out TypeTreeObject? renderer)
+		{
+			foreach (IPPtr_Component componentPointer in gameObject.FetchComponents())
+			{
+				IUnityObjectBase? component = componentPointer.FileID == 0
+					? gameObject.Collection.FirstOrDefault(asset => asset.PathID == componentPointer.PathID)
+					: gameObject.Collection.TryGetAsset(componentPointer.FileID, componentPointer.PathID);
+				if (component is TypeTreeObject { ClassID: 137 } typeTreeRenderer)
+				{
+					renderer = typeTreeRenderer;
+					return true;
+				}
+			}
+			renderer = null;
+			return false;
+		}
+
+		private static void AddSkinnedMeshToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder node, IMesh mesh, MeshData meshData, MaterialList materialList, IReadOnlyList<ITransform> bones)
 	{
 		(ISubMesh, MaterialBuilder)[] subMeshArray = ArrayPool<(ISubMesh, MaterialBuilder)>.Shared.Rent(mesh.SubMeshes.Count);
 		for (int i = 0; i < mesh.SubMeshes.Count; i++)
@@ -268,10 +401,33 @@ public static class GlbLevelBuilder
 		IMeshBuilder<MaterialBuilder> subMeshBuilder = GlbSubMeshBuilder.BuildSubMeshes(arraySegment, mesh.Is16BitIndices(), meshData, Transformation.Identity, Transformation.Identity);
 		NodeBuilder[] joints = bones.Select(bone => parameters.NodeCache[bone]).ToArray();
 		sceneBuilder.AddSkinnedMesh(subMeshBuilder, node.WorldMatrix, joints);
-		ArrayPool<(ISubMesh, MaterialBuilder)>.Shared.Return(subMeshArray);
-	}
+			ArrayPool<(ISubMesh, MaterialBuilder)>.Shared.Return(subMeshArray);
+		}
 
-	private static void AddDynamicMeshToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder node, IMesh mesh, MeshData meshData, MaterialList materialList)
+		private static void AddSkinnedMeshToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder node, MeshData meshData, IReadOnlyList<IMaterial> materials, IReadOnlyList<ITransform> bones)
+		{
+			if (materials.Count != meshData.SubMeshes.Length)
+			{
+				throw new InvalidOperationException("Validated TypeTree skinning requires one resolved material per declared submesh.");
+			}
+			(SubMeshData, MaterialBuilder)[] subMeshArray = ArrayPool<(SubMeshData, MaterialBuilder)>.Shared.Rent(meshData.SubMeshes.Length);
+			try
+			{
+				for (int index = 0; index < meshData.SubMeshes.Length; index++)
+				{
+					subMeshArray[index] = (meshData.SubMeshes[index], parameters.GetOrMakeMaterial(materials[index]));
+				}
+				IMeshBuilder<MaterialBuilder> subMeshBuilder = GlbSubMeshBuilder.BuildSubMeshes(new ArraySegment<(SubMeshData, MaterialBuilder)>(subMeshArray, 0, meshData.SubMeshes.Length), meshData, Transformation.Identity, Transformation.Identity);
+				NodeBuilder[] joints = bones.Select(bone => parameters.NodeCache[bone]).ToArray();
+				sceneBuilder.AddSkinnedMesh(subMeshBuilder, node.WorldMatrix, joints);
+			}
+			finally
+			{
+				ArrayPool<(SubMeshData, MaterialBuilder)>.Shared.Return(subMeshArray);
+			}
+		}
+
+		private static void AddDynamicMeshToScene(SceneBuilder sceneBuilder, BuildParameters parameters, NodeBuilder node, IMesh mesh, MeshData meshData, MaterialList materialList)
 	{
 		AccessListBase<ISubMesh> subMeshes = mesh.SubMeshes;
 		(ISubMesh, MaterialBuilder)[] subMeshArray = ArrayPool<(ISubMesh, MaterialBuilder)>.Shared.Rent(subMeshes.Count);
@@ -342,9 +498,10 @@ public static class GlbLevelBuilder
 		Dictionary<IMesh, MeshData> MeshCache,
 		Dictionary<ITransform, NodeBuilder> NodeCache,
 		bool IsScene,
-		GlbFallbackTextureCatalog FallbackTextures)
-	{
-		public BuildParameters(bool isScene, GlbFallbackTextureCatalog fallbackTextures) : this(new MaterialBuilder("DefaultMaterial"), new(), new(), new(), new(ReferenceEqualityComparer.Instance), isScene, fallbackTextures) { }
+		GlbFallbackTextureCatalog FallbackTextures,
+		ICollection<GlbTypeTreeFallbackDiagnostic> TypeTreeFallbackDiagnostics)
+		{
+			public BuildParameters(bool isScene, GlbFallbackTextureCatalog fallbackTextures, ICollection<GlbTypeTreeFallbackDiagnostic> typeTreeFallbackDiagnostics) : this(new MaterialBuilder("DefaultMaterial"), new(), new(), new(), new(ReferenceEqualityComparer.Instance), isScene, fallbackTextures, typeTreeFallbackDiagnostics) { }
 		public bool TryGetOrMakeMeshData(IMesh mesh, out MeshData meshData)
 		{
 			if (MeshCache.TryGetValue(mesh, out meshData))
@@ -504,7 +661,9 @@ public static class GlbLevelBuilder
 			bitmap.SaveAsPng(stream);
 			return new MemoryImage(stream.ToArray());
 		}
-	}
+		}
+
+	public sealed record GlbTypeTreeFallbackDiagnostic(long RendererPathId, bool Accepted, string Code, string Message, IReadOnlyList<RecoveredAssociationEvidence>? Evidence = null, RecoveredAssociationRequirementFacts? Requirements = null);
 
 	private readonly struct MaterialList
 	{

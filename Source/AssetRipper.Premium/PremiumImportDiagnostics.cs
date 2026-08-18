@@ -16,6 +16,7 @@ public static class PremiumImportDiagnostics
 	{
 		ArgumentNullException.ThrowIfNull(gameBundle);
 		ArgumentNullException.ThrowIfNull(inputPaths);
+		PremiumInputCompletenessReport inputCompleteness = PremiumInputCompletenessAnalyzer.Analyze(inputPaths, gameBundle.FetchResourceFiles());
 		PremiumReferenceGraphReport referenceGraph = PremiumReferenceGraphAnalyzer.Create(gameBundle);
 		PremiumTypeTreeCoverageReport typeTreeCoverage = PremiumTypeTreeCoverageAnalyzer.Create(gameBundle);
 		PremiumMaterialBindingReport materialBindings = PremiumMaterialBindingAnalyzer.Create(gameBundle);
@@ -38,6 +39,7 @@ public static class PremiumImportDiagnostics
 		return new PremiumImportDiagnosticReport(
 			projectVersion.ToString(),
 			inputPaths.Select(CreateInputSummary).OrderBy(static summary => summary.Path, StringComparer.OrdinalIgnoreCase).ToArray(),
+			inputCompleteness,
 			gameBundle.FetchAssetCollections().LongCount(),
 			gameBundle.FetchResourceFiles().LongCount(),
 			CountFailedFiles(gameBundle),
@@ -97,6 +99,7 @@ public static class PremiumImportDiagnostics
 public sealed record PremiumImportDiagnosticReport(
 	string UnityVersion,
 	IReadOnlyList<PremiumInputPathSummary> Inputs,
+	PremiumInputCompletenessReport InputCompleteness,
 	long AssetCollectionCount,
 	long ResourceFileCount,
 	long FailedFileCount,

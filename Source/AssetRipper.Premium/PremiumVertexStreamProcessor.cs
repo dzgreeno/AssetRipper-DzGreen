@@ -104,7 +104,7 @@ public static class PremiumVertexStreamProcessor
 		ReadOnlySpan<byte> data = blob.Data;
 		for (int index = 0; index < values.Length; index++)
 		{
-			ReadOnlySpan<byte> source = GetVertexSource(data, layout, index);
+			ReadOnlySpan<byte> source = GetVertexSource(data, layout, index, componentCount: 3);
 			values[index] = new Vector3(
 				ReadComponent(source, 0, layout),
 				ReadComponent(source, 1, layout),
@@ -133,7 +133,7 @@ public static class PremiumVertexStreamProcessor
 		ReadOnlySpan<byte> data = blob.Data;
 		for (int index = 0; index < values.Length; index++)
 		{
-			ReadOnlySpan<byte> source = GetVertexSource(data, layout, index);
+			ReadOnlySpan<byte> source = GetVertexSource(data, layout, index, componentCount: 4);
 			values[index] = new Vector4(
 				ReadComponent(source, 0, layout),
 				ReadComponent(source, 1, layout),
@@ -201,9 +201,9 @@ public static class PremiumVertexStreamProcessor
 			|| allowSnorm && format is MeshHelper.VertexFormat.kVertexFormatSNorm8 or MeshHelper.VertexFormat.kVertexFormatSNorm16;
 	}
 
-	private static ReadOnlySpan<byte> GetVertexSource(ReadOnlySpan<byte> data, PremiumVertexChannelLayout layout, int vertexIndex)
+	private static ReadOnlySpan<byte> GetVertexSource(ReadOnlySpan<byte> data, PremiumVertexChannelLayout layout, int vertexIndex, int componentCount)
 	{
-		return data.Slice(layout.Offset + vertexIndex * layout.Stride, layout.Stride);
+		return data.Slice(layout.Offset + vertexIndex * layout.Stride, checked(layout.ComponentSize * componentCount));
 	}
 
 	private static float ReadComponent(ReadOnlySpan<byte> vertex, int componentIndex, PremiumVertexChannelLayout layout)

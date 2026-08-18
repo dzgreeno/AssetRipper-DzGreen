@@ -167,6 +167,26 @@
 
 ## Android Archive Reference Revalidation
 
+- [x] Define a deterministic recovered-association evidence model that records candidate identity, structural checks, score, uniqueness, and rejection reason for every inferred component link.
+- [ ] Implement recovered associations only when a unique readable candidate meets the approved mesh, skin, material, hierarchy, and animation constraints; reject ties and incomplete evidence.
+- [ ] Feed accepted recovered associations through the Premium prefab, GLB, and FBX pipelines with machine-readable provenance for every output.
+
+- [ ] Build a source-backed Premium character-recovery pipeline that reconstructs prefab hierarchy, mesh, skeleton, declared materials, and animation bindings without placeholders or guessed links.
+- [ ] Require every Premium character GLB/FBX to pass geometry, skin, material, animation, and bounds validation before adding it to a user test package.
+
+- [x] Inventory every character-related FBX, materials, textures, pose, animation, and shared-character bundle in assets.rar.
+- [x] Generate a deterministic character candidate manifest with source collection, prefab root, mesh/skin/material readiness, and export eligibility.
+- [ ] Export every character that passes source-backed GLB validation and provide test files plus explicit rejection diagnostics for the rest, without publishing an update.
+- [ ] Resolve source-declared bone references for 16 scanned character rig roots (Armadillo, Clutch, Ettie, Footix, Fuleco, HuaMulan, Juanito, KarlaKick, Maple, Nutmeg, Tazuni, Willie, Zabi, Zakumi, Zayu); the first validated batch rejected every rig before GLB delivery rather than emitting invalid skinning.
+- [x] Verify and correct the TypeTree PPtr dependency-index resolver against AssetCollection dependency semantics before any further character GLB acceptance run; index 0 is explicitly the local collection, so FileID is already used with the correct index and no remapping is applied.
+
+- [x] Verify the complete user-provided archive integrity, identify its exact upload path, and safely inventory every contained file before import.
+- [x] Import the complete archive as one input corpus; measure loaded collections, assets, resource companions, PPtr resolution, and quarantined input errors.
+- [ ] Reproduce only proven import/export failures from the complete corpus, repair schema-backed paths, and rerun the acceptance gate without publishing any update.
+- [x] Repair the verified PremiumVertexStreamProcessor final-vertex slice bounds failure so malformed or tightly packed readable stream layouts become diagnostics rather than aborting complete import.
+- [x] Extend the TypeTree SkinnedMeshRenderer bridge to accept a source m_Mesh that resolves to a normal readable IMesh, while retaining TypeTree decoding only when the target is a recovered TypeTree Mesh.
+- [ ] Recover a source-declared non-empty m_Bones array for the Armadillo TypeTree SkinnedMeshRenderers; current complete-archive data exposes no such array, so strict GLB skin export remains rejected rather than synthesized.
+
 - [ ] Treat `/home/ubuntu/upload/android.rar` as the authoritative test archive; verify its archive integrity and compare it with the existing extracted Android corpus before modifying source.
 - [ ] Inventory AudioClip, VideoClip, MovieTexture, streaming-media resources, Mesh, SkinnedMeshRenderer, Animator, Prefab, Material, and Texture2D assets from the complete archive.
 - [ ] Reproduce character export from the complete archive and verify that CAB dependencies resolve before attributing Mesh or Prefab loss to the exporter.
@@ -275,6 +295,9 @@
 
 ## Premium RC2 Verification, Hardening, Trials, and Evolution
 
+- [x] Reject TypeTree GLB fallback whenever the recovered SkinnedMeshRenderer bones do not exactly match the source bind-pose count; do not downgrade to a rigid mesh.
+- [x] Add structured TypeTree fallback diagnostics to CLI GLB output and run Armadillo: every inspected renderer was rejected because source `m_Mesh` PPtr `FileID=3, PathID=10202` resolves only to a generated Mesh, not to a recoverable TypeTree mesh payload; GLB remains unaccepted.
+
 - [x] Recompute and compare both RC1 archive SHA-256 values, then save a checksum comparison artifact.
 - [x] Rebuild RC1 source and rerun all nine test projects with captured logs; retain Roslyn 5.6.0 in the final tree.
 - [x] Audit the six specified Premium core modules for stubs, TODOs, and NotImplementedException paths; fix verified findings with tests only.
@@ -326,3 +349,131 @@
 - [x] Design a local 6-character access gate that selects advanced authorized-plaintext workflow versus diagnostic-only mode; do not use it to unlock encryption, DRM, memory, or proprietary-container bypasses.
 - [x] Integrate a CLI recovery-token option and GUI session state with focused tests for valid, invalid, and missing token paths.
 - [x] Document supported advanced recovery capabilities and explicitly retain diagnostic reporting for unavailable schema or unsupported data.
+
+## SkinnedMesh Export Repair — Armadillo and Zabi
+
+- [ ] Trace Armadillo/Zabi skinned mesh export paths, bind poses, bone PPtrs, renderer names, submeshes, and material slots using local fixtures and current diagnostics.
+- [ ] Implement non-fabricating skin sanitization, cross-collection bone resolution, named rebind only with source bind poses, and root fallback diagnostics for lost influences.
+- [ ] Preserve one mesh per SkinnedMeshRenderer with stable renderer-matching names, submeshes, skin channels, and non-null material handling.
+- [ ] Add export QA validation and regression tests for indices, bind poses, weights, materials, and diagnostics.
+- [ ] Re-export Armadillo and Zabi locally, inspect resulting diagnostics/artifacts, and create a verified local package without pushing.
+
+## Armadillo Attached Bundle Validation
+
+- [ ] Inventory the attached Armadillo FBX, material, and texture bundles as one authorized local fixture set.
+- [ ] Run multi-bundle diagnostics and export verification for Armadillo; use observations to finish skin, material, and QA fixes without fabricating source data.
+
+## Armadillo Geometry Recovery Follow-up
+- [ ] Print distinct missing collection references scoped to Armadillo Mesh, SkinnedMeshRenderer, and Avatar objects only.
+- [ ] Bind matching local `.resS`/`.resource` streaming companions when available and rerun multi-bundle diagnostics.
+- [ ] Enforce Armadillo acceptance checks: 13 position-verified meshes, skinned channels, non-zero GLB POSITION bounds, and GLB size over 100 KiB before calling export valid.
+
+## Armadillo Full Directory Archive Analysis
+- [ ] Safely inventory and extract the user-provided `assets.rar` and locate Armadillo sibling bundles and streaming companions.
+- [ ] Dump `m_StreamData` path, offset, and size for the 13 Armadillo meshes and inspect one representative serialized Mesh field tree.
+- [ ] Bind available streaming resources, rerun diagnostics/export, and enforce the geometry acceptance gate without fabricating vertex data.
+
+## Armadillo TypeTree Embedded Geometry Adapter
+- [ ] Implement a bounded TypeTree Mesh adapter that reads only explicit `m_VertexData` channels, embedded bytes, declared indices, bind poses, and skin channels.
+- [ ] Resolve raw-cab GameObject/Transform/SkinnedMeshRenderer references only when PPtrs and source bind poses are present; keep unresolved entries in diagnostics.
+- [ ] Add adapter regression tests and rerun Armadillo GLB acceptance checks before considering any output valid.
+
+## Approved Experimental Raw-CAB GLB Bridge
+- [ ] Keep the established IMesh/GLB path unchanged and isolate any TypeTree raw-cab bridge behind explicit acceptance checks.
+- [ ] Implement raw-cab PPtr joining only for source-declared GameObject, Transform, SkinnedMeshRenderer, Mesh, material, and bone records.
+- [ ] Do not package or release the experimental bridge unless Armadillo passes POSITION, index, skin, material, bounds, and size acceptance checks.
+
+## Full Attached Assets Validation
+- [x] Inventory every readable Unity input from the extracted `assets.rar` data directory and record unsupported or inaccessible inputs separately.
+- [x] Run a full diagnostics pass and classify all assets by schema coverage, geometry channels, dependencies, materials, and export eligibility.
+- [ ] Exercise export only for categories that satisfy source-backed acceptance requirements, then document failures and generalizable repairs.
+- [x] Run the full verified texture-export category: 1 success, 203 integrity rejections, and 61 unsupported readable streams; do not synthesize replacements.
+
+## Validated Comprehensive Model Export
+- [ ] Define and enforce explicit acceptance criteria for FBX/GLB geometry, indices, submeshes, skin weights, bind poses, bones, materials, texture bindings, and animations.
+- [ ] Complete the source-backed TypeTree/raw-cab bridge so eligible embedded Mesh data can flow into the established export model without changing the stable IMesh path.
+- [ ] Wire renderer, skeleton, material, submesh, and animation references from declared PPtrs only; log unresolved source references rather than inventing replacements.
+- [ ] Add end-to-end regressions and validate exported Armadillo plus other eligible character/model groups before any local package is called valid.
+
+## GLB-First Verified Export Path
+- [ ] Make the GLB gate the first integration target for verified TypeTree/raw-cab MeshData, including declared vertices, indices, submeshes, skin, bones, bind poses, materials, and texture bindings.
+- [ ] Reuse only the verified GLB MeshData contract in the later FBX path so both formats report matching source-backed geometry and diagnostics.
+
+## Automatic Guarded TypeTree Fallback
+- [ ] Enable the TypeTree/raw-cab bridge only when no valid IMesh path is available and every required GLB quality-gate condition passes.
+- [ ] Keep stable IMesh output authoritative and emit a structured fallback decision with rejection causes for every ineligible recovered object.
+
+## SkinnedMesh-First GLB Recovery
+- [ ] Prioritize source-backed SkinnedMesh recovery: declared vertex channels, triangle indices, submeshes, blend weights/indices, bind poses, bones, materials, and texture bindings.
+- [ ] Run Armadillo as the primary acceptance fixture; do not generalize to FBX until the character GLB meets the full quality gate.
+
+## Experimental Diagnostic Activation
+- [ ] Keep the TypeTree/raw-cab bridge diagnostic-only during development and enable automatic export fallback only after Armadillo and regression acceptance pass.
+
+## Armadillo Dedicated GLB Decision
+- [ ] Complete the Armadillo TypeTree-to-GLB bridge through declared geometry, submeshes, skin, bind poses, bones, and materials.
+- [ ] Run the Armadillo GLB acceptance gate and produce a documented accept/reject decision before any further batch work.
+
+## Armadillo Material and Texture Acceptance
+
+## Guarded Recovered Association — August 2026 Local Verification
+
+- [x] Repair the `Bounds` initialization build failure in the TypeTree SkinnedMeshRenderer reference reader.
+- [x] Add a renderer-AABB extent gate with a documented local-transform tolerance; candidate centers remain diagnostic only.
+- [x] Add structured association evidence to single GLB diagnostics and batch GLB manifests, including every candidate rejection reason.
+- [x] Add an AABB association regression and run the Premium test project: 37 passed, 0 failed.
+- [x] Build the CLI with 0 warnings and 0 errors after the guarded-association changes.
+- [x] Run Armadillo against the complete 288,969-asset archive; the 19 readable mesh candidates failed the declared renderer AABB gate, so its 6,372-byte preview GLB remains explicitly unaccepted.
+- [x] Run batch GLB validation for 15 discovered rig roots (Armadillo, Clutch, Ettie, Footix, Fuleco, HuaMulan, Juanito, KarlaKick, Maple, Nutmeg, Tazuni, Willie, Zabi, Zakumi, Zayu); 0 were accepted and no GLB was retained as valid.
+- [ ] Obtain a source corpus that contains a readable mesh payload with a structurally provable association to at least one renderer, then rerun the same geometry, skin, material, animation, bounds, and size gates before any local test package is produced.
+
+## Latest Premium Local Delivery Package
+
+- [x] Build and test the current AssetRipper DzGreen Premium source state before packaging.
+- [x] Write a comprehensive technical capability and verification report for the current Premium source state.
+- [x] Create a self-contained Windows x64 Premium application archive and a source-code archive, excluding transient build/test artifacts.
+- [x] Verify archive entry lists, ZIP integrity, SHA-256 checksums, and package documentation without uploading any update.
+
+## Professional Development Master Prompt
+
+- [x] Write an Arabic master prompt for source-backed Unity asset recovery, cross-version verification, and a distinctive accessible Premium user experience.
+
+## Master Prompt Implementation — Current Development Cycle
+
+- [ ] Audit the current source, diagnostics, tests, and known source-backed gaps before changing recovery behavior.
+- [x] Prioritize and implement the next verifiable input-completeness and streaming-resource diagnostic improvement.
+- [x] Strengthen source-backed mesh/skin association evidence and keep invalid GLB/FBX exports rejected.
+- [x] Improve the Premium Workspace workflow only after reviewing existing pages and preserving tested controls.
+- [x] Run regression tests, build, authorized-fixture validation, and create a local evidence report without uploading any update.
+
+## Character Association Follow-up Cycle
+
+- [x] Audit current recovered-association diagnostics and the evidence generated for rejected character meshes.
+- [x] Improve candidate provenance and structural evidence while preserving unique-only acceptance and source-backed rejection.
+- [x] Surface verified export eligibility and rejection reasons in the Premium Workspace without weakening export gates.
+- [x] Run regression tests and authorized-archive validation, then write a local follow-up evidence report without uploading any update.
+
+## Completion Cycle — Verified Recovery Coverage
+
+- [x] Define release-readiness criteria by asset class and document open source-backed limitations before broadening behavior.
+- [x] Audit readable Mesh stream locations and companion-resource bindings on the authorized archive; add only schema-backed decoding paths.
+- [x] Produce a fixture baseline manifest for the authorized archive, including Unity version, source families, readable geometry evidence, and exact missing association evidence.
+- [ ] Extend character association only with additional declared Unity references or exact structural constraints; do not select a nearest mesh.
+- [ ] Expand GLB/FBX verification coverage for readable prefab, mesh, skin, material, texture, animation, audio, and video components.
+- [ ] Build a verified Unity-version fixture matrix from authorized samples and document unsupported schemas rather than claiming universal support.
+- [ ] Complete full regression, GUI/CLI trials, deterministic diagnostics checks, and an updated readiness report without uploading any update.
+- [ ] Require source-backed geometry, skin, bones, bind poses, and materials; preserve texture decoder failures as diagnostics and never synthesize replacement images.
+
+## Completion Cycle — GLB Gate and F2 PPtr Resolution
+
+- [x] Apply the same source-fidelity and GLB-quality gates to direct single-character GLB export; remove rejected files rather than reporting a writable artifact as valid.
+- [x] Return stable CLI exit code `5` (`ExportRejected`) for rejected direct GLB/FBX and batch GLB decisions in CI mode.
+- [x] Support generated `PPtr_Object_5` through the common `IPPtr` contract and resolve external PPtrs with Unity's one-based FileID-to-dependency mapping.
+- [x] Re-run F1 Legacy: accepted GLB `hero20053` retained at 21,873,884 bytes with CI exit code 0.
+- [x] Re-run F2 Android: the PPtr representation is now read, but its declared material `PPtr(FileID=1, PathID=-1942294098543577746)` is absent from every loaded collection; GLB is deleted and CI returns exit code 5.
+- [ ] Obtain the source companion that contains F2's declared material PathID, or retain F2 as a source-incomplete rejection; do not substitute the unrelated material found at PathID `7241028667368063910`.
+
+## Premium Ko-fi Offer Routing
+
+- [x] Update the open-edition GUI Premium call-to-action to identify the 10 USD Ko-fi Premium Early Access offer without changing GPL-3.0 attribution or implying universal Unity recovery.
+- [ ] Review, commit, and push the current validated Premium and Ko-fi updates to `dzgreeno/AssetRipper-DzGreen` while preserving upstream AssetRipper attribution and GPL-3.0 materials.

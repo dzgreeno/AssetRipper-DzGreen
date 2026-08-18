@@ -25,6 +25,7 @@ public static class PremiumReferenceGraphAnalyzer
 			.OrderBy(static asset => GetNodeId(asset), StringComparer.Ordinal)
 			.ToArray();
 		List<PremiumReferenceLink> links = new();
+		List<PremiumMissingCollectionReference> recoveryPriorityMissingCollections = new();
 		bool truncated = false;
 
 		foreach (IUnityObjectBase asset in assets)
@@ -36,7 +37,12 @@ public static class PremiumReferenceGraphAnalyzer
 					truncated = true;
 					break;
 				}
-				links.Add(CreateLink(asset, fieldName, pointer));
+					PremiumReferenceLink link = CreateLink(asset, fieldName, pointer);
+					links.Add(link);
+					if (link.Resolution == PremiumReferenceResolution.MissingCollection && IsRecoveryPriority(asset.ClassID))
+					{
+						recoveryPriorityMissingCollections.Add(new(GetNodeId(asset), asset.ClassID, fieldName, link.RequestedCollectionName));
+					}
 			}
 			if (truncated)
 			{
@@ -44,7 +50,14 @@ public static class PremiumReferenceGraphAnalyzer
 			}
 		}
 
-		return Analyze(assets.Select(GetNodeId), links, truncated);
+		return Analyze(assets.Select(GetNodeId), links, truncated) with
+		{
+			RecoveryPriorityMissingCollections = recoveryPriorityMissingCollections
+				.OrderBy(static reference => reference.ClassID)
+				.ThenBy(static reference => reference.SourceId, StringComparer.Ordinal)
+				.ThenBy(static reference => reference.FieldName, StringComparer.Ordinal)
+				.ToArray(),
+		};
 	}
 
 	public static PremiumReferenceGraphReport Analyze(IEnumerable<string> nodeIds, IEnumerable<PremiumReferenceLink> links, bool truncated = false)
@@ -113,7 +126,10 @@ public static class PremiumReferenceGraphAnalyzer
 		IReadOnlyList<AssetCollection?> collections = source.Collection.Dependencies;
 		if (pointer.FileID < 0 || pointer.FileID >= collections.Count || collections[pointer.FileID] is not AssetCollection targetCollection)
 		{
-			return new PremiumReferenceLink(sourceId, fieldName, null, PremiumReferenceResolution.MissingCollection);
+			string? requestedCollectionName = source.Collection is SerializedAssetCollection collection
+				? collection.GetDependencyName(pointer.FileID)
+				: null;
+			return new PremiumReferenceLink(sourceId, fieldName, null, PremiumReferenceResolution.MissingCollection, requestedCollectionName);
 		}
 
 		if (!targetCollection.Assets.TryGetValue(pointer.PathID, out IUnityObjectBase? target))
@@ -123,6 +139,11 @@ public static class PremiumReferenceGraphAnalyzer
 
 		return new PremiumReferenceLink(sourceId, fieldName, GetNodeId(target), PremiumReferenceResolution.Resolved);
 	}
+
+	private const int MeshClassID = 43;
+	private const int AvatarClassID = 90;
+	private const int SkinnedMeshRendererClassID = 137;
+	private static bool IsRecoveryPriority(int classID) => classID is MeshClassID or SkinnedMeshRendererClassID or AvatarClassID;
 
 	private static PremiumReferenceCycleSummary AnalyzeCycles(IReadOnlyList<string> nodes, IReadOnlyDictionary<string, List<string>> adjacency)
 	{
@@ -223,7 +244,9 @@ public enum PremiumReferenceResolution
 	MissingAsset,
 }
 
-public sealed record PremiumReferenceLink(string SourceId, string FieldName, string? TargetId, PremiumReferenceResolution Resolution);
+public sealed record PremiumReferenceLink(string SourceId, string FieldName, string? TargetId, PremiumReferenceResolution Resolution, string? RequestedCollectionName = null);
+
+public sealed record PremiumMissingCollectionReference(string SourceId, int ClassID, string FieldName, string? RequestedCollectionName);
 
 public sealed record PremiumReferenceGraphReport(
 	long NodeCount,
@@ -234,6 +257,9 @@ public sealed record PremiumReferenceGraphReport(
 	long MissingAssetCount,
 	long CycleComponentCount,
 	long CyclicNodeCount,
-	bool IsTruncated);
+	bool IsTruncated)
+{
+	public IReadOnlyList<PremiumMissingCollectionReference> RecoveryPriorityMissingCollections { get; init; } = [];
+}
 
 internal readonly record struct PremiumReferenceCycleSummary(long CycleComponentCount, long CyclicNodeCount);

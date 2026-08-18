@@ -7,10 +7,36 @@
   "properties": {
     "diagnostics": {
       "type": "object",
-      "required": ["unityVersion", "inputs", "assetCollectionCount", "resourceFileCount", "failedFileCount", "assetClasses", "importStatus"],
+      "required": ["unityVersion", "inputs", "inputCompleteness", "assetCollectionCount", "resourceFileCount", "failedFileCount", "assetClasses", "importStatus"],
       "properties": {
         "unityVersion": { "type": "string" },
         "inputs": { "type": "array", "items": { "type": "object", "required": ["path", "isDirectory", "exists"], "properties": { "path": { "type": "string" }, "isDirectory": { "type": "boolean" }, "exists": { "type": "boolean" } } } },
+        "inputCompleteness": {
+          "type": "object",
+          "required": ["inputPathCount", "directoryCount", "unityBundleCount", "serializedFileCount", "resourceStreamCount", "unclassifiedFileCount", "importerConfirmedResourceFileCount", "importerConfirmedResourceNames", "entries"],
+          "properties": {
+            "inputPathCount": { "type": "integer", "minimum": 0 },
+            "directoryCount": { "type": "integer", "minimum": 0 },
+            "unityBundleCount": { "type": "integer", "minimum": 0 },
+            "serializedFileCount": { "type": "integer", "minimum": 0 },
+            "resourceStreamCount": { "type": "integer", "minimum": 0 },
+            "unclassifiedFileCount": { "type": "integer", "minimum": 0 },
+            "importerConfirmedResourceFileCount": { "type": "integer", "minimum": 0 },
+            "importerConfirmedResourceNames": { "type": "array", "items": { "type": "string" } },
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["path", "isDirectory", "kind"],
+                "properties": {
+                  "path": { "type": "string" },
+                  "isDirectory": { "type": "boolean" },
+                  "kind": { "type": "string", "enum": ["Unknown", "UnityBundle", "SerializedFile", "ResourceStream", "SpriteAtlasSource", "AudioClipStream"] }
+                }
+              }
+            }
+          }
+        },
         "assetCollectionCount": { "type": "integer", "minimum": 0 },
         "resourceFileCount": { "type": "integer", "minimum": 0 },
         "failedFileCount": { "type": "integer", "minimum": 0 },
